@@ -1,0 +1,5 @@
+target/
+/lockinspiel-tauri
+.*
+lockinspiel.zip
+volumes/rustfs

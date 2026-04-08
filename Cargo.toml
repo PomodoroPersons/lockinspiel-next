@@ -1,0 +1,55 @@
+[workspace]
+members = [
+  "lockinspiel-auth",
+  "lockinspiel-backend-common",
+  "lockinspiel-common",
+]
+resolver = "3"
+
+[workspace.package]
+edition = "2024"
+
+[workspace.dependencies]
+aws-lc-rs = "1.16.2"
+jsonwebtoken = { version = "10.3.0", features = ["aws_lc_rs"] }
+axum = { version = "0.8.8", features = ["macros"] }
+axum-extra = { version = "0.12.5", features = ["typed-header"] }
+tokio = { version = "1.50.0", features = [
+  "rt-multi-thread",
+  "macros",
+  "signal",
+] }
+diesel = { version = "2.3.7", features = ["uuid"] }
+diesel-async = { version = "0.8.0", features = [
+  "postgres",
+  "bb8",
+  "migrations",
+] }
+uuid = { version = "1.23.0", features = ["serde", "v7"] }
+serde = { version = "1.0.228", features = ["derive"] }
+tower-http = { version = "0.6.8", features = [
+  "trace",
+  "catch-panic",
+  "compression-br",
+  "compression-gzip",
+  "limit"
+] }
+color-eyre = "0.6.5"
+tracing = "0.1.44"
+thiserror = "2.0.18"
+utoipa = { version = "5.4.0", features = ["axum_extras", "non_strict_integers", "uuid"] }
+utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
+utoipa-axum = "0.2.0"
+jiff = { version = "0.2.23", features = ["serde"] }
+
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.dev]
+panic = "abort"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

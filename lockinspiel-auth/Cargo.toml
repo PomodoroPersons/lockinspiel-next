@@ -1,0 +1,21 @@
+[package]
+name = "lockinspiel-auth"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aws-lc-rs.workspace = true
+axum.workspace = true
+diesel.workspace = true
+diesel-async.workspace = true
+serde.workspace = true
+jsonwebtoken.workspace = true
+color-eyre.workspace = true
+tracing.workspace = true
+tokio.workspace = true
+utoipa.workspace = true
+utoipa-swagger-ui.workspace = true
+utoipa-axum.workspace = true
+uuid.workspace = true
+jiff.workspace = true
+lockinspiel-backend-common = { version = "0.1.0", path = "../lockinspiel-backend-common" }
