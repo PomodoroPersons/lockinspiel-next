@@ -1,7 +1,7 @@
 target "docker-metadata-action" {}
 
 group "default" {
-  targets = ["auth"]
+  targets = ["auth", "timekeeper"]
 }
 
 target "auth" {
@@ -10,5 +10,14 @@ target "auth" {
   dockerfile = "./docker/rust/Dockerfile"
   args = {
     SERVICE = "auth"
+  }
+}
+
+target "timekeeper" {
+  inherits = ["docker-metadata-action"]
+  context = "./lockinspiel-timekeeper"
+  dockerfile = "./docker/bun/Dockerfile"
+  args = {
+    SERVICE = "timekeeper"
   }
 }
