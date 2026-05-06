@@ -67,6 +67,7 @@ jobs:
         id: meta-auth
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
+          bake-target: docker-metadata-action-auth
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/auth
 
@@ -74,7 +75,7 @@ jobs:
         id: meta-timekeeper
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
-          bake-target: docker-metadata-action-auth
+          bake-target: docker-metadata-action-timekeeper
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/timekeeper
 
@@ -84,7 +85,6 @@ jobs:
         id: build-and-push
         uses: docker/bake-action@v7
         with:
-          bake-target: docker-metadata-action-timekeeper
           files: |
             ./docker-bake.hcl
             cwd://${{ steps.meta-auth.outputs.bake-file }}
