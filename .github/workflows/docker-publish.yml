@@ -69,6 +69,7 @@ jobs:
         with:
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/auth
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/timekeeper
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/bake-action
