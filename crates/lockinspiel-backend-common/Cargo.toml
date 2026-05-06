@@ -1,0 +1,41 @@
+[package]
+name = "lockinspiel-backend-common"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+aws-lc-rs.workspace = true
+axum.workspace = true
+axum-extra.workspace = true
+tracing.workspace = true
+jsonwebtoken.workspace = true
+thiserror.workspace = true
+color-eyre.workspace = true
+tokio.workspace = true
+diesel.workspace = true
+diesel-async.workspace = true
+uuid.workspace = true
+serde.workspace = true
+tower-http.workspace = true
+reqwest = { version = "0.13.2", features = ["json"] }
+diesel_migrations = "2.3.1"
+dotenvy = "0.15.7"
+supports-color = "3.0.2"
+tysonscript-object-notation = "0.1.0"
+clap = { version = "4.6.0", features = ["derive", "env"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
+tracing-error = "0.2.1"
+tracing-opentelemetry = "0.32.1"
+opentelemetry-appender-tracing = "0.31.1"
+opentelemetry-otlp = { version = "0.31.1", features = ["grpc-tonic", "gzip-tonic"] }
+opentelemetry-semantic-conventions = { version = "0.31.0", features = ["semconv_experimental"] }
+opentelemetry_sdk = { version = "0.31.0", features = ["rt-tokio"] }
+opentelemetry = "0.31.0"
+futures-util = "0.3.32"
+tower = "0.5.3"
+arc-swap = "1.9.0"
+ansi-to-html = { version = "0.2.2", features = ["lazy-init"] }
+utoipa.workspace = true
+utoipa-scalar.workspace = true
+utoipa-axum.workspace = true
+jiff.workspace = true

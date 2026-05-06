@@ -1,8 +1,7 @@
 [workspace]
 members = [
-  "lockinspiel-auth",
-  "lockinspiel-backend-common",
-  "lockinspiel-common",
+  "crates/lockinspiel-auth",
+  "crates/lockinspiel-backend-common",
 ]
 resolver = "3"
 
@@ -38,7 +37,7 @@ color-eyre = "0.6.5"
 tracing = "0.1.44"
 thiserror = "2.0.18"
 utoipa = { version = "5.4.0", features = ["axum_extras", "non_strict_integers", "uuid"] }
-utoipa-swagger-ui = { version = "9.0.2", features = ["axum"] }
+utoipa-scalar = { version = "0.3.0", features = ["axum"] }
 utoipa-axum = "0.2.0"
 jiff = { version = "0.2.23", features = ["serde"] }
 
