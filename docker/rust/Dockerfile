@@ -8,7 +8,6 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder-rs 
-ARG SERVICE
 RUN apt-get update; \
   apt-get upgrade -y; \
   apt-get install cmake -y
