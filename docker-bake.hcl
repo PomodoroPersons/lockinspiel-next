@@ -11,5 +11,4 @@ target "auth" {
   args = {
     SERVICE = "auth"
   }
-  tags = ["lockinspiel/auth:latest"]
 }
