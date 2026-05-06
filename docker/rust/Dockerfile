@@ -29,7 +29,7 @@ WORKDIR /app
 # We do not need the Rust toolchain to run the binary!
 FROM runtime-base AS runtime
 ARG SERVICE
-COPY ./docker/docker-entrypoint.sh /usr/local/bin
+COPY ./docker/rust/docker-entrypoint.sh /usr/local/bin
 COPY --from=builder-rs "/app/target/release/lockinspiel-$SERVICE" /usr/local/bin/app
 
 EXPOSE 3000
