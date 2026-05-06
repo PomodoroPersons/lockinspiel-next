@@ -96,7 +96,7 @@ jobs:
           METADATA: ${{ steps.build-and-push.outputs.metadata }}
         run: |
           # Use jq to extract every tag and its corresponding digest from the metadata JSON
-          echo "${METADATA}" | jq -r 'to_entries[] | .value["containerimage.digest"] as $digest | .value["image.name"][] | . + "@" + $digest' | while read -r image_with_digest; do
+          echo "${METADATA}" | jq -r 'to_entries[] | .value["containerimage.digest"] as $digest | .value["image.name"] | . + "@" + $digest' | while read -r image_with_digest; do
             echo "Signing ${image_with_digest}..."
             cosign sign --yes "${image_with_digest}"
           done
