@@ -8,7 +8,7 @@ group "default" {
 target "auth" {
   inherits = ["docker-metadata-action-auth"]
   context = "."
-  dockerfile = "cwd://docker/rust/Dockerfile"
+  dockerfile = "./docker/rust/Dockerfile"
   args = {
     SERVICE = "auth"
   }
@@ -16,9 +16,9 @@ target "auth" {
 
 target "timekeeper" {
   inherits = ["docker-metadata-action-timekeeper"]
-  context = "./lockinspiel-timekeeper"
-  dockerfile = "cwd://docker/bun/Dockerfile"
+  context = "."
+  dockerfile = "./docker/bun/Dockerfile"
   args = {
-    SERVICE = "timekeeper"
+    PACKAGE = "lockinspiel-timekeeper"
   }
 }
