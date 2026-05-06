@@ -17,7 +17,7 @@ target "auth" {
 target "timekeeper" {
   inherits = ["docker-metadata-action-timekeeper"]
   context = "./lockinspiel-timekeeper"
-  dockerfile = "../docker/bun/Dockerfile"
+  dockerfile = "./docker/bun/Dockerfile"
   args = {
     SERVICE = "timekeeper"
   }
