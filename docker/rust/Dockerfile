@@ -8,6 +8,7 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder-rs 
+ARG SERVICE
 RUN apt-get update; \
   apt-get upgrade -y; \
   apt-get install cmake -y
@@ -15,8 +16,9 @@ COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
-COPY . .
-RUN cargo build --release
+COPY ./crates/lockinspiel-backend-common ./crates/lockinspiel-backend-common
+COPY ./crates/$SERVICE ./crates/$SERVICE
+RUN cargo build --release --bin $SERVICE
 
 FROM debian:trixie-slim AS runtime-base
 RUN apt-get update; \
@@ -29,7 +31,7 @@ WORKDIR /app
 FROM runtime-base AS runtime
 ARG SERVICE
 COPY ./docker/rust/docker-entrypoint.sh /usr/local/bin
-COPY --from=builder-rs "/app/target/release/lockinspiel-$SERVICE" /usr/local/bin/app
+COPY --from=builder-rs "/app/target/release/$SERVICE" /usr/local/bin/app
 
 EXPOSE 3000
 

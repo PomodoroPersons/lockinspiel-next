@@ -10,7 +10,7 @@ target "auth" {
   context = "."
   dockerfile = "./docker/rust/Dockerfile"
   args = {
-    SERVICE = "auth"
+    SERVICE = "lockinspiel-auth"
   }
 }
 
