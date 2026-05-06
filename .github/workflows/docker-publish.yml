@@ -19,7 +19,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  REPO_NAME: ${{ github.repository }}
 
 
 jobs:
@@ -67,7 +67,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/auth
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/bake-action
@@ -75,11 +76,12 @@ jobs:
         id: build-and-push
         uses: docker/bake-action@v7
         with:
-          files: ./docker-bake.hcl
+          files: |
+            ./docker-bake.hcl
+            cwd://${{ steps.meta.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
+          targets: default
           set: |
-            *.tags=${{ steps.meta.outputs.tags }}
-            *.labels=${{ steps.meta.outputs.labels }}
             *.cache-from=type=gha
             *.cache-to=type=gha,mode=max
 
