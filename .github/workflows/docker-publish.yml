@@ -132,6 +132,7 @@ jobs:
           valueFile: 'lockinspiel-auth/values.yaml'
           commitChange: true
           message: 'Update All Images to ${{ github.ref_name }}' 
+          token: ${{ secrets.GH_PAT }}
           workDir: infrastructure
           changes: |
             {
