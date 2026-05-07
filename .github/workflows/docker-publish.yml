@@ -34,8 +34,18 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout repository
+      # - name: Checkout repository
+      #   uses: actions/checkout@v4
+      #   with:
+      #       path: main
+
+      - name: Checkout Helm charts Repository
+        if: ${{ github.ref_type == 'tag' }}
         uses: actions/checkout@v4
+        with:
+          repository: PomodoroPersons/lockinspiel-helm-charts
+          path: infrastructure
+          token: ${{ secrets.GITHUB_TOKEN }} 
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -119,6 +129,7 @@ jobs:
           valueFile: 'lockinspiel-auth/values.yaml'
           commitChange: true
           message: 'Update All Images to ${{ github.ref_name }}' 
+          workDir: infrastructure
           changes: |
             {
               "lockinspiel-auth/values.yaml": {
