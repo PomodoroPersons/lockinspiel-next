@@ -9,7 +9,8 @@ const app = new Elysia()
   .use(jwtUse)
   .get("/", ({ status }) => { return status(200, { up: true }) }, {
     detail: {
-      summary: "Internal route that k8s uses to check for liveliness"
+      summary: "Liviness check",
+      description: "Internal route that k8s uses to check for liveliness"
     },
     response: {
       200: t.Object({ up: t.Boolean() })
