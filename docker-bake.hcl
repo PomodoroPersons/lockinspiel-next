@@ -20,5 +20,6 @@ target "timekeeper" {
   dockerfile = "./docker/bun/Dockerfile"
   args = {
     PACKAGE = "lockinspiel-timekeeper"
+    SERVICE_TYPE = "timekeeper"
   }
 }
