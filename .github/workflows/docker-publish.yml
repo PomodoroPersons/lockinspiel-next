@@ -110,3 +110,22 @@ jobs:
             echo "Signing ${image_with_digest}..."
             cosign sign --yes "${image_with_digest}"
           done
+
+      - name: Update Image Version in the related HelmChart values.yaml
+        if: ${{ github.ref_type == 'tag' }}
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          valueFile: 'deployment/helm/values.yaml'
+          commitChange: true
+          description: Test GitHub Action
+          message: 'Update All Images to ${{ github.ref_name }}' 
+          title: 'Version Updates '
+          changes: |
+            {
+              "lockinspiel-auth/values.yaml": {
+                "image.tag": ${{ github.ref_name }}
+              },
+              "lockinspiel-timekeeper/values.yaml": {
+                "image.tag": ${{ github.ref_name }}
+              }
+            }
