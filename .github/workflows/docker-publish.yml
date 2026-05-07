@@ -89,6 +89,14 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/timekeeper
 
+      - name: Extract Docker metadata for analyzer image
+        id: meta-analyzer
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          bake-target: docker-metadata-action-analyzer
+          images: |
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/analyzer
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/bake-action
       - name: Build and push Docker image
@@ -99,6 +107,7 @@ jobs:
             ./docker-bake.hcl
             cwd://${{ steps.meta-auth.outputs.bake-file }}
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
+            cwd://${{ steps.meta-analyzer.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
           targets: default
           set: |
@@ -138,6 +147,9 @@ jobs:
               },
               "lockinspiel-timekeeper/values.yaml": {
                 "image.tag": "${{ github.ref_name }}"
+              },
+              "lockinspiel-analyzer/values.yaml": {
+                "image.tag": "${{ github.ref_name }}"
               }
             }
 
@@ -159,5 +171,8 @@ jobs:
               },
               "lockinspiel-timekeeper/values-staging.yaml": {
                 "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).timekeeper['containerimage.digest'] }}"
+              },
+              "lockinspiel-analyzer/values-staging.yaml": {
+                "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).analyzer['containerimage.digest'] }}"
               }
             }

@@ -1,8 +1,9 @@
 target "docker-metadata-action-auth" {}
 target "docker-metadata-action-timekeeper" {}
+target "docker-metadata-action-analyzer" {}
 
 group "default" {
-  targets = ["auth", "timekeeper"]
+  targets = ["auth", "timekeeper", "analyzer"]
 }
 
 target "auth" {
@@ -21,5 +22,15 @@ target "timekeeper" {
   args = {
     PACKAGE = "lockinspiel-timekeeper"
     SERVICE_TYPE = "timekeeper"
+  }
+}
+
+target "analyzer" {
+  inherits = ["docker-metadata-action-analyzer"]
+  context = "."
+  dockerfile = "./docker/java/Dockerfile"
+  args = {
+    PACKAGE = "lockinspiel-analyzer"
+    SERVICE_TYPE = "analyzer"
   }
 }
