@@ -43,7 +43,7 @@ jobs:
       #       path: main
 
       - name: Checkout Helm charts Repository
-        if: ${{ github.ref_type == 'tag' }}
+        if: github.event_name != 'pull_request'
         uses: actions/checkout@v4
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
@@ -124,14 +124,14 @@ jobs:
             cosign sign --yes "${image_with_digest}"
           done
 
-      - name: Update Image Version in the related HelmChart values.yaml
+      - name: Update image versions in production
         if: ${{ github.ref_type == 'tag' }}
         uses: fjogeleit/yaml-update-action@main
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
           valueFile: 'lockinspiel-auth/values.yaml'
           commitChange: true
-          message: 'Update All Images to ${{ github.ref_name }}' 
+          message: 'Update all images to ${{ github.ref_name }}' 
           token: ${{ secrets.GH_PAT }}
           workDir: infrastructure
           changes: |
@@ -141,5 +141,25 @@ jobs:
               },
               "lockinspiel-timekeeper/values.yaml": {
                 "image.tag": "${{ github.ref_name }}"
+              }
+            }
+
+      - name: Update image versions in staging
+        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          repository: PomodoroPersons/lockinspiel-helm-charts
+          valueFile: 'lockinspiel-auth/values.yaml'
+          commitChange: true
+          message: 'Update all staging images to ${{ github.ref_name }}' 
+          token: ${{ secrets.GH_PAT }}
+          workDir: infrastructure
+          changes: |
+            {
+              "lockinspiel-auth/values-staging.yaml": {
+                "image.tag": "${{ steps.build-and-push.outputs.metadata.auth.['containerimage.digest'] }}"
+              },
+              "lockinspiel-timekeeper/values-staging.yaml": {
+                "image.tag": "${{ steps.build-and-push.outputs.metadata.timekeeper.['containerimage.digest'] }}"
               }
             }
