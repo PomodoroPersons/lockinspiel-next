@@ -115,17 +115,16 @@ jobs:
         if: ${{ github.ref_type == 'tag' }}
         uses: fjogeleit/yaml-update-action@main
         with:
+          repository: PomodoroPersons/lockinspiel-helm-charts
           valueFile: 'deployment/helm/values.yaml'
           commitChange: true
-          description: Test GitHub Action
           message: 'Update All Images to ${{ github.ref_name }}' 
-          title: 'Version Updates '
           changes: |
             {
               "lockinspiel-auth/values.yaml": {
-                "image.tag": ${{ github.ref_name }}
+                "image.tag": "${{ github.ref_name }}"
               },
               "lockinspiel-timekeeper/values.yaml": {
-                "image.tag": ${{ github.ref_name }}
+                "image.tag": "${{ github.ref_name }}"
               }
             }
