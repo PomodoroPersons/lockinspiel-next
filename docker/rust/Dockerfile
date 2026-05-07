@@ -1,5 +1,3 @@
-ARG SERVICE
-
 FROM lukemathwalker/cargo-chef:latest-rust-1.94.0 AS chef
 WORKDIR /app
 
@@ -8,12 +6,12 @@ COPY . .
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder-rs 
-ARG SERVICE
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY ./crates/lockinspiel-backend-common ./crates/lockinspiel-backend-common
+ARG SERVICE
 COPY ./crates/$SERVICE ./crates/$SERVICE
 RUN cargo build --release --bin $SERVICE
 
@@ -26,8 +24,8 @@ WORKDIR /app
 
 # We do not need the Rust toolchain to run the binary!
 FROM runtime-base AS runtime
-ARG SERVICE
 COPY ./docker/rust/docker-entrypoint.sh /usr/local/bin
+ARG SERVICE
 COPY --from=builder-rs "/app/target/release/$SERVICE" /usr/local/bin/app
 
 EXPOSE 3000
