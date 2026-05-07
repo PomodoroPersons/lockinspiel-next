@@ -116,7 +116,7 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
-          valueFile: 'deployment/helm/values.yaml'
+          valueFile: 'lockinspiel-auth/values.yaml'
           commitChange: true
           message: 'Update All Images to ${{ github.ref_name }}' 
           changes: |
