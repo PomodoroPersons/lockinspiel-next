@@ -6,8 +6,6 @@ name: Docker
 # documentation.
 
 on:
-  schedule:
-    - cron: '34 3 * * *'
   push:
     branches: [ "master" ]
     # Publish semver tags as releases.
@@ -157,9 +155,9 @@ jobs:
           changes: |
             {
               "lockinspiel-auth/values-staging.yaml": {
-                "image.tag": "${{ steps.build-and-push.outputs.metadata.auth['containerimage.digest'] }}"
+                "image.tag": "master@${{ steps.build-and-push.outputs.metadata.auth['containerimage.digest'] }}"
               },
               "lockinspiel-timekeeper/values-staging.yaml": {
-                "image.tag": "${{ steps.build-and-push.outputs.metadata.timekeeper['containerimage.digest'] }}"
+                "image.tag": "master@${{ steps.build-and-push.outputs.metadata.timekeeper['containerimage.digest'] }}"
               }
             }
