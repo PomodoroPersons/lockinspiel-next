@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
 
-import { jwtUse, openapiUse, otelTracer, UserClaims } from "lockinspiel-backend-common";
+import { jwtUse, openapiUse, otelTracer } from "lockinspiel-backend-common";
 
 
 const app = new Elysia()

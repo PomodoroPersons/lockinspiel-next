@@ -15,8 +15,8 @@ COPY bun.lock bun.lock
 RUN bun install
 
 COPY ./packages/$PACKAGE/src ./packages/$PACKAGE/src
-COPY ./packages/locksinspiel-backend-common/src ./packages/locksinspiel-backend-common/src
-COPY ./packages/locksinspiel-backend-common/tsconfig.json ./packages/locksinspiel-backend-common/tsconfig.json
+COPY ./packages/lockinspiel-backend-common/src ./packages/lockinspiel-backend-common/src
+COPY ./packages/lockinspiel-backend-common/tsconfig.json ./packages/lockinspiel-backend-common/tsconfig.json
 
 ENV NODE_ENV=production
 
