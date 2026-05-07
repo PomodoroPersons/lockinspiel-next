@@ -155,9 +155,9 @@ jobs:
           changes: |
             {
               "lockinspiel-auth/values-staging.yaml": {
-                "image.tag": "master@${{ fromJson(steps.build-and-push.outputs.metadata).auth['containerimage.digest'] }}"
+                "image.tag": "master@${{ fromJSON(steps.build-and-push.outputs.metadata).auth['containerimage.digest'] }}"
               },
               "lockinspiel-timekeeper/values-staging.yaml": {
-                "image.tag": "master@${{ fromJson(steps.build-and-push.outputs.metadata).timekeeper['containerimage.digest'] }}"
+                "image.tag": "master@${{ fromJSON(steps.build-and-push.outputs.metadata).timekeeper['containerimage.digest'] }}"
               }
             }
