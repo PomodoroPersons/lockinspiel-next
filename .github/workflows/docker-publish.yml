@@ -149,7 +149,7 @@ jobs:
           repository: PomodoroPersons/lockinspiel-helm-charts
           valueFile: 'lockinspiel-auth/values.yaml'
           commitChange: true
-          message: 'Update all staging images to ${{ github.ref_name }}' 
+          message: 'Update all staging images to PomodoroPersons/lockinspiel-next@${{ github.sha }}' 
           token: ${{ secrets.GH_PAT }}
           workDir: infrastructure
           changes: |
