@@ -9,11 +9,11 @@ on:
   push:
     branches: [ "master" ]
     # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
+    tags: [ "v*.*.*" ]
   pull_request:
     branches: [ "master" ]
 
-concurrency: 
+concurrency:
   group: ${{ github.workflow }}
 
 env:
@@ -21,7 +21,6 @@ env:
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
   REPO_NAME: ${{ github.repository }}
-
 
 jobs:
   build:
@@ -54,7 +53,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: sigstore/cosign-installer@59acb6260d9c0ba8f4a2f9d9b48431a222b68e20 #v3.5.0
         with:
-          cosign-release: 'v2.2.4'
+          cosign-release: "v2.2.4"
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -105,7 +104,7 @@ jobs:
           set: |
             *.cache-from: type=gha
             *.cache-to: type=gha,mode=max
-            
+
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
@@ -127,9 +126,9 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
-          valueFile: 'lockinspiel-auth/values.yaml'
+          valueFile: "lockinspiel-auth/values.yaml"
           commitChange: true
-          message: 'Update all images to ${{ github.ref_name }}' 
+          message: "Update all images to ${{ github.ref_name }}"
           token: ${{ secrets.GH_PAT }}
           workDir: infrastructure
           changes: |
@@ -147,9 +146,10 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
-          valueFile: 'lockinspiel-auth/values.yaml'
+          valueFile: "lockinspiel-auth/values.yaml"
           commitChange: true
-          message: 'Update all staging images to PomodoroPersons/lockinspiel-next@${{ github.sha }}' 
+          message: "Update all staging images to PomodoroPersons/lockinspiel-next@${{
+            github.sha }}"
           token: ${{ secrets.GH_PAT }}
           workDir: infrastructure
           changes: |
