@@ -1,9 +1,10 @@
 target "docker-metadata-action-auth" {}
 target "docker-metadata-action-timekeeper" {}
 target "docker-metadata-action-analyzer" {}
+target "docker-metadata-action-frontend" {}
 
 group "default" {
-  targets = ["auth", "timekeeper", "analyzer"]
+  targets = ["auth", "timekeeper", "analyzer", "frontend"]
 }
 
 target "auth" {
@@ -33,4 +34,10 @@ target "analyzer" {
     PACKAGE = "lockinspiel-analyzer"
     SERVICE_TYPE = "analyzer"
   }
+}
+
+target "frontend" {
+  inherits = ["docker-metadata-action-frontend"]
+  context = "."
+  dockerfile = "./docker/bun/Dockerfile.frontend"
 }

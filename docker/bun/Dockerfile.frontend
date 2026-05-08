@@ -1,0 +1,31 @@
+FROM oven/bun:alpine AS build
+
+WORKDIR /app
+
+# Cache packages installation
+COPY package.json package.json
+COPY ./packages/lockinspiel-backend-common/package.json ./packages/lockinspiel-backend-common/package.json
+COPY bun.lock bun.lock
+COPY ./packages/lockinspiel-frontend/package.json ./packages/lockinspiel-frontend/package.json
+
+RUN bun install
+
+COPY ./packages/lockinspiel-frontend ./packages/lockinspiel-frontend
+COPY ./packages/lockinspiel-backend-common/src ./packages/lockinspiel-backend-common/src
+COPY ./packages/lockinspiel-backend-common/tsconfig.json ./packages/lockinspiel-backend-common/tsconfig.json
+
+ENV NODE_ENV=production
+WORKDIR /app/packages/lockinspiel-frontend
+
+RUN apk add nodejs
+RUN bunx ng build
+
+FROM oven/bun:distroless AS runner
+
+WORKDIR /app
+
+COPY --from=build /app/packages/lockinspiel-frontend/dist dist
+
+ENV NODE_ENV=production
+
+CMD ["bun", "./dist/lockinspiel-frontend/server/server.mjs"]
