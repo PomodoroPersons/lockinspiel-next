@@ -1,6 +1,8 @@
-FROM oven/bun:alpine AS build
+FROM oven/bun:alpine AS base
 
 WORKDIR /app
+
+FROM base AS build
 
 # Cache packages installation
 COPY package.json package.json
@@ -17,12 +19,10 @@ COPY ./packages/lockinspiel-backend-common/tsconfig.json ./packages/lockinspiel-
 ENV NODE_ENV=production
 WORKDIR /app/packages/lockinspiel-frontend
 
-RUN apk add nodejs
-RUN bunx ng build
+RUN apk add nodejs; \
+    bunx ng build
 
-FROM oven/bun:distroless AS runner
-
-WORKDIR /app
+FROM base AS runner
 
 COPY --from=build /app/packages/lockinspiel-frontend/dist dist
 
