@@ -128,18 +128,24 @@ pub struct ApiState {
 
 pub struct InitState {
     pub addr: SocketAddr,
-    pub tracer_provider: SdkTracerProvider,
-    pub logger_provider: SdkLoggerProvider,
+    pub tracer_provider: Option<SdkTracerProvider>,
+    pub logger_provider: Option<SdkLoggerProvider>,
 }
 
 impl InitState {
     pub fn shutdown(&self) -> eyre::Result<()> {
-        self.tracer_provider
-            .shutdown()
-            .wrap_err("Failed to shut down tracing service")?;
-        self.logger_provider
-            .shutdown()
-            .wrap_err("Failed to shut down logging service")
+        if let Some(tracer) = &self.tracer_provider {
+            tracer
+                .shutdown()
+                .wrap_err("Failed to shut down tracing service")?;
+        }
+        if let Some(logger) = &self.logger_provider {
+            logger
+                .shutdown()
+                .wrap_err("Failed to shut down logging service")?
+        }
+
+        Ok(())
     }
 }
 
@@ -171,15 +177,23 @@ pub async fn init(service: ServiceConfig) -> eyre::Result<(InitState, ApiState)>
 
     let tracer_provider = init_tracing_provider(&service, config.otlp_endpoint.as_deref());
     let logger_provider = init_logging_provider(&service, config.otlp_endpoint.as_deref());
-    let tracer = tracer_provider.tracer(format!("tracing-lockinspiel-{}", service.service_type));
+    let tracer = tracer_provider
+        .as_ref()
+        .map(|t| t.tracer(format!("tracing-lockinspiel-{}", service.service_type)));
 
-    tracing_subscriber::registry()
+    let registry = tracing_subscriber::registry()
         .with(ErrorLayer::default())
         .with(config.log_level.0)
-        .with(tracing_subscriber::fmt::layer().with_ansi(color))
-        .with(OpenTelemetryLayer::new(tracer))
-        .with(OpenTelemetryTracingBridge::new(&logger_provider))
-        .init();
+        .with(tracing_subscriber::fmt::layer().with_ansi(color));
+
+    if let (Some(tracer), Some(logger)) = (tracer, &logger_provider) {
+        registry
+            .with(OpenTelemetryLayer::new(tracer))
+            .with(OpenTelemetryTracingBridge::new(logger))
+            .init();
+    } else {
+        registry.init();
+    }
 
     if config.db_url.is_empty() {
         bail!("db_url is not set");

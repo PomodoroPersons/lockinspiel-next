@@ -188,47 +188,47 @@ fn resource(service: &ServiceConfig) -> Resource {
 pub fn init_tracing_provider(
     service: &ServiceConfig,
     otlp_endpoint: Option<&str>,
-) -> SdkTracerProvider {
+) -> Option<SdkTracerProvider> {
+    let endpoint = otlp_endpoint?;
     let exporter = opentelemetry_otlp::SpanExporter::builder()
         .with_tonic()
-        .with_compression(Compression::Gzip);
-
-    let exporter = if let Some(endpoint) = otlp_endpoint {
-        exporter.with_endpoint(endpoint).build().unwrap()
-    } else {
-        exporter.build().unwrap()
-    };
+        .with_compression(Compression::Gzip)
+        .with_endpoint(endpoint)
+        .build()
+        .unwrap();
 
     global::set_text_map_propagator(TraceContextPropagator::new());
 
-    SdkTracerProvider::builder()
-        // Customize sampling strategy
-        .with_sampler(Sampler::ParentBased(Box::new(Sampler::TraceIdRatioBased(
-            1.0,
-        ))))
-        // If export trace to AWS X-Ray, you can use XrayIdGenerator
-        .with_id_generator(RandomIdGenerator::default())
-        .with_resource(resource(service))
-        .with_batch_exporter(exporter)
-        .build()
+    Some(
+        SdkTracerProvider::builder()
+            // Customize sampling strategy
+            .with_sampler(Sampler::ParentBased(Box::new(Sampler::TraceIdRatioBased(
+                1.0,
+            ))))
+            // If export trace to AWS X-Ray, you can use XrayIdGenerator
+            .with_id_generator(RandomIdGenerator::default())
+            .with_resource(resource(service))
+            .with_batch_exporter(exporter)
+            .build(),
+    )
 }
 
 pub fn init_logging_provider(
     service: &ServiceConfig,
     otlp_endpoint: Option<&str>,
-) -> SdkLoggerProvider {
+) -> Option<SdkLoggerProvider> {
+    let endpoint = otlp_endpoint?;
     let exporter = opentelemetry_otlp::LogExporter::builder()
         .with_tonic()
-        .with_compression(Compression::Gzip);
-
-    let exporter = if let Some(endpoint) = otlp_endpoint {
-        exporter.with_endpoint(endpoint).build().unwrap()
-    } else {
-        exporter.build().unwrap()
-    };
-
-    SdkLoggerProvider::builder()
-        .with_resource(resource(service))
-        .with_batch_exporter(exporter)
+        .with_compression(Compression::Gzip)
+        .with_endpoint(endpoint)
         .build()
+        .unwrap();
+
+    Some(
+        SdkLoggerProvider::builder()
+            .with_resource(resource(service))
+            .with_batch_exporter(exporter)
+            .build(),
+    )
 }
