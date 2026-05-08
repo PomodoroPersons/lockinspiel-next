@@ -1,4 +1,4 @@
-import { Elysia, t } from "elysia";
+import { Elysia, Static, t } from "elysia";
 
 import { jwtUse, openapiUse, otelTracer } from "lockinspiel-backend-common";
 
@@ -10,14 +10,46 @@ const Timer = t.Object({
   tags: t.Array(t.Integer())
 });
 
+const TimerWID = t.Object({
+  id: t.Integer(),
+  ...Timer.properties
+});
+
 const Tag = t.Object({
   name: t.String()
 });
 
+const TagWID = t.Object({
+  id: t.Integer(),
+  ...Tag.properties
+});
+
+const TimeSplitTimer = t.Object({
+  len: t.Integer(),
+  name: t.String(),
+  work: t.Boolean()
+});
+
+const TimeSplit = t.Object({
+  name: t.String(),
+  description: t.String(),
+  deleted: t.Boolean(),
+  timers: t.Array(TimeSplitTimer)
+});
+
+const TimeSplitWID = t.Object({
+  id: t.Integer(),
+  ...TimeSplit.properties
+})
+
 // TODO: This value should come from the database
 let TIMER_ID = 0;
 // TODO: This value should come from the database
+let MOST_RECENT_TIMER: Static<typeof Timer>;
+// TODO: This value should come from the database
 let TAG_ID = 0;
+// TODO: This value should come from the database
+let TIME_SPLITS: Static<typeof TimeSplitWID>[] = [];
 
 const app = new Elysia()
   .use(openapiUse)
@@ -32,12 +64,41 @@ const app = new Elysia()
       200: t.Object({ up: t.Boolean() })
     }
   })
+  .get("/timekeeper/timer", async ({ jwt, status, headers: { authorization }, body }) => {
+    const profile = await jwt.verify(authorization.split(' ')[1]);
+
+    if (!profile)
+      return status(401, 'Unauthorized');
+
+    return status(200, [{ id: TIMER_ID, ...MOST_RECENT_TIMER }]);
+  }, {
+    body: Timer,
+    headers: t.Object({
+      authorization: t.TemplateLiteral("Bearer ${string}"),
+    }),
+    detail: {
+      summary: "Retreive a timer",
+      description: "Retreives the most recently started/ended timer if no parameters are specified. Otherwise returns the timers that match the parameters.",
+      tags: ["Timers"],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ]
+    },
+    response: {
+      401: t.Literal("Unauthorized"),
+      404: t.Literal("Timer not found"),
+      200: t.Array(TimerWID)
+    }
+  })
   .post("/timekeeper/timer", async ({ jwt, status, headers: { authorization }, body }) => {
     const profile = await jwt.verify(authorization.split(' ')[1]);
 
     if (!profile)
       return status(401, 'Unauthorized');
 
+    MOST_RECENT_TIMER = body;
     return status(200, { timer_id: ++TIMER_ID });
   }, {
     body: Timer,
@@ -93,6 +154,33 @@ const app = new Elysia()
       401: t.Literal("Unauthorized"),
       404: t.Literal("Timer not found"),
       200: t.Literal("OK")
+    }
+  })
+  .get("/timekeeper/tag", async ({ jwt, status, headers: { authorization }, body }) => {
+    const profile = await jwt.verify(authorization.split(' ')[1]);
+
+    if (!profile)
+      return status(401, 'Unauthorized');
+
+    return status(200, []);
+  }, {
+    body: Tag,
+    headers: t.Object({
+      authorization: t.TemplateLiteral("Bearer ${string}"),
+    }),
+    detail: {
+      summary: "Get tags",
+      description: "Gets all the tags associated with the user, as well as the default ones",
+      tags: ["Tags"],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ]
+    },
+    response: {
+      401: t.Literal("Unauthorized"),
+      200: t.Array(TagWID),
     }
   })
   .post("/timekeeper/tag", async ({ jwt, status, headers: { authorization }, body }) => {
@@ -158,7 +246,7 @@ const app = new Elysia()
       200: t.Literal("OK")
     }
   })
-  .delete("/timekeeper/tag/:id", async ({ jwt, status, headers: { authorization }, params: { id }, body }) => {
+  .delete("/timekeeper/tag/:id", async ({ jwt, status, headers: { authorization }, params: { id } }) => {
     const profile = await jwt.verify(authorization.split(' ')[1]);
 
     if (!profile)
@@ -169,7 +257,6 @@ const app = new Elysia()
 
     return status(200, 'OK');
   }, {
-    body: Tag,
     headers: t.Object({
       authorization: t.TemplateLiteral("Bearer ${string}"),
     }),
@@ -178,7 +265,7 @@ const app = new Elysia()
     }),
     detail: {
       summary: "Delete a tag",
-      description: "Deletes the tag at the given ID. This just marks the tag as deleted, and doesn't actually delete the tag in the database. Timers posted with a deleted tag will still have that tag, it just won't appear when querying some endpoints.",
+      description: "Deletes the tag at the given ID. This just marks the tag as deleted, and doesn't actually delete the tag in the database. Timers posted with a deleted tag will still have that tag, the tag just won't appear when querying some endpoints.",
       tags: ["Tags"],
       security: [
         {
@@ -189,6 +276,133 @@ const app = new Elysia()
     response: {
       401: t.Literal("Unauthorized"),
       404: t.Literal("Tag not found"),
+      200: t.Literal("OK")
+    }
+  })
+  .post("/timekeeper/time-split", async ({ jwt, status, headers: { authorization }, body }) => {
+    const profile = await jwt.verify(authorization.split(' ')[1]);
+
+    if (!profile)
+      return status(401, 'Unauthorized');
+
+    const time_split_id = TIME_SPLITS.length;
+    TIME_SPLITS.push({ id: time_split_id, ...body });
+    return status(200, { time_split_id });
+  }, {
+    body: TimeSplit,
+    headers: t.Object({
+      authorization: t.TemplateLiteral("Bearer ${string}"),
+    }),
+    detail: {
+      summary: "Post a time split",
+      description: "Adds a new time split to the database. The returned time split ID can be used in other endpoints in this service. The timer lengths should be in seconds",
+      tags: ["Time splits"],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ]
+    },
+    response: {
+      401: t.Literal("Unauthorized"),
+      200: t.Object({
+        time_split_id: t.Integer()
+      }),
+    }
+  })
+  .get("/timekeeper/time-split", async ({ jwt, status, headers: { authorization }, params: { id }, body }) => {
+    const profile = await jwt.verify(authorization.split(' ')[1]);
+
+    if (!profile)
+      return status(401, 'Unauthorized');
+
+    return status(200, TIME_SPLITS);
+  }, {
+    headers: t.Object({
+      authorization: t.TemplateLiteral("Bearer ${string}"),
+    }),
+    params: t.Object({
+      id: t.Integer(),
+    }),
+    detail: {
+      summary: "Get time splits",
+      description: "Gets all the time splits associated with the user, as well as the default ones",
+      tags: ["Time splits"],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ]
+    },
+    response: {
+      401: t.Literal("Unauthorized"),
+      200: t.Array(TimeSplitWID)
+    }
+  })
+  .put("/timekeeper/time-split/:id", async ({ jwt, status, headers: { authorization }, params: { id }, body }) => {
+    const profile = await jwt.verify(authorization.split(' ')[1]);
+
+    if (!profile)
+      return status(401, 'Unauthorized');
+
+    if (id >= TIME_SPLITS.length)
+      return status(404, 'Time split not found');
+
+    return status(200, 'OK');
+  }, {
+    body: TimeSplit,
+    headers: t.Object({
+      authorization: t.TemplateLiteral("Bearer ${string}"),
+    }),
+    params: t.Object({
+      id: t.Integer(),
+    }),
+    detail: {
+      summary: "Modify a time split",
+      description: "Modifies the fields of the time split at the ID.",
+      tags: ["Time splits"],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ]
+    },
+    response: {
+      401: t.Literal("Unauthorized"),
+      404: t.Literal("Time split not found"),
+      200: t.Literal("OK")
+    }
+  })
+  .delete("/timekeeper/time-split/:id", async ({ jwt, status, headers: { authorization }, params: { id } }) => {
+    const profile = await jwt.verify(authorization.split(' ')[1]);
+
+    if (!profile)
+      return status(401, 'Unauthorized');
+
+    if (id >= TIME_SPLITS.length)
+      return status(404, 'Time split not found');
+
+    return status(200, 'OK');
+  }, {
+    headers: t.Object({
+      authorization: t.TemplateLiteral("Bearer ${string}"),
+    }),
+    params: t.Object({
+      id: t.Integer(),
+    }),
+    detail: {
+      summary: "Delete a time split",
+      description: "Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.",
+      tags: ["Time splits"],
+      security: [
+        {
+          bearerAuth: []
+        }
+      ]
+    },
+    response: {
+      401: t.Literal("Unauthorized"),
+      404: t.Literal("Time split not found"),
       200: t.Literal("OK")
     }
   })
