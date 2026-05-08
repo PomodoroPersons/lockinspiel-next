@@ -1,0 +1,56 @@
+_format_version: "3.0"
+
+plugins:
+  - name: prometheus
+    config:
+      status_code_metrics: true
+      latency_metrics: true
+      bandwidth_metrics: true
+      upstream_health_metrics: true
+  - name: opentelemetry
+    config:
+      traces_endpoint: http://lgtm:4318/v1/traces
+      logs_endpoint: http://lgtm:4318/v1/logs
+      # access_logs_endpoint: http://lgtm:4318/logs
+      # metrics:
+      #   endpoint: http://lgtm:4318/v1/metrics
+      # headers:
+      #   X-Auth-Token: secret-token
+
+services:
+  - name: web-api-auth-service
+    host: web-auth
+    port: 3000
+    protocol: http
+    routes:
+      - name: web-api-auth-routes
+        strip_path: false
+        paths:
+          - /auth
+  - name: web-api-timekeeper-service
+    host: web-timekeeper
+    port: 3000
+    protocol: http
+    routes:
+      - name: web-api-timekeeper-routes
+        strip_path: false
+        paths:
+          - /timekeeper
+  - name: web-api-analyzer-service
+    host: web-analyzer
+    port: 3000
+    protocol: http
+    routes:
+      - name: web-api-analyzer-routes
+        strip_path: false
+        paths:
+          - /analyzer
+  - name: web-api-frontend-service
+    host: web-frontend
+    port: 3000
+    protocol: http
+    routes:
+      - name: web-api-frontend-routes
+        strip_path: false
+        paths:
+          - /
