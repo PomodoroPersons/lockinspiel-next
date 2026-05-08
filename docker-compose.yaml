@@ -4,7 +4,7 @@ services:
     volumes:
       # PGDATA directory is persisted between restarts
       - pgdata:/var/lib/postgresql
-      - ./docker/postgres/init-user-db.sh:/docker-entrypoint-initdb.d/10_userdb.sh
+      - ./postgres/init-user-db.sh:/docker-entrypoint-initdb.d/10_userdb.sh
     image: timescale/timescaledb:latest-pg18
     restart: unless-stopped
     # set shared memory limit when using docker compose
@@ -15,8 +15,6 @@ services:
     #    target: /dev/shm
     #    tmpfs:
     #      size: 134217728 # 128*2^20 bytes = 128Mb
-    build:
-      context: docker/postgres
     healthcheck:
       test:
         [
@@ -84,8 +82,7 @@ services:
     build:
       args:
         SERVICE: lockinspiel-auth
-      context: .
-      dockerfile: docker/rust/Dockerfile
+      context: ./rust
     environment:
       AUTH_SERVICE: http://web-auth:3000
       DATABASE_URL: postgres://docker:example@db/docker
@@ -111,8 +108,7 @@ services:
       args:
         PACKAGE: lockinspiel-timekeeper
         SERVICE_TYPE: timekeeper
-      context: .
-      dockerfile: ./docker/bun/Dockerfile
+      context: ./bun
     environment:
       DATABASE_URL: postgres://docker:example@db/docker
       AUTH_SERVICE: http://web-auth:3000/auth
@@ -136,8 +132,7 @@ services:
       args:
         PACKAGE: lockinspiel-analyzer
         SERVICE_TYPE: analyzer
-      context: .
-      dockerfile: ./docker/java/Dockerfile
+      context: ./java
     environment:
       DB_URL: jdbc:postgresql://db/docker?password=example&user=docker
       AUTH_SERVICE: http://web-auth:3000/auth
@@ -158,8 +153,8 @@ services:
     #   timeout: 5s
     #   retries: 10
     build:
-      context: .
-      dockerfile: ./docker/bun/Dockerfile.frontend
+      context: ./bun
+      dockerfile: ./Dockerfile.frontend
     environment:
       LISTEN_PORT: 3000
     deploy:

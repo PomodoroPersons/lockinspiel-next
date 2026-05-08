@@ -9,8 +9,7 @@ group "default" {
 
 target "auth" {
   inherits = ["docker-metadata-action-auth"]
-  context = "."
-  dockerfile = "./docker/rust/Dockerfile"
+  context = "./rust"
   args = {
     SERVICE = "lockinspiel-auth"
   }
@@ -18,8 +17,7 @@ target "auth" {
 
 target "timekeeper" {
   inherits = ["docker-metadata-action-timekeeper"]
-  context = "."
-  dockerfile = "./docker/bun/Dockerfile"
+  context = "./bun"
   args = {
     PACKAGE = "lockinspiel-timekeeper"
     SERVICE_TYPE = "timekeeper"
@@ -28,8 +26,7 @@ target "timekeeper" {
 
 target "analyzer" {
   inherits = ["docker-metadata-action-analyzer"]
-  context = "."
-  dockerfile = "./docker/java/Dockerfile"
+  context = "./java"
   args = {
     PACKAGE = "lockinspiel-analyzer"
     SERVICE_TYPE = "analyzer"
@@ -38,6 +35,6 @@ target "analyzer" {
 
 target "frontend" {
   inherits = ["docker-metadata-action-frontend"]
-  context = "."
-  dockerfile = "./docker/bun/Dockerfile.frontend"
+  context = "./bun"
+  dockerfile = "Dockerfile.frontend"
 }
