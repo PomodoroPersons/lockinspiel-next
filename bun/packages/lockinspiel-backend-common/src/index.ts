@@ -5,7 +5,7 @@ import { FetchInstrumentation } from '@opentelemetry/instrumentation-fetch'
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc'
 import { resourceFromAttributes } from '@opentelemetry/resources'
 import { ATTR_SERVICE_INSTANCE_ID, ATTR_SERVICE_NAME, ATTR_SERVICE_NAMESPACE } from "@opentelemetry/semantic-conventions";
-import { openapi, fromTypes } from '@elysiajs/openapi'
+import { openapi } from '@elysiajs/openapi'
 import { opentelemetry } from '@elysiajs/opentelemetry'
 import { jwt } from "@elysiajs/jwt";
 
@@ -41,7 +41,7 @@ export const otelTracer = opentelemetry({
 });
 
 export const openapiUse = openapi({
-  references: fromTypes(),
+  // references: fromTypes(),
   documentation: {
     components: {
       securitySchemes: {

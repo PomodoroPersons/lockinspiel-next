@@ -19,8 +19,8 @@ COPY ./packages/lockinspiel-backend-common/tsconfig.json ./packages/lockinspiel-
 ENV NODE_ENV=production
 WORKDIR /app/packages/lockinspiel-frontend
 
-RUN apk add nodejs; \
-    bunx ng build
+RUN apk add nodejs
+RUN bunx ng build
 
 FROM base AS runner
 

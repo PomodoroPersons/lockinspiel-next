@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "openapi-ts": "openapi-ts",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -28,6 +29,7 @@
     "@angular/build": "^21.2.10",
     "@angular/cli": "^21.2.10",
     "@angular/compiler-cli": "^21.2.0",
+    "@hey-api/openapi-ts": "0.97.1",
     "@types/bun": "^1.3.13",
     "@types/node": "^20.17.19",
     "jsdom": "^28.0.0",

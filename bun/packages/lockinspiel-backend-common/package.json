@@ -23,7 +23,7 @@
     "@opentelemetry/sdk-trace-node": "^2.6.1",
     "@opentelemetry/semantic-conventions": "^1.40.0",
     "@elysiajs/jwt": "^1.4.1",
-    "@elysiajs/openapi": "^1.4.14",
+    "@elysiajs/openapi": "git://github.com/StratusFearMe21/elysia-openapi#fix-typebox-references-built",
     "@elysiajs/opentelemetry": "^1.4.11",
     "jose": "^6.2.2"
   }
