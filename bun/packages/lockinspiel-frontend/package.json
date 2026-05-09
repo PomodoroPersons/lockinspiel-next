@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "openapi-ts": "openapi-ts",
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
@@ -13,28 +12,28 @@
   "private": true,
   "packageManager": "bun@1.3.5",
   "dependencies": {
-    "@angular/common": "^21.2.0",
-    "@angular/compiler": "^21.2.0",
-    "@angular/core": "^21.2.0",
-    "@angular/forms": "^21.2.0",
-    "@angular/platform-browser": "^21.2.0",
-    "@angular/platform-server": "^21.2.0",
-    "@angular/router": "^21.2.0",
+    "@angular/common": "^21.2.12",
+    "@angular/compiler": "^21.2.12",
+    "@angular/core": "^21.2.12",
+    "@angular/forms": "^21.2.12",
+    "@angular/platform-browser": "^21.2.12",
+    "@angular/platform-server": "^21.2.12",
+    "@angular/router": "^21.2.12",
     "@angular/ssr": "^21.2.10",
     "hono": "^4.12.18",
-    "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "rxjs": "~7.8.2",
+    "tslib": "^2.8.1"
   },
   "devDependencies": {
     "@angular/build": "^21.2.10",
     "@angular/cli": "^21.2.10",
-    "@angular/compiler-cli": "^21.2.0",
+    "@angular/compiler-cli": "^21.2.12",
     "@hey-api/openapi-ts": "0.97.1",
     "@types/bun": "^1.3.13",
-    "@types/node": "^20.17.19",
-    "jsdom": "^28.0.0",
-    "prettier": "^3.8.1",
-    "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "@types/node": "^20.19.40",
+    "jsdom": "^28.1.0",
+    "prettier": "^3.8.3",
+    "typescript": "~5.9.3",
+    "vitest": "^4.1.5"
   }
 }

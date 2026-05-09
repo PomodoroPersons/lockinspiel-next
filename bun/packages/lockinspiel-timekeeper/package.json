@@ -6,7 +6,7 @@
     "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
-    "@types/bun": "^1.3.11",
+    "@types/bun": "^1.3.13",
     "lockinspiel-backend-common": "workspace:*",
     "elysia": "latest"
   },
