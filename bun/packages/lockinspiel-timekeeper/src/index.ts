@@ -41,7 +41,7 @@ const app = new Elysia()
     detail: {
       summary: "Retreive a timer",
       description: "Retreives the most recently started/ended timer if no parameters are specified. Otherwise returns the timers that match the parameters.",
-      tags: ["Timers"],
+      tags: ["Timer"],
       operationId: "getTimers",
       security: [
         {
@@ -71,7 +71,7 @@ const app = new Elysia()
     detail: {
       summary: "Post a timer",
       description: "Upon starting a new timer, the Unix timestamp of when the timer was started, as well as the Unix timestamp in the future when the timer will end should be sent to this service. The ID of the time split, whether the timer is a work or a break timer, and the tag IDs associated with the timer should also be sent.",
-      tags: ["Timers"],
+      tags: ["Timer"],
       operationId: "postTimer",
       security: [
         {
@@ -107,7 +107,7 @@ const app = new Elysia()
     detail: {
       summary: "Modify a timer",
       description: "This route replaces the fields of the timer at the current ID with new fields. When a timer is paused, this route should be used to change the end_timestamp of the timer to the Unix timestamp at which the timer was paused. To resume a timer, a new timer should be posted with the Unix timestamp at which the timer was resumed, and the Unix timestamp in the future at which the remaining time will have elapsed.",
-      tags: ["Timers"],
+      tags: ["Timer"],
       operationId: "modifyTimer",
       security: [
         {
@@ -135,7 +135,7 @@ const app = new Elysia()
     detail: {
       summary: "Get tags",
       description: "Gets all the tags associated with the user, as well as the default ones",
-      tags: ["Tags"],
+      tags: ["Tag"],
       operationId: "getTags",
       security: [
         {
@@ -163,7 +163,7 @@ const app = new Elysia()
     detail: {
       summary: "Post a tag",
       description: "Adds a new tag to the database. The returned tag ID can be used in other endpoints in this service.",
-      tags: ["Tags"],
+      tags: ["Tag"],
       operationId: "addTag",
       security: [
         {
@@ -199,7 +199,7 @@ const app = new Elysia()
     detail: {
       summary: "Modify a tag",
       description: "Modifies the fields of the tag at the ID",
-      tags: ["Tags"],
+      tags: ["Tag"],
       operationId: "modifyTag",
       security: [
         {
@@ -233,7 +233,7 @@ const app = new Elysia()
     detail: {
       summary: "Delete a tag",
       description: "Deletes the tag at the given ID. This just marks the tag as deleted, and doesn't actually delete the tag in the database. Timers posted with a deleted tag will still have that tag, the tag just won't appear when querying some endpoints.",
-      tags: ["Tags"],
+      tags: ["Tag"],
       operationId: "deleteTag",
       security: [
         {
@@ -264,7 +264,7 @@ const app = new Elysia()
     detail: {
       summary: "Post a time split",
       description: "Adds a new time split to the database. The returned time split ID can be used in other endpoints in this service. The timer lengths should be in seconds",
-      tags: ["Time splits"],
+      tags: ["Time split"],
       operationId: "addTimeSplit",
       security: [
         {
@@ -293,7 +293,7 @@ const app = new Elysia()
     detail: {
       summary: "Get time splits",
       description: "Gets all the time splits associated with the user, as well as the default ones",
-      tags: ["Time splits"],
+      tags: ["Time split"],
       operationId: "getTimeSplits",
       security: [
         {
@@ -327,7 +327,7 @@ const app = new Elysia()
     detail: {
       summary: "Modify a time split",
       description: "Modifies the fields of the time split at the ID.",
-      tags: ["Time splits"],
+      tags: ["Time split"],
       operationId: "modifyTimeSplit",
       security: [
         {
@@ -361,7 +361,7 @@ const app = new Elysia()
     detail: {
       summary: "Delete a time split",
       description: "Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.",
-      tags: ["Time splits"],
+      tags: ["Time split"],
       operationId: "deleteTimeSplit",
       security: [
         {

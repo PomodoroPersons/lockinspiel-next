@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthDeleteLoginData, AuthDeleteLoginErrors, AuthDeleteLoginResponses, AuthLoginData, AuthLoginErrors, AuthLoginResponses, AuthRefreshData, AuthRefreshErrors, AuthRefreshResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsErrors, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsErrors, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses } from './types.gen';
+import type { AuthDeleteUserData, AuthDeleteUserErrors, AuthDeleteUserResponses, AuthLogoutData, AuthLogoutErrors, AuthLogoutResponses, AuthNewSessionData, AuthNewSessionErrors, AuthNewSessionResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsErrors, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsErrors, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -21,6 +21,79 @@ export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends 
 };
 
 @Injectable({ providedIn: 'root' })
+export class SessionService {
+    /**
+     * Logout
+     *
+     * Logs out of the currently authenticated user (invalidates the current session)
+     */
+    public authLogout<ThrowOnError extends boolean = false>(options?: Options<AuthLogoutData, ThrowOnError>) {
+        return (options?.client ?? client).delete<AuthLogoutResponses, AuthLogoutErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }, {
+                    in: 'cookie',
+                    name: 'lockinspiel_refresh',
+                    type: 'apiKey'
+                }],
+            url: '/auth/session',
+            ...options
+        });
+    }
+    
+    /**
+     * New session
+     *
+     * Creates a fresh session either via a username and password, or via a refresh token (which becomes invalidated after this request).
+     */
+    public authNewSession<ThrowOnError extends boolean = false>(options: Options<AuthNewSessionData, ThrowOnError>) {
+        return (options.client ?? client).post<AuthNewSessionResponses, AuthNewSessionErrors, ThrowOnError>({
+            security: [{
+                    in: 'cookie',
+                    name: 'lockinspiel_refresh',
+                    type: 'apiKey'
+                }],
+            url: '/auth/session',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+@Injectable({ providedIn: 'root' })
+export class UserService {
+    /**
+     * Delete account
+     *
+     * Deletes the account of the currently authenticated user.
+     */
+    public authDeleteUser<ThrowOnError extends boolean = false>(options?: Options<AuthDeleteUserData, ThrowOnError>) {
+        return (options?.client ?? client).delete<AuthDeleteUserResponses, AuthDeleteUserErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/auth/user',
+            ...options
+        });
+    }
+    
+    /**
+     * Create account
+     *
+     * Creates a new account with a username and passsword
+     */
+    public authSignup<ThrowOnError extends boolean = false>(options: Options<AuthSignupData, ThrowOnError>) {
+        return (options.client ?? client).post<AuthSignupResponses, AuthSignupErrors, ThrowOnError>({
+            url: '/auth/user',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+@Injectable({ providedIn: 'root' })
 export class DefaultService {
     /**
      * Liviness check
@@ -33,7 +106,7 @@ export class DefaultService {
 }
 
 @Injectable({ providedIn: 'root' })
-export class TimersService {
+export class TimerService {
     /**
      * Retreive a timer
      *
@@ -83,7 +156,7 @@ export class TimersService {
 }
 
 @Injectable({ providedIn: 'root' })
-export class TagsService {
+export class TagService {
     /**
      * Get tags
      *
@@ -146,7 +219,7 @@ export class TagsService {
 }
 
 @Injectable({ providedIn: 'root' })
-export class TimeSplitsService {
+export class TimeSplitService {
     /**
      * Get time splits
      *
@@ -199,63 +272,6 @@ export class TimeSplitsService {
         return (options.client ?? client).put<TimekeeperModifyTimeSplitResponses, TimekeeperModifyTimeSplitErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split/{id}',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
-    }
-}
-
-@Injectable({ providedIn: 'root' })
-export class UsersService {
-    /**
-     * Delete account
-     */
-    public authDeleteLogin<ThrowOnError extends boolean = false>(options?: Options<AuthDeleteLoginData, ThrowOnError>) {
-        return (options?.client ?? client).delete<AuthDeleteLoginResponses, AuthDeleteLoginErrors, ThrowOnError>({
-            security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/auth/login',
-            ...options
-        });
-    }
-    
-    /**
-     * Login to your account
-     */
-    public authLogin<ThrowOnError extends boolean = false>(options: Options<AuthLoginData, ThrowOnError>) {
-        return (options.client ?? client).post<AuthLoginResponses, AuthLoginErrors, ThrowOnError>({
-            url: '/auth/login',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
-        });
-    }
-    
-    /**
-     * Exchanges a refresh token for a new access token
-     */
-    public authRefresh<ThrowOnError extends boolean = false>(options?: Options<AuthRefreshData, ThrowOnError>) {
-        return (options?.client ?? client).post<AuthRefreshResponses, AuthRefreshErrors, ThrowOnError>({
-            security: [{
-                    in: 'cookie',
-                    name: 'lockinspiel_refresh',
-                    type: 'apiKey'
-                }],
-            url: '/auth/refresh',
-            ...options
-        });
-    }
-    
-    /**
-     * Create a new account
-     */
-    public authSignup<ThrowOnError extends boolean = false>(options: Options<AuthSignupData, ThrowOnError>) {
-        return (options.client ?? client).post<AuthSignupResponses, AuthSignupErrors, ThrowOnError>({
-            url: '/auth/signup',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

@@ -482,7 +482,7 @@ where
 
 pub fn create_refresh_token_cookie() -> Cookie<'static> {
     Cookie::build(REFRESH_TOKEN_NAME)
-        .path("/auth/refresh")
+        .path("/auth/session")
         .http_only(true)
         .secure(true)
         .same_site(SameSite::Strict)

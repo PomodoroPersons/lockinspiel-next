@@ -69,9 +69,8 @@ async fn main() -> eyre::Result<()> {
     let jwk_set = JwkSet { keys: vec![jwk] };
 
     let (router, mut api) = OpenApiRouter::new()
-        .routes(routes!(routes::login, routes::delete_login))
-        .routes(routes!(routes::refresh))
-        .routes(routes!(routes::signup))
+        .routes(routes!(routes::signup, routes::delete_user))
+        .routes(routes!(routes::new_session, routes::logout))
         .split_for_parts();
 
     lockinspiel_backend_common::fill_in_openapi(&mut api);

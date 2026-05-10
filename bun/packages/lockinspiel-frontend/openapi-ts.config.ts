@@ -1,7 +1,7 @@
 import { defineConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  input: ['./src/openapi/timekeeper.json', './src/openapi/auth.json'], // sign up at app.heyapi.dev
+  input: ['./src/openapi/auth.json', './src/openapi/timekeeper.json'], // sign up at app.heyapi.dev
   output: './src/api-client',
   plugins: [
     // ...other plugins

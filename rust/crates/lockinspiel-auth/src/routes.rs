@@ -28,15 +28,23 @@ extern "SQL" {
     fn now() -> sql_types::Timestamptz;
 }
 
-#[derive(ToSchema, Deserialize, Serialize, Debug, Default)]
-pub struct Login {
-    username: String,
-    password: String,
+#[derive(ToSchema, Deserialize, Serialize, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum Login {
+    Credentials {
+        username: String,
+        password: String,
+    },
+    RefreshToken {
+        /// If the refresh token is null, it's assumed that the token
+        /// will be provided via a cookie
+        token: Option<String>,
+    },
 }
 
 impl Placeholder for Login {
     fn placeholder() -> Self {
-        Self {
+        Self::Credentials {
             username: "johndoe".to_owned(),
             password: "password".to_owned(),
         }
@@ -92,19 +100,6 @@ impl Placeholder for LoginToken {
     }
 }
 
-#[derive(ToSchema, Deserialize, Serialize, Debug, Default)]
-pub struct RefreshTokenQuery {
-    refresh_token: Uuid,
-}
-
-impl Placeholder for RefreshTokenQuery {
-    fn placeholder() -> Self {
-        Self {
-            refresh_token: RefreshToken::placeholder().refresh_token,
-        }
-    }
-}
-
 #[derive(Insertable, ToSchema, Deserialize, Serialize, Debug, PartialEq)]
 #[diesel(table_name = lockinspiel_backend_common::schema::refresh_tokens)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
@@ -114,9 +109,10 @@ pub struct InsertableRefreshToken {
 
 #[utoipa::path(
     post,
-    path = "/auth/signup",
-    tag = "Users",
-    description = "Create a new account",
+    path = "/auth/user",
+    tag = "User",
+    summary = "Create account",
+    description = "Creates a new account with a username and passsword",
     request_body(content(
         (InsertableDatabaseUser, example = InsertableDatabaseUser::placeholder),
     )),
@@ -178,151 +174,11 @@ pub async fn signup(
 }
 
 #[utoipa::path(
-    post,
-    path = "/auth/login",
-    tag = "Users",
-    description = "Login to your account",
-    request_body(content(
-        (Login, example = Login::placeholder),
-    )),
-    responses(
-        (status = OK, description = "Ok",
-            content(
-                (LoginToken, example = LoginToken::placeholder)
-            ),
-            headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
-            )
-        ),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
-            )
-        ),
-    ),
-)]
-#[instrument(skip(db, encoding_key, jwt_header, cookie_jar))]
-pub async fn login(
-    mut db: DatabaseConnection,
-    cookie_jar: CookieJar,
-    State(encoding_key): State<EncodingKey>,
-    State(jwt_header): State<jsonwebtoken::Header>,
-    Json(new_user): Json<Login>,
-) -> Result<(CookieJar, Json<LoginToken>), error::EyreError> {
-    let user = DatabaseUser::query()
-        .filter(users::username.eq(new_user.username))
-        .get_result(&mut db.connection)
-        .await
-        .optional()
-        .wrap_err("Failed to get user from database")
-        .with_status_code(StatusCode::INTERNAL_SERVER_ERROR)?
-        .ok_or_eyre("Couldn't find user in database")
-        .with_status_code(StatusCode::UNAUTHORIZED)?;
-
-    db.login_user(user, &new_user.password).await?;
-
-    let Some(user) = &db.user else {
-        return Err(eyre!(
-            "Failed to get signed up user from database connection"
-        ))
-        .with_status_code(StatusCode::INTERNAL_SERVER_ERROR);
-    };
-
-    let refresh_token = diesel::insert_into(refresh_tokens::table)
-        .values(InsertableRefreshToken {
-            user_id: user.user_id,
-        })
-        .returning(RefreshToken::as_returning())
-        .get_result(&mut db.connection)
-        .await
-        .wrap_err("Failed to insert refresh token into database")
-        .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
-
-    let (encoded_access, refresh_token_cookie) =
-        encode_tokens(&jwt_header, &encoding_key, user.clone(), refresh_token)?;
-
-    Ok((cookie_jar.add(refresh_token_cookie), Json(encoded_access)))
-}
-
-#[utoipa::path(
-    post,
-    path = "/auth/refresh",
-    tag = "Users",
-    description = "Exchanges a refresh token for a new access token",
-    responses(
-        (status = OK, description = "Ok",
-            content(
-                (LoginToken, example = LoginToken::placeholder)
-            )
-        ),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
-            )
-        ),
-    ),
-    security(
-        ("refresh_cookie" = []),
-    )
-)]
-#[instrument(skip(db, encoding_key, jwt_header, cookie_jar))]
-pub async fn refresh(
-    mut db: DatabaseConnection,
-    cookie_jar: CookieJar,
-    State(encoding_key): State<EncodingKey>,
-    State(jwt_header): State<jsonwebtoken::Header>,
-) -> Result<(CookieJar, Json<LoginToken>), error::EyreError> {
-    let Some(refresh_token) = cookie_jar.get(REFRESH_TOKEN_NAME) else {
-        return Err(eyre!("A refresh token was not provided"))
-            .with_status_code(StatusCode::UNAUTHORIZED);
-    };
-
-    let refresh_token = Uuid::parse_str(refresh_token.value_trimmed())
-        .wrap_err("The provided refresh token was not a valid UUID")
-        .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
-
-    db.login_user_with_refresh_token(refresh_token).await?;
-
-    let Some(user) = &db.user else {
-        return Err(eyre!(
-            "Failed to get refreshed user from database connection"
-        ))
-        .with_status_code(StatusCode::INTERNAL_SERVER_ERROR);
-    };
-
-    let new_refresh_token = diesel::update(refresh_tokens::table)
-        .filter(refresh_tokens::refresh_token.eq(refresh_token))
-        .set((
-            refresh_tokens::refresh_token.eq(generate_uuidv7()),
-            refresh_tokens::exp.eq(sql::<sql_types::Timestamptz>("now() + '30 days'")),
-        ))
-        .returning(RefreshToken::as_returning())
-        .get_result(&mut db.connection)
-        .await
-        .wrap_err("Failed to update refresh token in database")
-        .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
-
-    let (encoded_access, refresh_token_cookie) =
-        encode_tokens(&jwt_header, &encoding_key, user.clone(), new_refresh_token)?;
-
-    Ok((cookie_jar.add(refresh_token_cookie), Json(encoded_access)))
-}
-
-#[utoipa::path(
     delete,
-    path = "/auth/login",
-    tag = "Users",
-    description = "Delete account",
+    path = "/auth/user",
+    tag = "User",
+    summary = "Delete account",
+    description = "Deletes the account of the currently authenticated user.",
     responses(
         (status = OK, description = "Ok"),
         (status = "4XX", description = "It's your fault",
@@ -341,7 +197,7 @@ pub async fn refresh(
     )
 )]
 #[instrument(skip(connection))]
-pub async fn delete_login(
+pub async fn delete_user(
     DatabaseConnection {
         mut connection,
         user,
@@ -366,4 +222,169 @@ pub async fn delete_login(
         .with_status_code(StatusCode::INTERNAL_SERVER_ERROR)?;
 
     Ok(())
+}
+
+#[utoipa::path(
+    post,
+    path = "/auth/session",
+    tag = "Session",
+    summary = "New session",
+    description = "Creates a fresh session either via a username and password, or via a refresh token (which becomes invalidated after this request).",
+    request_body(content(
+        (Login, example = Login::placeholder),
+    )),
+    responses(
+        (status = OK, description = "Ok",
+            content(
+                (LoginToken, example = LoginToken::placeholder)
+            ),
+            headers(
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+            )
+        ),
+        (status = "4XX", description = "It's your fault",
+            content(
+                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+            )
+        ),
+        (status = "5XX", description = "We're having a skill issue",
+            content(
+                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+            )
+        ),
+    ),
+    security(
+        ("refresh_cookie" = []),
+        ()
+    )
+)]
+#[instrument(skip(db, encoding_key, jwt_header, cookie_jar))]
+pub async fn new_session(
+    mut db: DatabaseConnection,
+    cookie_jar: CookieJar,
+    State(encoding_key): State<EncodingKey>,
+    State(jwt_header): State<jsonwebtoken::Header>,
+    Json(new_user): Json<Login>,
+) -> Result<(CookieJar, Json<LoginToken>), error::EyreError> {
+    let refresh_token = match new_user {
+        Login::Credentials { username, password } => {
+            let user = DatabaseUser::query()
+                .filter(users::username.eq(username))
+                .get_result(&mut db.connection)
+                .await
+                .optional()
+                .wrap_err("Failed to get user from database")
+                .with_status_code(StatusCode::INTERNAL_SERVER_ERROR)?
+                .ok_or_eyre("Couldn't find user in database")
+                .with_status_code(StatusCode::UNAUTHORIZED)?;
+
+            let user_id = user.user_id;
+            db.login_user(user, &password).await?;
+
+            diesel::insert_into(refresh_tokens::table)
+                .values(InsertableRefreshToken { user_id })
+                .returning(RefreshToken::as_returning())
+                .get_result(&mut db.connection)
+                .await
+                .wrap_err("Failed to insert refresh token into database")
+                .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?
+        }
+        Login::RefreshToken { token } => {
+            let Some(refresh_token) = token.as_ref().map(|s| s.as_str()).or_else(|| {
+                cookie_jar
+                    .get(REFRESH_TOKEN_NAME)
+                    .map(|c| c.value_trimmed())
+            }) else {
+                return Err(eyre!("A refresh token was not provided"))
+                    .with_status_code(StatusCode::UNAUTHORIZED);
+            };
+
+            let refresh_token = Uuid::parse_str(refresh_token)
+                .wrap_err("The provided refresh token was not a valid UUID")
+                .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
+
+            db.login_user_with_refresh_token(refresh_token).await?;
+
+            diesel::update(refresh_tokens::table)
+                .filter(refresh_tokens::refresh_token.eq(refresh_token))
+                .set((
+                    refresh_tokens::refresh_token.eq(generate_uuidv7()),
+                    refresh_tokens::exp.eq(sql::<sql_types::Timestamptz>("now() + '30 days'")),
+                ))
+                .returning(RefreshToken::as_returning())
+                .get_result(&mut db.connection)
+                .await
+                .wrap_err("Failed to update refresh token in database")
+                .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?
+        }
+    };
+
+    let Some(user) = &db.user else {
+        return Err(eyre!(
+            "Failed to get signed up user from database connection"
+        ))
+        .with_status_code(StatusCode::INTERNAL_SERVER_ERROR);
+    };
+
+    let (encoded_access, refresh_token_cookie) =
+        encode_tokens(&jwt_header, &encoding_key, user.clone(), refresh_token)?;
+
+    Ok((cookie_jar.add(refresh_token_cookie), Json(encoded_access)))
+}
+
+#[utoipa::path(
+    delete,
+    path = "/auth/session",
+    tag = "Session",
+    summary = "Logout",
+    description = "Logs out of the currently authenticated user (invalidates the current session)",
+    responses(
+        (status = OK, description = "Ok",
+            content(
+                (LoginToken, example = LoginToken::placeholder)
+            ),
+            headers(
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+            )
+        ),
+        (status = "4XX", description = "It's your fault",
+            content(
+                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+            )
+        ),
+        (status = "5XX", description = "We're having a skill issue",
+            content(
+                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+            )
+        ),
+    ),
+    security(
+        (
+            "refresh_cookie" = [],
+            "bearer_jwt" = []
+        ),
+    )
+)]
+#[instrument(skip(connection))]
+pub async fn logout(
+    cookie_jar: CookieJar,
+    DatabaseConnection { mut connection, .. }: DatabaseConnection,
+) -> Result<CookieJar, error::EyreError> {
+    let Some(refresh_token) = cookie_jar.get(REFRESH_TOKEN_NAME) else {
+        return Err(eyre!("A refresh token was not provided"))
+            .with_status_code(StatusCode::BAD_REQUEST);
+    };
+
+    let refresh_token = Uuid::parse_str(refresh_token.value_trimmed())
+        .wrap_err("The provided refresh token was not a valid UUID")
+        .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
+
+    diesel::delete(refresh_tokens::table)
+        .filter(refresh_tokens::refresh_token.eq(refresh_token))
+        .execute(&mut connection)
+        .await
+        .wrap_err("Failed to delete user refresh token from database")
+        .with_status_code(StatusCode::INTERNAL_SERVER_ERROR)?;
+
+    Ok(cookie_jar.remove(create_refresh_token_cookie()))
 }

@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
-import { TimersService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, TimekeeperTimerWid, UsersService, AuthSignupErrors } from '../../api-client'
+import { TimerService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, TimekeeperTimerWid, AuthNewSessionErrors, SessionService } from '../../api-client'
 
 @Component({
   host: { ngSkipHydration: 'true' },
@@ -32,21 +32,24 @@ export class Demo {
     | {
         error: TimekeeperGetTimersErrors[keyof TimekeeperGetTimersErrors]
           | TimekeeperPostTimerErrors[keyof TimekeeperPostTimerErrors]
-          | AuthSignupErrors[keyof AuthSignupErrors]
+          | AuthNewSessionErrors[keyof AuthNewSessionErrors]
           | Error;
         response: HttpErrorResponse;
       }
   >(undefined);
 
-  #timerService = inject(TimersService);
-  #userService = inject(UsersService);
+  #timerService = inject(TimerService);
+  #sessionService = inject(SessionService);
   #http = inject(HttpClient);
 
   onGetTimerById = async () => {
     let jwt;
     {
-      const { data, error, response } = await this.#userService.authRefresh({
+      const { data, error, response } = await this.#sessionService.authNewSession({
         httpClient: this.#http,
+        body: {
+          refresh_token: {}
+        }
       });
 
       if (error) {
@@ -93,23 +96,43 @@ export class Demo {
         this.error.set(undefined);
       }
     }
-    const { data, error, response } = await this.#timerService.timekeeperGetTimers({
-      httpClient: this.#http,
-      auth: jwt?.access_token
-    });
-
-    if (error) {
-      console.log(error);
-      this.error.set({
-        error,
-        response: response as HttpErrorResponse,
+    {
+      const { data, error, response } = await this.#timerService.timekeeperGetTimers({
+        httpClient: this.#http,
+        auth: jwt?.access_token
       });
-      return;
-    } else {
-      console.log(error);
-      console.log(response);
-      this.timer.set(data);
-      this.error.set(undefined);
+
+      if (error) {
+        console.log(error);
+        this.error.set({
+          error,
+          response: response as HttpErrorResponse,
+        });
+        return;
+      } else {
+        console.log(error);
+        console.log(response);
+        this.timer.set(data);
+        this.error.set(undefined);
+      }
+    }
+    {
+      const { data, error, response } = await this.#sessionService.authLogout({
+        httpClient: this.#http,
+      });
+
+      if (error) {
+        console.log(error);
+        this.error.set({
+          error,
+          response: response as HttpErrorResponse,
+        });
+        return;
+      } else {
+        console.log(error);
+        console.log(response);
+        this.error.set(undefined);
+      }
     }
   };
 }

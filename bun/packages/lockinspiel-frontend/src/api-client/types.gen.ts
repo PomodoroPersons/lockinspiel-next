@@ -4,6 +4,33 @@ export type ClientOptions = {
     baseUrl: `${string}://${string}` | (string & {});
 };
 
+export type AuthDatabaseUserPassword = {
+    password: string;
+};
+
+export type AuthInsertableDatabaseUser = AuthDatabaseUserPassword & {
+    username: string;
+};
+
+export type AuthLogin = {
+    credentials: {
+        password: string;
+        username: string;
+    };
+} | {
+    refresh_token: {
+        /**
+         * If the refresh token is null, it's assumed that the token
+         * will be provided via a cookie
+         */
+        token?: string | null;
+    };
+};
+
+export type AuthLoginToken = {
+    access_token: string;
+};
+
 export type TimekeeperTimer = {
     time_split: string | number;
     start_timestamp: string | number;
@@ -59,22 +86,119 @@ export type TimekeeperTimeSplitWid = {
     }>;
 };
 
-export type AuthDatabaseUserPassword = {
-    password: string;
+export type AuthLogoutData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/session';
 };
 
-export type AuthInsertableDatabaseUser = AuthDatabaseUserPassword & {
-    username: string;
+export type AuthLogoutErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
 };
 
-export type AuthLogin = {
-    password: string;
-    username: string;
+export type AuthLogoutError = AuthLogoutErrors[keyof AuthLogoutErrors];
+
+export type AuthLogoutResponses = {
+    /**
+     * Ok
+     */
+    200: AuthLoginToken;
 };
 
-export type AuthLoginToken = {
-    access_token: string;
+export type AuthLogoutResponse = AuthLogoutResponses[keyof AuthLogoutResponses];
+
+export type AuthNewSessionData = {
+    body: AuthLogin;
+    path?: never;
+    query?: never;
+    url: '/auth/session';
 };
+
+export type AuthNewSessionErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type AuthNewSessionError = AuthNewSessionErrors[keyof AuthNewSessionErrors];
+
+export type AuthNewSessionResponses = {
+    /**
+     * Ok
+     */
+    200: AuthLoginToken;
+};
+
+export type AuthNewSessionResponse = AuthNewSessionResponses[keyof AuthNewSessionResponses];
+
+export type AuthDeleteUserData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/auth/user';
+};
+
+export type AuthDeleteUserErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type AuthDeleteUserError = AuthDeleteUserErrors[keyof AuthDeleteUserErrors];
+
+export type AuthDeleteUserResponses = {
+    /**
+     * Ok
+     */
+    200: unknown;
+};
+
+export type AuthSignupData = {
+    body: AuthInsertableDatabaseUser;
+    path?: never;
+    query?: never;
+    url: '/auth/user';
+};
+
+export type AuthSignupErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type AuthSignupError = AuthSignupErrors[keyof AuthSignupErrors];
+
+export type AuthSignupResponses = {
+    /**
+     * Ok
+     */
+    200: AuthLoginToken;
+};
+
+export type AuthSignupResponse = AuthSignupResponses[keyof AuthSignupResponses];
 
 export type TimekeeperGetIndexData = {
     body?: never;
@@ -105,11 +229,11 @@ export type TimekeeperGetTimersErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
     /**
      * Response for status 404
      */
-    404: string;
+    404: 'Timer not found';
 };
 
 export type TimekeeperGetTimersError = TimekeeperGetTimersErrors[keyof TimekeeperGetTimersErrors];
@@ -134,7 +258,7 @@ export type TimekeeperPostTimerErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
 };
 
 export type TimekeeperPostTimerError = TimekeeperPostTimerErrors[keyof TimekeeperPostTimerErrors];
@@ -163,11 +287,11 @@ export type TimekeeperModifyTimerErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
     /**
      * Response for status 404
      */
-    404: string;
+    404: 'Timer not found';
 };
 
 export type TimekeeperModifyTimerError = TimekeeperModifyTimerErrors[keyof TimekeeperModifyTimerErrors];
@@ -176,7 +300,7 @@ export type TimekeeperModifyTimerResponses = {
     /**
      * Response for status 200
      */
-    200: string;
+    200: 'OK';
 };
 
 export type TimekeeperModifyTimerResponse = TimekeeperModifyTimerResponses[keyof TimekeeperModifyTimerResponses];
@@ -192,7 +316,7 @@ export type TimekeeperGetTagsErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
 };
 
 export type TimekeeperGetTagsError = TimekeeperGetTagsErrors[keyof TimekeeperGetTagsErrors];
@@ -217,7 +341,7 @@ export type TimekeeperAddTagErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
 };
 
 export type TimekeeperAddTagError = TimekeeperAddTagErrors[keyof TimekeeperAddTagErrors];
@@ -246,11 +370,11 @@ export type TimekeeperDeleteTagErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
     /**
      * Response for status 404
      */
-    404: string;
+    404: 'Tag not found';
 };
 
 export type TimekeeperDeleteTagError = TimekeeperDeleteTagErrors[keyof TimekeeperDeleteTagErrors];
@@ -259,7 +383,7 @@ export type TimekeeperDeleteTagResponses = {
     /**
      * Response for status 200
      */
-    200: string;
+    200: 'OK';
 };
 
 export type TimekeeperDeleteTagResponse = TimekeeperDeleteTagResponses[keyof TimekeeperDeleteTagResponses];
@@ -277,11 +401,11 @@ export type TimekeeperModifyTagErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
     /**
      * Response for status 404
      */
-    404: string;
+    404: 'Tag not found';
 };
 
 export type TimekeeperModifyTagError = TimekeeperModifyTagErrors[keyof TimekeeperModifyTagErrors];
@@ -290,7 +414,7 @@ export type TimekeeperModifyTagResponses = {
     /**
      * Response for status 200
      */
-    200: string;
+    200: 'OK';
 };
 
 export type TimekeeperModifyTagResponse = TimekeeperModifyTagResponses[keyof TimekeeperModifyTagResponses];
@@ -306,7 +430,7 @@ export type TimekeeperGetTimeSplitsErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
 };
 
 export type TimekeeperGetTimeSplitsError = TimekeeperGetTimeSplitsErrors[keyof TimekeeperGetTimeSplitsErrors];
@@ -331,7 +455,7 @@ export type TimekeeperAddTimeSplitErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
 };
 
 export type TimekeeperAddTimeSplitError = TimekeeperAddTimeSplitErrors[keyof TimekeeperAddTimeSplitErrors];
@@ -360,11 +484,11 @@ export type TimekeeperDeleteTimeSplitErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
     /**
      * Response for status 404
      */
-    404: string;
+    404: 'Time split not found';
 };
 
 export type TimekeeperDeleteTimeSplitError = TimekeeperDeleteTimeSplitErrors[keyof TimekeeperDeleteTimeSplitErrors];
@@ -373,7 +497,7 @@ export type TimekeeperDeleteTimeSplitResponses = {
     /**
      * Response for status 200
      */
-    200: string;
+    200: 'OK';
 };
 
 export type TimekeeperDeleteTimeSplitResponse = TimekeeperDeleteTimeSplitResponses[keyof TimekeeperDeleteTimeSplitResponses];
@@ -391,11 +515,11 @@ export type TimekeeperModifyTimeSplitErrors = {
     /**
      * Response for status 401
      */
-    401: string;
+    401: 'Unauthorized';
     /**
      * Response for status 404
      */
-    404: string;
+    404: 'Time split not found';
 };
 
 export type TimekeeperModifyTimeSplitError = TimekeeperModifyTimeSplitErrors[keyof TimekeeperModifyTimeSplitErrors];
@@ -404,121 +528,7 @@ export type TimekeeperModifyTimeSplitResponses = {
     /**
      * Response for status 200
      */
-    200: string;
+    200: 'OK';
 };
 
 export type TimekeeperModifyTimeSplitResponse = TimekeeperModifyTimeSplitResponses[keyof TimekeeperModifyTimeSplitResponses];
-
-export type AuthDeleteLoginData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/login';
-};
-
-export type AuthDeleteLoginErrors = {
-    /**
-     * It's your fault
-     */
-    '4XX': string;
-    /**
-     * We're having a skill issue
-     */
-    '5XX': string;
-};
-
-export type AuthDeleteLoginError = AuthDeleteLoginErrors[keyof AuthDeleteLoginErrors];
-
-export type AuthDeleteLoginResponses = {
-    /**
-     * Ok
-     */
-    200: unknown;
-};
-
-export type AuthLoginData = {
-    body: AuthLogin;
-    path?: never;
-    query?: never;
-    url: '/auth/login';
-};
-
-export type AuthLoginErrors = {
-    /**
-     * It's your fault
-     */
-    '4XX': string;
-    /**
-     * We're having a skill issue
-     */
-    '5XX': string;
-};
-
-export type AuthLoginError = AuthLoginErrors[keyof AuthLoginErrors];
-
-export type AuthLoginResponses = {
-    /**
-     * Ok
-     */
-    200: AuthLoginToken;
-};
-
-export type AuthLoginResponse = AuthLoginResponses[keyof AuthLoginResponses];
-
-export type AuthRefreshData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/auth/refresh';
-};
-
-export type AuthRefreshErrors = {
-    /**
-     * It's your fault
-     */
-    '4XX': string;
-    /**
-     * We're having a skill issue
-     */
-    '5XX': string;
-};
-
-export type AuthRefreshError = AuthRefreshErrors[keyof AuthRefreshErrors];
-
-export type AuthRefreshResponses = {
-    /**
-     * Ok
-     */
-    200: AuthLoginToken;
-};
-
-export type AuthRefreshResponse = AuthRefreshResponses[keyof AuthRefreshResponses];
-
-export type AuthSignupData = {
-    body: AuthInsertableDatabaseUser;
-    path?: never;
-    query?: never;
-    url: '/auth/signup';
-};
-
-export type AuthSignupErrors = {
-    /**
-     * It's your fault
-     */
-    '4XX': string;
-    /**
-     * We're having a skill issue
-     */
-    '5XX': string;
-};
-
-export type AuthSignupError = AuthSignupErrors[keyof AuthSignupErrors];
-
-export type AuthSignupResponses = {
-    /**
-     * Ok
-     */
-    200: AuthLoginToken;
-};
-
-export type AuthSignupResponse = AuthSignupResponses[keyof AuthSignupResponses];
