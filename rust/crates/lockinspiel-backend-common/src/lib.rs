@@ -33,11 +33,11 @@ use tracing_opentelemetry::OpenTelemetryLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use utoipa::openapi::{
     Info, License, OpenApi,
-    security::{Http, HttpAuthScheme, SecurityScheme},
+    security::{ApiKey, ApiKeyValue, Http, HttpAuthScheme, SecurityScheme},
 };
 
 use crate::{
-    auth::Pool,
+    auth::{Pool, REFRESH_TOKEN_NAME},
     cli_level_filter::CliLevelFilter,
     jwk_set::JwkSetManager,
     telemetry::{
@@ -269,6 +269,13 @@ pub fn fill_in_openapi(api: &mut OpenApi) {
                     .bearer_format("JWT")
                     .build(),
             ),
+        );
+        components.security_schemes.insert(
+            "refresh_cookie".to_owned(),
+            SecurityScheme::ApiKey(ApiKey::Cookie(ApiKeyValue::with_description(
+                REFRESH_TOKEN_NAME,
+                "An HTTP-Only cookie issued on signup and login",
+            ))),
         );
         // components.security_schemes.insert(
         //     "basic_auth".to_owned(),

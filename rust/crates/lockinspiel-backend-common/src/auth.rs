@@ -1,4 +1,4 @@
-use std::{borrow::Cow, num::NonZeroU32};
+use std::{borrow::Cow, num::NonZeroU32, time::Duration};
 
 use aws_lc_rs::{digest, pbkdf2};
 use axum::{
@@ -7,11 +7,13 @@ use axum::{
 };
 use axum_extra::{
     TypedHeader,
+    extract::cookie::{Cookie, SameSite},
     headers::{Authorization, authorization::Bearer},
     typed_header::TypedHeaderRejection,
 };
 use diesel::{
-    ExpressionMethods, HasQuery, QueryDsl, SelectableHelper, declare_sql_function,
+    ExpressionMethods, HasQuery, OptionalExtension, QueryDsl, SelectableHelper,
+    declare_sql_function,
     prelude::{AsChangeset, Insertable},
     sql_types,
 };
@@ -33,9 +35,9 @@ use crate::{
     ApiState, Placeholder,
     error::{AsStatusCode, Error, WithReason},
     jwk_set::JwkSetManager,
-    schema::users,
+    schema::{refresh_tokens, users},
     sql_types::DieselByteA,
-    users::{RefreshTokenClaims, User, UserClaims},
+    users::{RefreshToken, User, UserClaims},
 };
 
 #[declare_sql_function]
@@ -49,6 +51,7 @@ pub const PBKDF2_ITERATIONS: NonZeroU32 = NonZeroU32::new(310_000).unwrap();
 pub static JWT_ALG: jsonwebtoken::Algorithm = jsonwebtoken::Algorithm::ES256;
 pub const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
 pub const SALT_LEN: usize = 16;
+pub const REFRESH_TOKEN_NAME: &str = "lockinspiel_refresh";
 pub type Credential = [u8; CREDENTIAL_LEN];
 pub type Salt = [u8; SALT_LEN];
 
@@ -306,24 +309,37 @@ impl DatabaseConnection {
 
     pub async fn login_user_with_refresh_token(
         &mut self,
-        token: impl AsRef<[u8]>,
-        jwk_set: &JwkSetManager,
-    ) -> Result<RefreshTokenClaims, Error<ErrorKind>> {
-        let mut validation = jsonwebtoken::Validation::new(JWT_ALG);
-        validation.set_required_spec_claims::<&'static str>(&[]);
-        validation.validate_exp = false;
+        token: Uuid,
+    ) -> Result<(), Error<ErrorKind>> {
+        let current_refresh_token = RefreshToken::query()
+            .filter(refresh_tokens::refresh_token.eq(token))
+            .get_result(&mut self.connection)
+            .await
+            .optional()
+            .with_reason("Failed to get refresh token from database")?
+            .ok_or(ErrorKind::Unauthorized)
+            .with_reason("Couldn't find refresh token in database")?;
 
-        let token: RefreshTokenClaims = jwk_set.decode(token, &validation).await?;
+        if current_refresh_token.exp.0 < jiff::Timestamp::now() {
+            diesel::delete(refresh_tokens::table)
+                .filter(refresh_tokens::refresh_token.eq(token))
+                .execute(&mut self.connection)
+                .await
+                .with_reason("Failed to delete expired refresh token from database")?;
+
+            return Err(ErrorKind::Unauthorized)
+                .with_reason("Your refresh token is expired, login again");
+        }
 
         let user = User::query()
-            .filter(users::user_id.eq(token.user_id))
+            .filter(users::user_id.eq(current_refresh_token.user_id))
             .get_result(&mut self.connection)
             .await
             .with_reason("Failed to get user in refresh token from database")?;
 
         self.set_uid(Some(user)).await?;
 
-        Ok(token)
+        Ok(())
     }
 
     pub async fn login_as_anon(&mut self) -> Result<(), Error<ErrorKind>> {
@@ -462,4 +478,14 @@ where
 
         return Ok(db_connection);
     }
+}
+
+pub fn create_refresh_token_cookie() -> Cookie<'static> {
+    Cookie::build(REFRESH_TOKEN_NAME)
+        .path("/auth/refresh")
+        .http_only(true)
+        .secure(true)
+        .same_site(SameSite::Strict)
+        .max_age(Duration::from_secs(3600 * 30).try_into().unwrap())
+        .build()
 }

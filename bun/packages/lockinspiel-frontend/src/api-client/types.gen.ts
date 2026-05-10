@@ -72,13 +72,8 @@ export type AuthLogin = {
     username: string;
 };
 
-export type AuthLoginTokens = {
+export type AuthLoginToken = {
     access_token: string;
-    refresh_token: string;
-};
-
-export type AuthRefreshTokenQuery = {
-    refresh_token: string;
 };
 
 export type TimekeeperGetIndexData = {
@@ -99,14 +94,14 @@ export type TimekeeperGetIndexResponses = {
 
 export type TimekeeperGetIndexResponse = TimekeeperGetIndexResponses[keyof TimekeeperGetIndexResponses];
 
-export type TimekeeperGetTimekeeperTimerData = {
+export type TimekeeperGetTimersData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/timekeeper/timer';
 };
 
-export type TimekeeperGetTimekeeperTimerErrors = {
+export type TimekeeperGetTimersErrors = {
     /**
      * Response for status 401
      */
@@ -117,34 +112,34 @@ export type TimekeeperGetTimekeeperTimerErrors = {
     404: string;
 };
 
-export type TimekeeperGetTimekeeperTimerError = TimekeeperGetTimekeeperTimerErrors[keyof TimekeeperGetTimekeeperTimerErrors];
+export type TimekeeperGetTimersError = TimekeeperGetTimersErrors[keyof TimekeeperGetTimersErrors];
 
-export type TimekeeperGetTimekeeperTimerResponses = {
+export type TimekeeperGetTimersResponses = {
     /**
      * Response for status 200
      */
     200: Array<TimekeeperTimerWid>;
 };
 
-export type TimekeeperGetTimekeeperTimerResponse = TimekeeperGetTimekeeperTimerResponses[keyof TimekeeperGetTimekeeperTimerResponses];
+export type TimekeeperGetTimersResponse = TimekeeperGetTimersResponses[keyof TimekeeperGetTimersResponses];
 
-export type TimekeeperPostTimekeeperTimerData = {
+export type TimekeeperPostTimerData = {
     body: TimekeeperTimer;
     path?: never;
     query?: never;
     url: '/timekeeper/timer';
 };
 
-export type TimekeeperPostTimekeeperTimerErrors = {
+export type TimekeeperPostTimerErrors = {
     /**
      * Response for status 401
      */
     401: string;
 };
 
-export type TimekeeperPostTimekeeperTimerError = TimekeeperPostTimekeeperTimerErrors[keyof TimekeeperPostTimekeeperTimerErrors];
+export type TimekeeperPostTimerError = TimekeeperPostTimerErrors[keyof TimekeeperPostTimerErrors];
 
-export type TimekeeperPostTimekeeperTimerResponses = {
+export type TimekeeperPostTimerResponses = {
     /**
      * Response for status 200
      */
@@ -153,9 +148,9 @@ export type TimekeeperPostTimekeeperTimerResponses = {
     };
 };
 
-export type TimekeeperPostTimekeeperTimerResponse = TimekeeperPostTimekeeperTimerResponses[keyof TimekeeperPostTimekeeperTimerResponses];
+export type TimekeeperPostTimerResponse = TimekeeperPostTimerResponses[keyof TimekeeperPostTimerResponses];
 
-export type TimekeeperPutTimekeeperTimerByIdData = {
+export type TimekeeperModifyTimerData = {
     body: TimekeeperTimer;
     path: {
         id: string | number;
@@ -164,7 +159,7 @@ export type TimekeeperPutTimekeeperTimerByIdData = {
     url: '/timekeeper/timer/{id}';
 };
 
-export type TimekeeperPutTimekeeperTimerByIdErrors = {
+export type TimekeeperModifyTimerErrors = {
     /**
      * Response for status 401
      */
@@ -175,59 +170,59 @@ export type TimekeeperPutTimekeeperTimerByIdErrors = {
     404: string;
 };
 
-export type TimekeeperPutTimekeeperTimerByIdError = TimekeeperPutTimekeeperTimerByIdErrors[keyof TimekeeperPutTimekeeperTimerByIdErrors];
+export type TimekeeperModifyTimerError = TimekeeperModifyTimerErrors[keyof TimekeeperModifyTimerErrors];
 
-export type TimekeeperPutTimekeeperTimerByIdResponses = {
+export type TimekeeperModifyTimerResponses = {
     /**
      * Response for status 200
      */
     200: string;
 };
 
-export type TimekeeperPutTimekeeperTimerByIdResponse = TimekeeperPutTimekeeperTimerByIdResponses[keyof TimekeeperPutTimekeeperTimerByIdResponses];
+export type TimekeeperModifyTimerResponse = TimekeeperModifyTimerResponses[keyof TimekeeperModifyTimerResponses];
 
-export type TimekeeperGetTimekeeperTagData = {
+export type TimekeeperGetTagsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/timekeeper/tag';
 };
 
-export type TimekeeperGetTimekeeperTagErrors = {
+export type TimekeeperGetTagsErrors = {
     /**
      * Response for status 401
      */
     401: string;
 };
 
-export type TimekeeperGetTimekeeperTagError = TimekeeperGetTimekeeperTagErrors[keyof TimekeeperGetTimekeeperTagErrors];
+export type TimekeeperGetTagsError = TimekeeperGetTagsErrors[keyof TimekeeperGetTagsErrors];
 
-export type TimekeeperGetTimekeeperTagResponses = {
+export type TimekeeperGetTagsResponses = {
     /**
      * Response for status 200
      */
     200: Array<TimekeeperTagWid>;
 };
 
-export type TimekeeperGetTimekeeperTagResponse = TimekeeperGetTimekeeperTagResponses[keyof TimekeeperGetTimekeeperTagResponses];
+export type TimekeeperGetTagsResponse = TimekeeperGetTagsResponses[keyof TimekeeperGetTagsResponses];
 
-export type TimekeeperPostTimekeeperTagData = {
+export type TimekeeperAddTagData = {
     body: TimekeeperTag;
     path?: never;
     query?: never;
     url: '/timekeeper/tag';
 };
 
-export type TimekeeperPostTimekeeperTagErrors = {
+export type TimekeeperAddTagErrors = {
     /**
      * Response for status 401
      */
     401: string;
 };
 
-export type TimekeeperPostTimekeeperTagError = TimekeeperPostTimekeeperTagErrors[keyof TimekeeperPostTimekeeperTagErrors];
+export type TimekeeperAddTagError = TimekeeperAddTagErrors[keyof TimekeeperAddTagErrors];
 
-export type TimekeeperPostTimekeeperTagResponses = {
+export type TimekeeperAddTagResponses = {
     /**
      * Response for status 200
      */
@@ -236,9 +231,9 @@ export type TimekeeperPostTimekeeperTagResponses = {
     };
 };
 
-export type TimekeeperPostTimekeeperTagResponse = TimekeeperPostTimekeeperTagResponses[keyof TimekeeperPostTimekeeperTagResponses];
+export type TimekeeperAddTagResponse = TimekeeperAddTagResponses[keyof TimekeeperAddTagResponses];
 
-export type TimekeeperDeleteTimekeeperTagByIdData = {
+export type TimekeeperDeleteTagData = {
     body?: never;
     path: {
         id: string | number;
@@ -247,7 +242,7 @@ export type TimekeeperDeleteTimekeeperTagByIdData = {
     url: '/timekeeper/tag/{id}';
 };
 
-export type TimekeeperDeleteTimekeeperTagByIdErrors = {
+export type TimekeeperDeleteTagErrors = {
     /**
      * Response for status 401
      */
@@ -258,18 +253,18 @@ export type TimekeeperDeleteTimekeeperTagByIdErrors = {
     404: string;
 };
 
-export type TimekeeperDeleteTimekeeperTagByIdError = TimekeeperDeleteTimekeeperTagByIdErrors[keyof TimekeeperDeleteTimekeeperTagByIdErrors];
+export type TimekeeperDeleteTagError = TimekeeperDeleteTagErrors[keyof TimekeeperDeleteTagErrors];
 
-export type TimekeeperDeleteTimekeeperTagByIdResponses = {
+export type TimekeeperDeleteTagResponses = {
     /**
      * Response for status 200
      */
     200: string;
 };
 
-export type TimekeeperDeleteTimekeeperTagByIdResponse = TimekeeperDeleteTimekeeperTagByIdResponses[keyof TimekeeperDeleteTimekeeperTagByIdResponses];
+export type TimekeeperDeleteTagResponse = TimekeeperDeleteTagResponses[keyof TimekeeperDeleteTagResponses];
 
-export type TimekeeperPutTimekeeperTagByIdData = {
+export type TimekeeperModifyTagData = {
     body: TimekeeperTag;
     path: {
         id: string | number;
@@ -278,7 +273,7 @@ export type TimekeeperPutTimekeeperTagByIdData = {
     url: '/timekeeper/tag/{id}';
 };
 
-export type TimekeeperPutTimekeeperTagByIdErrors = {
+export type TimekeeperModifyTagErrors = {
     /**
      * Response for status 401
      */
@@ -289,59 +284,59 @@ export type TimekeeperPutTimekeeperTagByIdErrors = {
     404: string;
 };
 
-export type TimekeeperPutTimekeeperTagByIdError = TimekeeperPutTimekeeperTagByIdErrors[keyof TimekeeperPutTimekeeperTagByIdErrors];
+export type TimekeeperModifyTagError = TimekeeperModifyTagErrors[keyof TimekeeperModifyTagErrors];
 
-export type TimekeeperPutTimekeeperTagByIdResponses = {
+export type TimekeeperModifyTagResponses = {
     /**
      * Response for status 200
      */
     200: string;
 };
 
-export type TimekeeperPutTimekeeperTagByIdResponse = TimekeeperPutTimekeeperTagByIdResponses[keyof TimekeeperPutTimekeeperTagByIdResponses];
+export type TimekeeperModifyTagResponse = TimekeeperModifyTagResponses[keyof TimekeeperModifyTagResponses];
 
-export type TimekeeperGetTimekeeperTimeSplitData = {
+export type TimekeeperGetTimeSplitsData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/timekeeper/time-split';
 };
 
-export type TimekeeperGetTimekeeperTimeSplitErrors = {
+export type TimekeeperGetTimeSplitsErrors = {
     /**
      * Response for status 401
      */
     401: string;
 };
 
-export type TimekeeperGetTimekeeperTimeSplitError = TimekeeperGetTimekeeperTimeSplitErrors[keyof TimekeeperGetTimekeeperTimeSplitErrors];
+export type TimekeeperGetTimeSplitsError = TimekeeperGetTimeSplitsErrors[keyof TimekeeperGetTimeSplitsErrors];
 
-export type TimekeeperGetTimekeeperTimeSplitResponses = {
+export type TimekeeperGetTimeSplitsResponses = {
     /**
      * Response for status 200
      */
     200: Array<TimekeeperTimeSplitWid>;
 };
 
-export type TimekeeperGetTimekeeperTimeSplitResponse = TimekeeperGetTimekeeperTimeSplitResponses[keyof TimekeeperGetTimekeeperTimeSplitResponses];
+export type TimekeeperGetTimeSplitsResponse = TimekeeperGetTimeSplitsResponses[keyof TimekeeperGetTimeSplitsResponses];
 
-export type TimekeeperPostTimekeeperTimeSplitData = {
+export type TimekeeperAddTimeSplitData = {
     body: TimekeeperTimeSplit;
     path?: never;
     query?: never;
     url: '/timekeeper/time-split';
 };
 
-export type TimekeeperPostTimekeeperTimeSplitErrors = {
+export type TimekeeperAddTimeSplitErrors = {
     /**
      * Response for status 401
      */
     401: string;
 };
 
-export type TimekeeperPostTimekeeperTimeSplitError = TimekeeperPostTimekeeperTimeSplitErrors[keyof TimekeeperPostTimekeeperTimeSplitErrors];
+export type TimekeeperAddTimeSplitError = TimekeeperAddTimeSplitErrors[keyof TimekeeperAddTimeSplitErrors];
 
-export type TimekeeperPostTimekeeperTimeSplitResponses = {
+export type TimekeeperAddTimeSplitResponses = {
     /**
      * Response for status 200
      */
@@ -350,9 +345,9 @@ export type TimekeeperPostTimekeeperTimeSplitResponses = {
     };
 };
 
-export type TimekeeperPostTimekeeperTimeSplitResponse = TimekeeperPostTimekeeperTimeSplitResponses[keyof TimekeeperPostTimekeeperTimeSplitResponses];
+export type TimekeeperAddTimeSplitResponse = TimekeeperAddTimeSplitResponses[keyof TimekeeperAddTimeSplitResponses];
 
-export type TimekeeperDeleteTimekeeperTimeSplitByIdData = {
+export type TimekeeperDeleteTimeSplitData = {
     body?: never;
     path: {
         id: string | number;
@@ -361,7 +356,7 @@ export type TimekeeperDeleteTimekeeperTimeSplitByIdData = {
     url: '/timekeeper/time-split/{id}';
 };
 
-export type TimekeeperDeleteTimekeeperTimeSplitByIdErrors = {
+export type TimekeeperDeleteTimeSplitErrors = {
     /**
      * Response for status 401
      */
@@ -372,18 +367,18 @@ export type TimekeeperDeleteTimekeeperTimeSplitByIdErrors = {
     404: string;
 };
 
-export type TimekeeperDeleteTimekeeperTimeSplitByIdError = TimekeeperDeleteTimekeeperTimeSplitByIdErrors[keyof TimekeeperDeleteTimekeeperTimeSplitByIdErrors];
+export type TimekeeperDeleteTimeSplitError = TimekeeperDeleteTimeSplitErrors[keyof TimekeeperDeleteTimeSplitErrors];
 
-export type TimekeeperDeleteTimekeeperTimeSplitByIdResponses = {
+export type TimekeeperDeleteTimeSplitResponses = {
     /**
      * Response for status 200
      */
     200: string;
 };
 
-export type TimekeeperDeleteTimekeeperTimeSplitByIdResponse = TimekeeperDeleteTimekeeperTimeSplitByIdResponses[keyof TimekeeperDeleteTimekeeperTimeSplitByIdResponses];
+export type TimekeeperDeleteTimeSplitResponse = TimekeeperDeleteTimeSplitResponses[keyof TimekeeperDeleteTimeSplitResponses];
 
-export type TimekeeperPutTimekeeperTimeSplitByIdData = {
+export type TimekeeperModifyTimeSplitData = {
     body: TimekeeperTimeSplit;
     path: {
         id: string | number;
@@ -392,7 +387,7 @@ export type TimekeeperPutTimekeeperTimeSplitByIdData = {
     url: '/timekeeper/time-split/{id}';
 };
 
-export type TimekeeperPutTimekeeperTimeSplitByIdErrors = {
+export type TimekeeperModifyTimeSplitErrors = {
     /**
      * Response for status 401
      */
@@ -403,16 +398,16 @@ export type TimekeeperPutTimekeeperTimeSplitByIdErrors = {
     404: string;
 };
 
-export type TimekeeperPutTimekeeperTimeSplitByIdError = TimekeeperPutTimekeeperTimeSplitByIdErrors[keyof TimekeeperPutTimekeeperTimeSplitByIdErrors];
+export type TimekeeperModifyTimeSplitError = TimekeeperModifyTimeSplitErrors[keyof TimekeeperModifyTimeSplitErrors];
 
-export type TimekeeperPutTimekeeperTimeSplitByIdResponses = {
+export type TimekeeperModifyTimeSplitResponses = {
     /**
      * Response for status 200
      */
     200: string;
 };
 
-export type TimekeeperPutTimekeeperTimeSplitByIdResponse = TimekeeperPutTimekeeperTimeSplitByIdResponses[keyof TimekeeperPutTimekeeperTimeSplitByIdResponses];
+export type TimekeeperModifyTimeSplitResponse = TimekeeperModifyTimeSplitResponses[keyof TimekeeperModifyTimeSplitResponses];
 
 export type AuthDeleteLoginData = {
     body?: never;
@@ -465,13 +460,13 @@ export type AuthLoginResponses = {
     /**
      * Ok
      */
-    200: AuthLoginTokens;
+    200: AuthLoginToken;
 };
 
 export type AuthLoginResponse = AuthLoginResponses[keyof AuthLoginResponses];
 
 export type AuthRefreshData = {
-    body: AuthRefreshTokenQuery;
+    body?: never;
     path?: never;
     query?: never;
     url: '/auth/refresh';
@@ -494,7 +489,7 @@ export type AuthRefreshResponses = {
     /**
      * Ok
      */
-    200: AuthLoginTokens;
+    200: AuthLoginToken;
 };
 
 export type AuthRefreshResponse = AuthRefreshResponses[keyof AuthRefreshResponses];
@@ -523,7 +518,7 @@ export type AuthSignupResponses = {
     /**
      * Ok
      */
-    200: AuthLoginTokens;
+    200: AuthLoginToken;
 };
 
 export type AuthSignupResponse = AuthSignupResponses[keyof AuthSignupResponses];

@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthDeleteLoginData, AuthDeleteLoginErrors, AuthDeleteLoginResponses, AuthLoginData, AuthLoginErrors, AuthLoginResponses, AuthRefreshData, AuthRefreshErrors, AuthRefreshResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperDeleteTimekeeperTagByIdData, TimekeeperDeleteTimekeeperTagByIdErrors, TimekeeperDeleteTimekeeperTagByIdResponses, TimekeeperDeleteTimekeeperTimeSplitByIdData, TimekeeperDeleteTimekeeperTimeSplitByIdErrors, TimekeeperDeleteTimekeeperTimeSplitByIdResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTimekeeperTagData, TimekeeperGetTimekeeperTagErrors, TimekeeperGetTimekeeperTagResponses, TimekeeperGetTimekeeperTimerData, TimekeeperGetTimekeeperTimerErrors, TimekeeperGetTimekeeperTimerResponses, TimekeeperGetTimekeeperTimeSplitData, TimekeeperGetTimekeeperTimeSplitErrors, TimekeeperGetTimekeeperTimeSplitResponses, TimekeeperPostTimekeeperTagData, TimekeeperPostTimekeeperTagErrors, TimekeeperPostTimekeeperTagResponses, TimekeeperPostTimekeeperTimerData, TimekeeperPostTimekeeperTimerErrors, TimekeeperPostTimekeeperTimerResponses, TimekeeperPostTimekeeperTimeSplitData, TimekeeperPostTimekeeperTimeSplitErrors, TimekeeperPostTimekeeperTimeSplitResponses, TimekeeperPutTimekeeperTagByIdData, TimekeeperPutTimekeeperTagByIdErrors, TimekeeperPutTimekeeperTagByIdResponses, TimekeeperPutTimekeeperTimerByIdData, TimekeeperPutTimekeeperTimerByIdErrors, TimekeeperPutTimekeeperTimerByIdResponses, TimekeeperPutTimekeeperTimeSplitByIdData, TimekeeperPutTimekeeperTimeSplitByIdErrors, TimekeeperPutTimekeeperTimeSplitByIdResponses } from './types.gen';
+import type { AuthDeleteLoginData, AuthDeleteLoginErrors, AuthDeleteLoginResponses, AuthLoginData, AuthLoginErrors, AuthLoginResponses, AuthRefreshData, AuthRefreshErrors, AuthRefreshResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsErrors, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsErrors, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -39,8 +39,8 @@ export class TimersService {
      *
      * Retreives the most recently started/ended timer if no parameters are specified. Otherwise returns the timers that match the parameters.
      */
-    public timekeeperGetTimekeeperTimer<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTimekeeperTimerData, ThrowOnError>) {
-        return (options?.client ?? client).get<TimekeeperGetTimekeeperTimerResponses, TimekeeperGetTimekeeperTimerErrors, ThrowOnError>({
+    public timekeeperGetTimers<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTimersData, ThrowOnError>) {
+        return (options?.client ?? client).get<TimekeeperGetTimersResponses, TimekeeperGetTimersErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/timer',
             ...options
@@ -52,8 +52,8 @@ export class TimersService {
      *
      * Upon starting a new timer, the Unix timestamp of when the timer was started, as well as the Unix timestamp in the future when the timer will end should be sent to this service. The ID of the time split, whether the timer is a work or a break timer, and the tag IDs associated with the timer should also be sent.
      */
-    public timekeeperPostTimekeeperTimer<ThrowOnError extends boolean = false>(options: Options<TimekeeperPostTimekeeperTimerData, ThrowOnError>) {
-        return (options.client ?? client).post<TimekeeperPostTimekeeperTimerResponses, TimekeeperPostTimekeeperTimerErrors, ThrowOnError>({
+    public timekeeperPostTimer<ThrowOnError extends boolean = false>(options: Options<TimekeeperPostTimerData, ThrowOnError>) {
+        return (options.client ?? client).post<TimekeeperPostTimerResponses, TimekeeperPostTimerErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/timer',
             ...options,
@@ -69,8 +69,8 @@ export class TimersService {
      *
      * This route replaces the fields of the timer at the current ID with new fields. When a timer is paused, this route should be used to change the end_timestamp of the timer to the Unix timestamp at which the timer was paused. To resume a timer, a new timer should be posted with the Unix timestamp at which the timer was resumed, and the Unix timestamp in the future at which the remaining time will have elapsed.
      */
-    public timekeeperPutTimekeeperTimerById<ThrowOnError extends boolean = false>(options: Options<TimekeeperPutTimekeeperTimerByIdData, ThrowOnError>) {
-        return (options.client ?? client).put<TimekeeperPutTimekeeperTimerByIdResponses, TimekeeperPutTimekeeperTimerByIdErrors, ThrowOnError>({
+    public timekeeperModifyTimer<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimerData, ThrowOnError>) {
+        return (options.client ?? client).put<TimekeeperModifyTimerResponses, TimekeeperModifyTimerErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/timer/{id}',
             ...options,
@@ -89,8 +89,8 @@ export class TagsService {
      *
      * Gets all the tags associated with the user, as well as the default ones
      */
-    public timekeeperGetTimekeeperTag<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTimekeeperTagData, ThrowOnError>) {
-        return (options?.client ?? client).get<TimekeeperGetTimekeeperTagResponses, TimekeeperGetTimekeeperTagErrors, ThrowOnError>({
+    public timekeeperGetTags<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTagsData, ThrowOnError>) {
+        return (options?.client ?? client).get<TimekeeperGetTagsResponses, TimekeeperGetTagsErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/tag',
             ...options
@@ -102,8 +102,8 @@ export class TagsService {
      *
      * Adds a new tag to the database. The returned tag ID can be used in other endpoints in this service.
      */
-    public timekeeperPostTimekeeperTag<ThrowOnError extends boolean = false>(options: Options<TimekeeperPostTimekeeperTagData, ThrowOnError>) {
-        return (options.client ?? client).post<TimekeeperPostTimekeeperTagResponses, TimekeeperPostTimekeeperTagErrors, ThrowOnError>({
+    public timekeeperAddTag<ThrowOnError extends boolean = false>(options: Options<TimekeeperAddTagData, ThrowOnError>) {
+        return (options.client ?? client).post<TimekeeperAddTagResponses, TimekeeperAddTagErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/tag',
             ...options,
@@ -119,8 +119,8 @@ export class TagsService {
      *
      * Deletes the tag at the given ID. This just marks the tag as deleted, and doesn't actually delete the tag in the database. Timers posted with a deleted tag will still have that tag, the tag just won't appear when querying some endpoints.
      */
-    public timekeeperDeleteTimekeeperTagById<ThrowOnError extends boolean = false>(options: Options<TimekeeperDeleteTimekeeperTagByIdData, ThrowOnError>) {
-        return (options.client ?? client).delete<TimekeeperDeleteTimekeeperTagByIdResponses, TimekeeperDeleteTimekeeperTagByIdErrors, ThrowOnError>({
+    public timekeeperDeleteTag<ThrowOnError extends boolean = false>(options: Options<TimekeeperDeleteTagData, ThrowOnError>) {
+        return (options.client ?? client).delete<TimekeeperDeleteTagResponses, TimekeeperDeleteTagErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/tag/{id}',
             ...options
@@ -132,8 +132,8 @@ export class TagsService {
      *
      * Modifies the fields of the tag at the ID
      */
-    public timekeeperPutTimekeeperTagById<ThrowOnError extends boolean = false>(options: Options<TimekeeperPutTimekeeperTagByIdData, ThrowOnError>) {
-        return (options.client ?? client).put<TimekeeperPutTimekeeperTagByIdResponses, TimekeeperPutTimekeeperTagByIdErrors, ThrowOnError>({
+    public timekeeperModifyTag<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTagData, ThrowOnError>) {
+        return (options.client ?? client).put<TimekeeperModifyTagResponses, TimekeeperModifyTagErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/tag/{id}',
             ...options,
@@ -152,8 +152,8 @@ export class TimeSplitsService {
      *
      * Gets all the time splits associated with the user, as well as the default ones
      */
-    public timekeeperGetTimekeeperTimeSplit<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTimekeeperTimeSplitData, ThrowOnError>) {
-        return (options?.client ?? client).get<TimekeeperGetTimekeeperTimeSplitResponses, TimekeeperGetTimekeeperTimeSplitErrors, ThrowOnError>({
+    public timekeeperGetTimeSplits<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTimeSplitsData, ThrowOnError>) {
+        return (options?.client ?? client).get<TimekeeperGetTimeSplitsResponses, TimekeeperGetTimeSplitsErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split',
             ...options
@@ -165,8 +165,8 @@ export class TimeSplitsService {
      *
      * Adds a new time split to the database. The returned time split ID can be used in other endpoints in this service. The timer lengths should be in seconds
      */
-    public timekeeperPostTimekeeperTimeSplit<ThrowOnError extends boolean = false>(options: Options<TimekeeperPostTimekeeperTimeSplitData, ThrowOnError>) {
-        return (options.client ?? client).post<TimekeeperPostTimekeeperTimeSplitResponses, TimekeeperPostTimekeeperTimeSplitErrors, ThrowOnError>({
+    public timekeeperAddTimeSplit<ThrowOnError extends boolean = false>(options: Options<TimekeeperAddTimeSplitData, ThrowOnError>) {
+        return (options.client ?? client).post<TimekeeperAddTimeSplitResponses, TimekeeperAddTimeSplitErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split',
             ...options,
@@ -182,8 +182,8 @@ export class TimeSplitsService {
      *
      * Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.
      */
-    public timekeeperDeleteTimekeeperTimeSplitById<ThrowOnError extends boolean = false>(options: Options<TimekeeperDeleteTimekeeperTimeSplitByIdData, ThrowOnError>) {
-        return (options.client ?? client).delete<TimekeeperDeleteTimekeeperTimeSplitByIdResponses, TimekeeperDeleteTimekeeperTimeSplitByIdErrors, ThrowOnError>({
+    public timekeeperDeleteTimeSplit<ThrowOnError extends boolean = false>(options: Options<TimekeeperDeleteTimeSplitData, ThrowOnError>) {
+        return (options.client ?? client).delete<TimekeeperDeleteTimeSplitResponses, TimekeeperDeleteTimeSplitErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split/{id}',
             ...options
@@ -195,8 +195,8 @@ export class TimeSplitsService {
      *
      * Modifies the fields of the time split at the ID.
      */
-    public timekeeperPutTimekeeperTimeSplitById<ThrowOnError extends boolean = false>(options: Options<TimekeeperPutTimekeeperTimeSplitByIdData, ThrowOnError>) {
-        return (options.client ?? client).put<TimekeeperPutTimekeeperTimeSplitByIdResponses, TimekeeperPutTimekeeperTimeSplitByIdErrors, ThrowOnError>({
+    public timekeeperModifyTimeSplit<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplitData, ThrowOnError>) {
+        return (options.client ?? client).put<TimekeeperModifyTimeSplitResponses, TimekeeperModifyTimeSplitErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split/{id}',
             ...options,
@@ -238,14 +238,15 @@ export class UsersService {
     /**
      * Exchanges a refresh token for a new access token
      */
-    public authRefresh<ThrowOnError extends boolean = false>(options: Options<AuthRefreshData, ThrowOnError>) {
-        return (options.client ?? client).post<AuthRefreshResponses, AuthRefreshErrors, ThrowOnError>({
+    public authRefresh<ThrowOnError extends boolean = false>(options?: Options<AuthRefreshData, ThrowOnError>) {
+        return (options?.client ?? client).post<AuthRefreshResponses, AuthRefreshErrors, ThrowOnError>({
+            security: [{
+                    in: 'cookie',
+                    name: 'lockinspiel_refresh',
+                    type: 'apiKey'
+                }],
             url: '/auth/refresh',
-            ...options,
-            headers: {
-                'Content-Type': 'application/json',
-                ...options.headers
-            }
+            ...options
         });
     }
     

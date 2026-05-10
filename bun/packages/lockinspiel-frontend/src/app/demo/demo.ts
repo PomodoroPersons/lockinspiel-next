@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
-import { TimersService, TimekeeperPostTimekeeperTimerErrors, TimekeeperGetTimekeeperTimerErrors, TimekeeperTimerWid, UsersService, AuthSignupErrors } from '../../api-client'
+import { TimersService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, TimekeeperTimerWid, UsersService, AuthSignupErrors } from '../../api-client'
 
 @Component({
   host: { ngSkipHydration: 'true' },
@@ -30,8 +30,8 @@ export class Demo {
    error = signal<
     | undefined
     | {
-        error: TimekeeperGetTimekeeperTimerErrors[keyof TimekeeperGetTimekeeperTimerErrors]
-          | TimekeeperPostTimekeeperTimerErrors[keyof TimekeeperPostTimekeeperTimerErrors]
+        error: TimekeeperGetTimersErrors[keyof TimekeeperGetTimersErrors]
+          | TimekeeperPostTimerErrors[keyof TimekeeperPostTimerErrors]
           | AuthSignupErrors[keyof AuthSignupErrors]
           | Error;
         response: HttpErrorResponse;
@@ -45,12 +45,8 @@ export class Demo {
   onGetTimerById = async () => {
     let jwt;
     {
-      const { data, error, response } = await this.#userService.authLogin({
+      const { data, error, response } = await this.#userService.authRefresh({
         httpClient: this.#http,
-        body: {
-          username: "johndoe",
-          password: "password"
-        }
       });
 
       if (error) {
@@ -68,7 +64,7 @@ export class Demo {
       }
     }
     {
-      const { data, error, response } = await this.#timerService.timekeeperPostTimekeeperTimer({
+      const { data, error, response } = await this.#timerService.timekeeperPostTimer({
         httpClient: this.#http,
         body: {
           start_timestamp: Date.now(),
@@ -97,7 +93,7 @@ export class Demo {
         this.error.set(undefined);
       }
     }
-    const { data, error, response } = await this.#timerService.timekeeperGetTimekeeperTimer({
+    const { data, error, response } = await this.#timerService.timekeeperGetTimers({
       httpClient: this.#http,
       auth: jwt?.access_token
     });

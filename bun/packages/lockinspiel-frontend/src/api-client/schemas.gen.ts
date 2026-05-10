@@ -386,29 +386,13 @@ export const auth_LoginSchema = {
     }
 } as const;
 
-export const auth_LoginTokensSchema = {
+export const auth_LoginTokenSchema = {
     type: 'object',
     required: [
-        'access_token',
-        'refresh_token'
+        'access_token'
     ],
     properties: {
         access_token: {
-            type: 'string'
-        },
-        refresh_token: {
-            type: 'string'
-        }
-    }
-} as const;
-
-export const auth_RefreshTokenQuerySchema = {
-    type: 'object',
-    required: [
-        'refresh_token'
-    ],
-    properties: {
-        refresh_token: {
             type: 'string'
         }
     }

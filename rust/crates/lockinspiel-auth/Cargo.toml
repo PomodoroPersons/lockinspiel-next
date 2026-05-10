@@ -19,3 +19,4 @@ utoipa-axum.workspace = true
 uuid.workspace = true
 jiff.workspace = true
 lockinspiel-backend-common = { version = "0.1.0", path = "../lockinspiel-backend-common" }
+axum-extra = { workspace = true, features = ["typed-header", "cookie"] }

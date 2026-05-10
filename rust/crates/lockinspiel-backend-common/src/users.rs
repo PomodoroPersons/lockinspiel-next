@@ -48,9 +48,3 @@ pub struct UserClaims {
     #[serde(flatten)]
     pub user: User,
 }
-
-#[derive(Serialize, Deserialize)]
-pub struct RefreshTokenClaims {
-    pub refresh_token: Uuid,
-    pub user_id: Uuid,
-}
