@@ -1,4 +1,4 @@
-FROM oven/bun:alpine AS build
+FROM oven/bun AS build
 
 WORKDIR /app
 
@@ -25,18 +25,18 @@ RUN bun build \
 	--outfile server \
 	./packages/$PACKAGE/src/index.ts
 
-FROM oven/bun:alpine
+FROM gcr.io/distroless/base
 
-WORKDIR /app
+WORKDIR /lockinspiel
 
-COPY --from=build /app/server server
+COPY --from=build /lockinspiel/server server
 ARG PACKAGE
-COPY --from=build /app/packages/$PACKAGE/drizzle drizzle
+COPY --from=build /lockinspiel/packages/$PACKAGE/drizzle drizzle
 
 ENV NODE_ENV=production
 ARG SERVICE_TYPE
 ENV SERVICE_TYPE=${SERVICE_TYPE}
 
-CMD ["/app/server"]
+CMD ["./server"]
 
 EXPOSE 3000
