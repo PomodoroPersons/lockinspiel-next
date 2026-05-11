@@ -52,6 +52,7 @@ export const timesheetTable = pgTable("timekeeper.timesheet", {
   end_time: timestamp('end_time', { withTimezone: true }).notNull(),
   user_id: uuid('user_id').notNull(),
   work: boolean('work').notNull(),
+  time_split_timer: integer('time_split_timer').notNull(),
 }, (t) => [
   unique().on(t.start_time, t.end_time),
 ]);
@@ -60,6 +61,10 @@ export const timesheetRelations = relations(timesheetTable, ({ one }) => ({
   user: one(usersTable, {
     fields: [timesheetTable.user_id],
     references: [usersTable.user_id]
+  }),
+  time_split_timer: one(timeSplitTimerTable, {
+    fields: [timesheetTable.time_split_timer],
+    references: [timeSplitTimerTable.id],
   })
 }));
 
