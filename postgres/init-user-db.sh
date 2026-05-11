@@ -41,13 +41,13 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "docker" <<-EOSQL
 	GRANT USAGE, CREATE ON SCHEMA public TO service;
 
 	CREATE SCHEMA auth;
-	ALTER SCHEMA auth OWNER TO auth_service
+	ALTER SCHEMA auth OWNER TO auth_service;
 
 	CREATE SCHEMA timekeeper;
-	ALTER SCHEMA timekeeper OWNER TO timekeeper_service
+	ALTER SCHEMA timekeeper OWNER TO timekeeper_service;
 
 	CREATE SCHEMA analyzer;
-	ALTER SCHEMA analyzer OWNER TO analyzer_service
+	ALTER SCHEMA analyzer OWNER TO analyzer_service;
 	-- GRANT USAGE ON SCHEMA analyzer TO service;
 EOSQL
 
