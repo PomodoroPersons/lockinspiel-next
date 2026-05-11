@@ -7,7 +7,12 @@ import 'dotenv/config';
 import { drizzle } from 'drizzle-orm/bun-sql';
 import { migrate } from 'drizzle-orm/bun-sql/migrator';
 
-const db = drizzle(Bun.env['DATABASE_URL'] ?? "");
+if (!Bun.env['DATABASE_URL']) {
+  console.error("DATABASE_URL is not defined")
+  process.exit(1);
+}
+
+const db = drizzle(Bun.env['DATABASE_URL']);
 await migrate(db, { migrationsFolder: './drizzle', migrationsSchema: 'timekeeper' });
 
 // TODO: This value should come from the database
