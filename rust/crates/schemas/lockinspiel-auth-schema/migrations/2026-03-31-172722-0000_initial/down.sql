@@ -13,4 +13,4 @@ DROP POLICY "Users can delete their profiles." ON auth.users;
 DROP TABLE auth.users;
 DROP FUNCTION auth.set_uid;
 DROP FUNCTION auth.uid;
-REVOKE USAGE ON SCHEMA auth FROM service;
+REVOKE USAGE ON SCHEMA auth FROM PUBLIC;
