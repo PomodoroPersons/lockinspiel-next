@@ -35,14 +35,17 @@ use crate::{
     ApiState, Placeholder,
     error::{AsStatusCode, Error, WithReason},
     jwk_set::JwkSetManager,
-    schema::{refresh_tokens, users},
     sql_types::DieselByteA,
     users::{RefreshToken, User, UserClaims},
 };
 
+use lockinspiel_auth_schema::schema::auth::{refresh_tokens, users};
+
 #[declare_sql_function]
 extern "SQL" {
+    #[sql_name = "auth.uid"]
     fn uid() -> sql_types::Uuid;
+    #[sql_name = "auth.set_uid"]
     fn set_uid(uid: sql_types::Uuid) -> sql_types::Text;
 }
 
@@ -56,7 +59,7 @@ pub type Credential = [u8; CREDENTIAL_LEN];
 pub type Salt = [u8; SALT_LEN];
 
 #[derive(HasQuery, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::users)]
+#[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct DatabaseUser {
     pub user_id: Uuid,
@@ -80,7 +83,7 @@ impl From<DatabaseUser> for User {
 }
 
 #[derive(Insertable, AsChangeset, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::users)]
+#[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct DatabaseUserPassword {
     #[diesel(skip_insertion, skip_update)]
@@ -168,7 +171,7 @@ impl Placeholder for DatabaseUserPassword {
 }
 
 #[derive(Insertable, AsChangeset, ToSchema, Deserialize, Serialize, Debug, PartialEq)]
-#[diesel(table_name = crate::schema::users)]
+#[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct InsertableDatabaseUser {
     username: String,

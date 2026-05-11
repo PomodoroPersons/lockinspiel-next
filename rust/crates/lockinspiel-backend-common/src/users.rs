@@ -4,8 +4,10 @@ use uuid::Uuid;
 
 use crate::{Placeholder, sql_types::Timestamp};
 
+use lockinspiel_auth_schema::schema::auth::{refresh_tokens, users};
+
 #[derive(HasQuery, Deserialize, Serialize, Debug, Default, Clone)]
-#[diesel(table_name = crate::schema::users)]
+#[diesel(table_name = users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct User {
     pub user_id: Uuid,
@@ -24,7 +26,7 @@ impl Placeholder for User {
 }
 
 #[derive(HasQuery, Deserialize, Serialize, Debug, Default, Clone)]
-#[diesel(table_name = crate::schema::refresh_tokens)]
+#[diesel(table_name = refresh_tokens)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct RefreshToken {
     pub refresh_token: Uuid,

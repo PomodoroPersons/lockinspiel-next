@@ -14,7 +14,7 @@ use diesel_async::{
     AsyncConnection, AsyncMigrationHarness,
     pooled_connection::{AsyncDieselConnectionManager, ManagerConfig, bb8},
 };
-use diesel_migrations::{EmbeddedMigrations, MigrationHarness, embed_migrations};
+use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 use futures_util::FutureExt;
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
@@ -50,12 +50,9 @@ mod cli_level_filter;
 pub mod auth;
 pub mod error;
 pub mod jwk_set;
-pub mod schema;
 pub mod sql_types;
 pub mod telemetry;
 pub mod users;
-
-pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 
 pub trait Placeholder {
     fn placeholder() -> Self;
@@ -149,7 +146,10 @@ impl InitState {
     }
 }
 
-pub async fn init(service: ServiceConfig) -> eyre::Result<(InitState, ApiState)> {
+pub async fn init(
+    service: ServiceConfig,
+    migrations: EmbeddedMigrations,
+) -> eyre::Result<(InitState, ApiState)> {
     dotenvy::dotenv().ok();
     let color = supports_color::on(supports_color::Stream::Stderr)
         .map(|c| c.has_basic)
@@ -228,7 +228,7 @@ pub async fn init(service: ServiceConfig) -> eyre::Result<(InitState, ApiState)>
     );
     // SAFETY: Box<dyn Error + Send + Sync> is not also 'static,
     // so must use unwrap
-    harness.run_pending_migrations(MIGRATIONS).unwrap();
+    harness.run_pending_migrations(migrations).unwrap();
 
     let reqwest_client = reqwest::Client::new();
 

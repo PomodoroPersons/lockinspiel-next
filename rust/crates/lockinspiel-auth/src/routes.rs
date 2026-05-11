@@ -14,13 +14,14 @@ use lockinspiel_backend_common::{
         create_refresh_token_cookie,
     },
     error::{self, EyreError, WithStatusCode},
-    schema::{refresh_tokens, users},
     users::{RefreshToken, User, UserClaims},
 };
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 use utoipa::ToSchema;
 use uuid::Uuid;
+
+use lockinspiel_auth_schema::schema::auth::{refresh_tokens, users};
 
 #[declare_sql_function]
 extern "SQL" {
@@ -101,7 +102,7 @@ impl Placeholder for LoginToken {
 }
 
 #[derive(Insertable, ToSchema, Deserialize, Serialize, Debug, PartialEq)]
-#[diesel(table_name = lockinspiel_backend_common::schema::refresh_tokens)]
+#[diesel(table_name = refresh_tokens)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct InsertableRefreshToken {
     user_id: uuid::Uuid,

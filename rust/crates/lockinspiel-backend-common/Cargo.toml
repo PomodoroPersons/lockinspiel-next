@@ -14,11 +14,11 @@ color-eyre.workspace = true
 tokio.workspace = true
 diesel.workspace = true
 diesel-async.workspace = true
+diesel_migrations.workspace = true
 uuid.workspace = true
 serde.workspace = true
 tower-http.workspace = true
 reqwest = { version = "0.13.2", features = ["json"] }
-diesel_migrations = "2.3.1"
 dotenvy = "0.15.7"
 supports-color = "3.0.2"
 tysonscript-object-notation = "0.1.0"
@@ -39,3 +39,4 @@ utoipa.workspace = true
 utoipa-scalar.workspace = true
 utoipa-axum.workspace = true
 jiff.workspace = true
+lockinspiel-auth-schema = { version = "0.1.0", path = "../schemas/lockinspiel-auth-schema" }

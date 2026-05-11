@@ -1,7 +1,7 @@
 [workspace]
 members = [
   "crates/lockinspiel-auth",
-  "crates/lockinspiel-backend-common",
+  "crates/lockinspiel-backend-common", "crates/schemas/lockinspiel-auth-schema",
 ]
 resolver = "3"
 
@@ -18,12 +18,13 @@ tokio = { version = "1.50.0", features = [
   "macros",
   "signal",
 ] }
-diesel = { version = "2.3.7", features = ["uuid"] }
+diesel = { version = "2.3.7", features = ["uuid", "postgres_backend"] }
 diesel-async = { version = "0.8.0", features = [
   "postgres",
   "bb8",
   "migrations",
 ] }
+diesel_migrations = "2.3.1"
 uuid = { version = "1.23.0", features = ["serde", "v7"] }
 serde = { version = "1.0.228", features = ["derive"] }
 tower-http = { version = "0.6.8", features = [

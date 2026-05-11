@@ -2,23 +2,52 @@
 set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
-	CREATE USER docker WITH PASSWORD '$POSTGRES_PASSWORD';
+	CREATE ROLE "service";
+
+	CREATE USER auth_service WITH PASSWORD '$POSTGRES_PASSWORD';
+	CREATE USER timekeeper_service WITH PASSWORD '$POSTGRES_PASSWORD';
+	CREATE USER analyzer_service WITH PASSWORD '$POSTGRES_PASSWORD';
+
+	GRANT service TO auth_service;
+	GRANT service TO timekeeper_service;
+	GRANT service TO analyzer_service;
+
 	CREATE USER otelu WITH PASSWORD '$POSTGRES_PASSWORD';
+
 	CREATE DATABASE docker;
-	GRANT ALL PRIVILEGES ON DATABASE docker TO docker;
+
+	GRANT CONNECT ON DATABASE docker TO auth_service;
+	-- RAAAAA DRIZZZLLLLEEE!!!!
+	GRANT ALL PRIVILEGES ON DATABASE docker TO timekeeper_service;
+	GRANT CONNECT ON DATABASE docker TO analyzer_service;
+
 	GRANT pg_monitor TO otelu;
+
+	CREATE ROLE "anon";
+	CREATE ROLE "authenticator";
+	CREATE ROLE "authenticated";
+
+	GRANT anon TO service;
+	GRANT authenticator TO service;
+	GRANT authenticated TO service;
+
+	GRANT anon TO authenticated;
 EOSQL
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "docker" <<-EOSQL
 	CREATE EXTENSION IF NOT EXISTS timescaledb;
 	CREATE EXTENSION IF NOT EXISTS pg_stat_statements;
-	GRANT USAGE, CREATE ON SCHEMA public TO docker;
-	CREATE ROLE "anon";
-	CREATE ROLE "authenticator";
-	CREATE ROLE "authenticated";
-	GRANT anon TO docker;
-	GRANT anon TO authenticated;
-	GRANT authenticator TO docker;
-	GRANT authenticated TO docker;
+
+	GRANT USAGE, CREATE ON SCHEMA public TO service;
+
+	CREATE SCHEMA auth;
+	ALTER SCHEMA auth OWNER TO auth_service
+
+	CREATE SCHEMA timekeeper;
+	ALTER SCHEMA timekeeper OWNER TO timekeeper_service
+
+	CREATE SCHEMA analyzer;
+	ALTER SCHEMA analyzer OWNER TO analyzer_service
+	-- GRANT USAGE ON SCHEMA analyzer TO service;
 EOSQL
 

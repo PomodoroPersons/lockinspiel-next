@@ -3,6 +3,12 @@ import { Elysia, Static, t } from "elysia";
 import { jwtUse, openapiUse, otelTracer } from "lockinspiel-backend-common";
 import { Timer, TimeSplitWID, model } from "./model";
 
+import 'dotenv/config';
+import { drizzle } from 'drizzle-orm/bun-sql';
+import { migrate } from 'drizzle-orm/bun-sql/migrator';
+
+const db = drizzle(Bun.env['DATABASE_URL'] ?? "");
+await migrate(db, { migrationsFolder: './drizzle', migrationsSchema: 'timekeeper' });
 
 // TODO: This value should come from the database
 let TIMER_ID = 0;

@@ -34,9 +34,10 @@ pub struct AuthApiState {
 async fn main() -> eyre::Result<()> {
     let service_config = ServiceConfig::new("auth");
     let service_id = service_config.id.clone();
-    let (init_state, api_state) = lockinspiel_backend_common::init(service_config)
-        .await
-        .wrap_err("Failed to initialize API state")?;
+    let (init_state, api_state) =
+        lockinspiel_backend_common::init(service_config, lockinspiel_auth_schema::MIGRATIONS)
+            .await
+            .wrap_err("Failed to initialize API state")?;
 
     // The key pair we generate is only compatible with
     // this algorithm

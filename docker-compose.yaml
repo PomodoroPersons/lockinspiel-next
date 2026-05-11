@@ -7,6 +7,8 @@ services:
       - ./postgres/init-user-db.sh:/docker-entrypoint-initdb.d/10_userdb.sh
     image: timescale/timescaledb:latest-pg18
     restart: unless-stopped
+    ports:
+      - 5432:5432
     # set shared memory limit when using docker compose
     shm_size: 128mb
     # or set shared memory limit when deploy via swarm stack
@@ -85,7 +87,7 @@ services:
       context: ./rust
     environment:
       AUTH_SERVICE: http://web-auth:3000
-      DATABASE_URL: postgres://docker:example@db/docker
+      DATABASE_URL: postgres://auth_service:example@db/docker
       SERVICE_TYPE: auth
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
       LISTEN_ADDR: "[::]:3000"
@@ -110,7 +112,7 @@ services:
         SERVICE_TYPE: timekeeper
       context: ./bun
     environment:
-      DATABASE_URL: postgres://docker:example@db/docker
+      DATABASE_URL: postgres://timekeeper_service:example@db/docker
       AUTH_SERVICE: http://web-auth:3000/auth
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
       LISTEN_PORT: 3000
@@ -134,7 +136,7 @@ services:
         SERVICE_TYPE: analyzer
       context: ./java
     environment:
-      DB_URL: jdbc:postgresql://db/docker?password=example&user=docker
+      DATABASE_URL: jdbc:postgresql://db/docker?password=example&user=analyzer_service
       AUTH_SERVICE: http://web-auth:3000/auth
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
       LISTEN_PORT: 3000

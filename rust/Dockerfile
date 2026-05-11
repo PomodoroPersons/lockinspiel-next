@@ -11,6 +11,7 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY ./crates/lockinspiel-backend-common ./crates/lockinspiel-backend-common
+COPY ./crates/schemas ./crates/schemas
 ARG SERVICE
 COPY ./crates/$SERVICE ./crates/$SERVICE
 RUN cargo build --release --bin $SERVICE

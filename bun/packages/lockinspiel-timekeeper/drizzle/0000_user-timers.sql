@@ -1,132 +1,46 @@
-CREATE FUNCTION uid()
-RETURNS uuid
-LANGUAGE sql
-STABLE
-AS $$
-  SELECT current_setting('app.current_user_id', true)::uuid;
-$$;
+GRANT USAGE ON SCHEMA timekeeper TO service;
 
-CREATE FUNCTION set_uid(uid uuid)
-RETURNS text
-LANGUAGE sql
-STABLE
-AS $$
-  SELECT set_config('app.current_user_id', uid::text, false);
-$$;
-
-CREATE TABLE users(
-    user_id uuid PRIMARY KEY DEFAULT generate_uuidv7(),
-    username VARCHAR NOT NULL UNIQUE,
-    pbkdf2_iterations INTEGER NOT NULL,
-    salt BYTEA NOT NULL,
-    password BYTEA NOT NULL
-);
-
-GRANT INSERT, SELECT, UPDATE, DELETE ON users TO authenticated;
-GRANT INSERT, SELECT ON users TO anon;
-GRANT SELECT ON users TO authenticator;
-
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Anyone can view profiles"
-ON users FOR SELECT TO anon
-USING ( true );
-
-CREATE POLICY "Anyone can create profiles"
-ON users FOR INSERT TO anon
-WITH CHECK ( true );
-
-CREATE POLICY "Users can update their own profiles."
-ON users FOR UPDATE TO authenticated
-USING ( (SELECT uid()) = user_id)
-WITH CHECK ( (SELECT uid()) = user_id);
-
-CREATE POLICY "Users can delete their profiles."
-ON users FOR DELETE TO authenticated
-USING ( (SELECT uid()) = user_id);
-
-CREATE TABLE refresh_tokens(
-    refresh_token uuid NOT NULL DEFAULT generate_uuidv7(),
-    user_id uuid REFERENCES users(user_id) NOT NULL,
-    exp TIMESTAMPTZ NOT NULL DEFAULT now() + '30 days',
-    PRIMARY KEY (refresh_token, exp)
-) WITH (
-    tsdb.hypertable,
-    tsdb.segmentby = 'user_id',
-    tsdb.columnstore = false,
-    tsdb.partition_column = 'exp',
-    tsdb.orderby = 'exp DESC',
-    tsdb.create_default_indexes = false,
-    tsdb.chunk_interval='1 day'
-);
-
-CREATE INDEX ON refresh_tokens(user_id);
-
--- Clean up chunks that have expired refresh tokens
-SELECT add_retention_policy('refresh_tokens', INTERVAL '0 hours');
-
-GRANT INSERT, SELECT, UPDATE, DELETE ON refresh_tokens TO anon;
-
-ALTER TABLE refresh_tokens ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "You can view your own refresh tokens"
-ON refresh_tokens FOR SELECT TO anon
-USING ( (SELECT uid()) = user_id);
-
-CREATE POLICY "Anyone can create refresh tokens for themselves"
-ON refresh_tokens FOR INSERT TO anon
-WITH CHECK ( (SELECT uid()) = user_id);
-
-CREATE POLICY "Users can update their own refresh tokens."
-ON refresh_tokens FOR UPDATE TO anon
-USING ( (SELECT uid()) = user_id)
-WITH CHECK ( (SELECT uid()) = user_id);
-
-CREATE POLICY "Users can delete their refresh tokens."
-ON refresh_tokens FOR DELETE TO anon
-USING ( (SELECT uid()) = user_id);
-
-CREATE SEQUENCE time_split_pk;
-CREATE TABLE time_split(
-    id INTEGER PRIMARY KEY DEFAULT nextval('time_split_pk'),
+CREATE SEQUENCE timekeeper.time_split_pk;
+CREATE TABLE timekeeper.time_split(
+    id INTEGER PRIMARY KEY DEFAULT nextval('timekeeper.time_split_pk'),
     name VARCHAR NOT NULL,
     description VARCHAR,
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
-GRANT SELECT ON time_split TO authenticated;
-GRANT SELECT ON time_split TO anon;
+GRANT SELECT ON timekeeper.time_split TO authenticated;
+GRANT SELECT ON timekeeper.time_split TO anon;
 
-ALTER TABLE time_split ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timekeeper.time_split ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "public can read time_split"
-ON time_split
+ON timekeeper.time_split
 FOR SELECT TO anon
 USING (true);
 
-CREATE SEQUENCE time_split_timer_pk;
-CREATE TABLE time_split_timer(
-    id INTEGER PRIMARY KEY DEFAULT nextval('time_split_timer_pk'),
-    time_split_id INTEGER NOT NULL REFERENCES time_split(id),
+CREATE SEQUENCE timekeeper.time_split_timer_pk;
+CREATE TABLE timekeeper.time_split_timer(
+    id INTEGER PRIMARY KEY DEFAULT nextval('timekeeper.time_split_timer_pk'),
+    time_split_id INTEGER NOT NULL REFERENCES timekeeper.time_split(id),
     len INTERVAL NOT NULL,
     name VARCHAR NOT NULL,
     work BOOLEAN NOT NULL
 );
 
-GRANT SELECT ON time_split_timer TO authenticated;
-GRANT SELECT ON time_split_timer TO anon;
+GRANT SELECT ON timekeeper.time_split_timer TO authenticated;
+GRANT SELECT ON timekeeper.time_split_timer TO anon;
 
-ALTER TABLE time_split_timer ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timekeeper.time_split_timer ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "public can read time_split_timer"
-ON time_split_timer
+ON timekeeper.time_split_timer
 FOR SELECT TO anon
 USING (true);
 
-CREATE TABLE timesheet_group(
+CREATE TABLE timekeeper.timesheet_group(
     id uuid DEFAULT generate_uuidv7() NOT NULL PRIMARY KEY,
-    time_split_id INTEGER NOT NULL REFERENCES time_split(id),
-    user_id uuid REFERENCES users(user_id) NOT NULL
+    time_split_id INTEGER NOT NULL REFERENCES timekeeper.time_split(id),
+    user_id uuid REFERENCES auth.users(user_id) NOT NULL
 ) WITH (
     tsdb.hypertable,
     tsdb.segmentby = 'user_id',
@@ -136,9 +50,9 @@ CREATE TABLE timesheet_group(
     tsdb.chunk_interval='7 days'
 );
 
-CREATE INDEX ON timesheet_group (user_id, id DESC);
+CREATE INDEX ON timekeeper.timesheet_group (user_id, id DESC);
 
-GRANT INSERT, SELECT, UPDATE, DELETE ON timesheet_group TO authenticated;
+GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.timesheet_group TO authenticated;
 
 -- CREATE VIEW timesheet_group AS
 -- SELECT
@@ -172,11 +86,11 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON timesheet_group TO authenticated;
 -- TO authenticated
 -- USING ( (SELECT uid()) = user_id );
 
-CREATE TABLE timesheet(
+CREATE TABLE timekeeper.timesheet(
     timesheet_group uuid NOT NULL, -- REFERENCES timesheet_group(id),
     start_time TIMESTAMPTZ NOT NULL PRIMARY KEY,
     end_time TIMESTAMPTZ NOT NULL,
-    user_id uuid REFERENCES users(user_id) NOT NULL,
+    user_id uuid REFERENCES auth.users(user_id) NOT NULL,
     work BOOLEAN NOT NULL,
     UNIQUE (start_time, end_time)
 ) WITH (
@@ -188,9 +102,9 @@ CREATE TABLE timesheet(
     tsdb.chunk_interval='7 days'
 );
 
-CREATE INDEX ON timesheet (user_id, start_time DESC);
+CREATE INDEX ON timekeeper.timesheet (user_id, start_time DESC);
 
-GRANT INSERT, SELECT, UPDATE, DELETE ON timesheet TO authenticated;
+GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.timesheet TO authenticated;
 
 -- CREATE VIEW timesheet AS
 -- SELECT
@@ -224,43 +138,43 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON timesheet TO authenticated;
 -- TO authenticated
 -- USING ( (SELECT uid()) = user_id );
 
-CREATE SEQUENCE tag_pk;
-CREATE TABLE tag(
-    id INTEGER PRIMARY KEY DEFAULT nextval('tag_pk'),
+CREATE SEQUENCE timekeeper.tag_pk;
+CREATE TABLE timekeeper.tag(
+    id INTEGER PRIMARY KEY DEFAULT nextval('timekeeper.tag_pk'),
     name VARCHAR NOT NULL UNIQUE,
-    user_id uuid REFERENCES users(user_id),
+    user_id uuid REFERENCES auth.users(user_id),
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
-GRANT INSERT, SELECT, UPDATE, DELETE ON tag TO authenticated;
+GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.tag TO authenticated;
 
-ALTER TABLE tag ENABLE ROW LEVEL SECURITY;
+ALTER TABLE timekeeper.tag ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Users can create a tag."
-ON tag FOR INSERT
+ON timekeeper.tag FOR INSERT
 TO authenticated
-WITH CHECK ( (SELECT uid()) IS NULL OR (SELECT uid()) = user_id );
+WITH CHECK ( (SELECT auth.uid()) IS NULL OR (SELECT auth.uid()) = user_id );
 
 CREATE POLICY "Public tags are viewable only by authenticated users"
-ON tag FOR SELECT
+ON timekeeper.tag FOR SELECT
 TO authenticated
 USING ( true );
 
 CREATE POLICY "Users can update their own tags."
-ON tag FOR UPDATE
+ON timekeeper.tag FOR UPDATE
 TO authenticated
-USING ( (SELECT uid()) = user_id )
-WITH CHECK ( (SELECT uid()) = user_id );
+USING ( (SELECT auth.uid()) = user_id )
+WITH CHECK ( (SELECT auth.uid()) = user_id );
 
 CREATE POLICY "Users can delete their own tags."
-ON tag FOR DELETE
+ON timekeeper.tag FOR DELETE
 TO authenticated
-USING ( (SELECT uid()) = user_id );
+USING ( (SELECT auth.uid()) = user_id );
 
-CREATE TABLE timesheet_tag(
-    timesheet_group uuid NOT NULL, -- REFERENCES timesheet_group(id),
-    tag_id INTEGER NOT NULL REFERENCES tag(id),
-    user_id uuid NOT NULL REFERENCES users(user_id),
+CREATE TABLE timekeeper.timesheet_tag(
+    timesheet_group uuid NOT NULL, -- REFERENCES timekeeper.timesheet_group(id),
+    tag_id INTEGER NOT NULL REFERENCES timekeeper.tag(id),
+    user_id uuid NOT NULL REFERENCES auth.users(user_id),
     PRIMARY KEY (timesheet_group, tag_id)
 ) WITH (
     tsdb.hypertable,
@@ -271,9 +185,9 @@ CREATE TABLE timesheet_tag(
     tsdb.chunk_interval='7 days'
 );
 
-CREATE INDEX ON timesheet_tag (user_id, timesheet_group DESC);
+CREATE INDEX ON timekeeper.timesheet_tag (user_id, timesheet_group DESC);
 
-GRANT INSERT, SELECT, UPDATE, DELETE ON timesheet_tag TO authenticated;
+GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.timesheet_tag TO authenticated;
 
 -- CREATE VIEW timesheet_tag AS
 -- SELECT
@@ -307,14 +221,14 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON timesheet_tag TO authenticated;
 -- TO authenticated
 -- USING ( (SELECT uid()) = user_id );
 
-INSERT INTO time_split (id, name) VALUES (0, '_paused_');
-INSERT INTO time_split (name, description) VALUES
+INSERT INTO timekeeper.time_split (id, name) VALUES (0, '_paused_');
+INSERT INTO timekeeper.time_split (name, description) VALUES
     ('Pomodoro', 'Classic, tried, and true'),
     ('Time Magazine', 'Based on studies'),
     ('Tyson Split', 'For those with extra dog in ''em'),
     ('Build Night', 'We burnin'' out tonight baby!');
 
-INSERT INTO time_split_timer (time_split_id, len, name, work) VALUES
+INSERT INTO timekeeper.time_split_timer (time_split_id, len, name, work) VALUES
     -- _paused_
     (0, INTERVAL '0 minutes', '_paused_', false),
     -- Pomodoro
@@ -331,3 +245,4 @@ INSERT INTO time_split_timer (time_split_id, len, name, work) VALUES
     -- Build Night
     (4, INTERVAL '120 minutes', 'Work', true),
     (4, INTERVAL '10 minutes', 'Break', false);
+
