@@ -1,4 +1,4 @@
-GRANT USAGE ON SCHEMA timekeeper TO service;
+GRANT USAGE ON SCHEMA timekeeper TO PUBLIC;
 
 CREATE SEQUENCE timekeeper.time_split_pk;
 CREATE TABLE timekeeper.time_split(

@@ -233,23 +233,23 @@ impl DatabaseConnection {
 
     async fn set_uid(&mut self, user: Option<User>) -> Result<(), Error<ErrorKind>> {
         if let Some(user) = &user {
-            diesel::sql_query("SET ROLE authenticated")
-                .execute(&mut self.connection)
-                .await
-                .with_reason("Failed to switch into authenticated role")?;
             diesel::select(set_uid(user.user_id))
                 .execute(&mut self.connection)
                 .await
                 .with_reason("Failed to pass user ID to database")?;
-        } else {
-            diesel::sql_query("SET ROLE anon")
+            diesel::sql_query("SET ROLE authenticated")
                 .execute(&mut self.connection)
                 .await
-                .with_reason("Failed to switch into anon role")?;
+                .with_reason("Failed to switch into authenticated role")?;
+        } else {
             diesel::select(set_uid(Uuid::nil()))
                 .execute(&mut self.connection)
                 .await
                 .with_reason("Failed to unset user ID in database")?;
+            diesel::sql_query("SET ROLE anon")
+                .execute(&mut self.connection)
+                .await
+                .with_reason("Failed to switch into anon role")?;
         }
 
         self.user = user;
