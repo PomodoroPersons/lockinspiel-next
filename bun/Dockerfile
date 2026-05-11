@@ -25,7 +25,8 @@ RUN bun build \
 	--outfile server \
 	./packages/$PACKAGE/src/index.ts
 
-FROM gcr.io/distroless/base
+# FROM gcr.io/distroless/base
+FROM alpine:3.23
 
 WORKDIR /app
 
