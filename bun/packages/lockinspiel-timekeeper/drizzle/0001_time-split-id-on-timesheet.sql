@@ -1,5 +1,5 @@
 ALTER TABLE IF EXISTS timekeeper.timesheet
-    ADD COLUMN time_split_timer integer NOT NULL;
+    ADD COLUMN time_split_timer integer NOT NULL DEFAULT 0;
 ALTER TABLE IF EXISTS timekeeper.timesheet
     ADD FOREIGN KEY (time_split_timer)
     REFERENCES timekeeper.time_split_timer (id);
