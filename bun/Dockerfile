@@ -29,9 +29,9 @@ FROM gcr.io/distroless/base
 
 WORKDIR /lockinspiel
 
-COPY --from=build /lockinspiel/server server
+COPY --from=build /app/server server
 ARG PACKAGE
-COPY --from=build /lockinspiel/packages/$PACKAGE/drizzle drizzle
+COPY --from=build /app/packages/$PACKAGE/drizzle drizzle
 
 ENV NODE_ENV=production
 ARG SERVICE_TYPE
