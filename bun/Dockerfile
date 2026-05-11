@@ -1,4 +1,4 @@
-FROM oven/bun AS build
+FROM oven/bun:alpine AS build
 
 WORKDIR /app
 
@@ -25,8 +25,7 @@ RUN bun build \
 	--outfile server \
 	./packages/$PACKAGE/src/index.ts
 
-# FROM gcr.io/distroless/base
-FROM alpine:3.23
+FROM oven/bun:alpine
 
 WORKDIR /app
 
@@ -38,6 +37,6 @@ ENV NODE_ENV=production
 ARG SERVICE_TYPE
 ENV SERVICE_TYPE=${SERVICE_TYPE}
 
-CMD ["./server"]
+CMD ["/app/server"]
 
 EXPOSE 3000
