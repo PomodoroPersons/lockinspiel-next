@@ -7,10 +7,12 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE USER auth_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER timekeeper_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER analyzer_service WITH PASSWORD '$POSTGRES_PASSWORD';
+	CREATE USER user_service WITH PASSWORD '$POSTGRES_PASSWORD';
 
 	GRANT service TO auth_service;
 	GRANT service TO timekeeper_service;
 	GRANT service TO analyzer_service;
+	GRANT service TO user_service;
 
 	CREATE USER otelu WITH PASSWORD '$POSTGRES_PASSWORD';
 
@@ -20,6 +22,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	-- RAAAAA DRIZZZLLLLEEE!!!!
 	GRANT ALL PRIVILEGES ON DATABASE docker TO timekeeper_service;
 	GRANT CONNECT ON DATABASE docker TO analyzer_service;
+	GRANT CONNECT ON DATABASE docker TO user_service;
 
 	GRANT pg_monitor TO otelu;
 
@@ -48,6 +51,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "docker" <<-EOSQL
 
 	CREATE SCHEMA analyzer;
 	ALTER SCHEMA analyzer OWNER TO analyzer_service;
-	-- GRANT USAGE ON SCHEMA analyzer TO service;
+
+	CREATE SCHEMA "user";
+	ALTER SCHEMA "user" OWNER TO user_service;
 EOSQL
 

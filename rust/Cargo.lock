@@ -1622,6 +1622,37 @@ dependencies = [
 ]
 
 [[package]]
+name = "lockinspiel-user"
+version = "0.1.0"
+dependencies = [
+ "aws-lc-rs",
+ "axum",
+ "axum-extra",
+ "color-eyre",
+ "diesel",
+ "diesel-async",
+ "jiff",
+ "jsonwebtoken",
+ "lockinspiel-backend-common",
+ "lockinspiel-user-schema",
+ "serde",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "utoipa-scalar",
+ "uuid",
+]
+
+[[package]]
+name = "lockinspiel-user-schema"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "diesel_migrations",
+]
+
+[[package]]
 name = "log"
 version = "0.4.29"
 source = "registry+https://github.com/rust-lang/crates.io-index"

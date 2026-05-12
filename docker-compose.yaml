@@ -164,6 +164,31 @@ services:
       mode: replicated
       replicas: 1
 
+  web-user:
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 10
+    build:
+      args:
+        SERVICE: lockinspiel-user
+      context: ./rust
+    environment:
+      AUTH_SERVICE: http://web-auth:3000
+      DATABASE_URL: postgres://user_service:example@db/docker
+      SERVICE_TYPE: user
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
+      LISTEN_ADDR: "[::]:3000"
+      # RUST_LOG: debug
+    deploy:
+      mode: replicated
+      replicas: 1
+
 volumes:
   pgdata:
 
