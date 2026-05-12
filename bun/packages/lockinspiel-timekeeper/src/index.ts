@@ -6,6 +6,8 @@ import { Timer, TimeSplitWID, model } from "./model";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/bun-sql";
 import { migrate } from "drizzle-orm/bun-sql/migrator";
+import { timeSplitTimerTable } from "./db/schema";
+import { formatLen } from "./util";
 
 if (!Bun.env["DATABASE_URL"]) {
   console.error("DATABASE_URL is not defined");
@@ -86,6 +88,13 @@ const app = new Elysia()
       const profile = await jwt.verify(authorization.split(" ")[1]);
 
       if (!profile) return status(401, "Unauthorized");
+
+      db.insert(timeSplitTimerTable).values({
+        name: "test", // TODO: There is no name field in the Timer type
+        len: formatLen(body.start_timestamp, body.end_timestamp),
+        time_split_id: body.time_split,
+        work: body.work,
+      });
 
       MOST_RECENT_TIMER = body;
       return status(200, { timer_id: ++TIMER_ID });
