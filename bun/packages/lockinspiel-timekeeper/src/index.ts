@@ -6,8 +6,15 @@ import { Timer, TimeSplitWID, model } from "./model";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/bun-sql";
 import { migrate } from "drizzle-orm/bun-sql/migrator";
-import { timeSplitTimerTable } from "./db/schema";
+import {
+  tagTable,
+  timesheetTable,
+  timesheetTagTable,
+  timeSplitTable,
+  timeSplitTimerTable,
+} from "./db/schema";
 import { formatLen } from "./util";
+import { eq } from "drizzle-orm";
 
 if (!Bun.env["DATABASE_URL"]) {
   console.error("DATABASE_URL is not defined");
@@ -20,10 +27,6 @@ await migrate(db, {
   migrationsSchema: "timekeeper",
 });
 
-// TODO: This value should come from the database
-let TIMER_ID = 0;
-// TODO: This value should come from the database
-let MOST_RECENT_TIMER: Static<typeof Timer>;
 // TODO: This value should come from the database
 let TAG_ID = 0;
 // TODO: This value should come from the database
@@ -58,7 +61,24 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return status(200, [{ id: TIMER_ID, ...MOST_RECENT_TIMER }]);
+      const timers = await db.select().from(timeSplitTimerTable);
+      // .leftJoin(
+      //   timeSplitTable,
+      //   eq(timeSplitTimerTable.time_split_id, timeSplitTable.id),
+      // );
+      // .leftJoin(
+      //   timesheetTable,
+      //   eq(timeSplitTable.id, timesheetTable.time_split_timer),
+      // )
+      // .leftJoin(
+      //   timesheetTagTable,
+      //   eq(timesheetTagTable.timesheet_group, timesheetTable.timesheet_group),
+      // )
+      // .leftJoin(tagTable, eq(timesheetTagTable.tag_id, tagTable.id));
+
+      console.log(timers);
+
+      return status(200, []);
     },
     {
       detail: {
@@ -89,15 +109,17 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      db.insert(timeSplitTimerTable).values({
-        name: body.name,
-        len: formatLen(body.start_timestamp, body.end_timestamp),
-        time_split_id: body.time_split,
-        work: body.work,
-      });
+      const inserted = await db
+        .insert(timeSplitTimerTable)
+        .values({
+          name: body.name,
+          len: formatLen(body.start_timestamp, body.end_timestamp),
+          time_split_id: body.time_split,
+          work: body.work,
+        })
+        .returning({ id: timeSplitTable.id });
 
-      MOST_RECENT_TIMER = body;
-      return status(200, { timer_id: ++TIMER_ID });
+      return status(200, { timer_id: inserted[0].id });
     },
     {
       body: "Timer",
@@ -136,7 +158,19 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      if (id > TIMER_ID) return status(404, "Timer not found");
+      const timerResults = await db
+        .select()
+        .from(timeSplitTimerTable)
+        .where(eq(timeSplitTimerTable.id, id));
+
+      if (timerResults.length <= 0) return status(404, "Timer not found");
+
+      await db.update(timeSplitTimerTable).set({
+        len: formatLen(body.start_timestamp, body.end_timestamp),
+        name: body.name,
+        time_split_id: body.time_split,
+        work: body.work,
+      });
 
       return status(200, "OK");
     },
