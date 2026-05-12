@@ -90,7 +90,7 @@ const app = new Elysia()
       if (!profile) return status(401, "Unauthorized");
 
       db.insert(timeSplitTimerTable).values({
-        name: "test", // TODO: There is no name field in the Timer type
+        name: body.name,
         len: formatLen(body.start_timestamp, body.end_timestamp),
         time_split_id: body.time_split,
         work: body.work,
