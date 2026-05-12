@@ -1,0 +1,87 @@
+info:
+  name: Post a timer
+  type: http
+  seq: 2
+  tags:
+    - Timer
+
+http:
+  method: POST
+  url: "{{baseUrl}}/timekeeper/timer"
+  body:
+    type: json
+    data: |-
+      {
+        "time_split": 1,
+        "start_timestamp": 1778605000051,
+        "end_timestamp": 1778608600051,
+        "work": false,
+        "tags": [],
+        "name": "testing lockinspiel"
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Response for status 200
+    request:
+      url: "{{baseUrl}}/timekeeper/timer"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "time_split": "",
+            "start_timestamp": "",
+            "end_timestamp": "",
+            "work": false,
+            "tags": [],
+            "name": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "timer_id": ""
+          }
+  - name: 401 Response
+    description: Response for status 401
+    request:
+      url: "{{baseUrl}}/timekeeper/timer"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "time_split": "",
+            "start_timestamp": "",
+            "end_timestamp": "",
+            "work": false,
+            "tags": [],
+            "name": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: text/plain
+      body:
+        type: text
+        data: ""
+
+docs: Upon starting a new timer, the Unix timestamp of when the timer was started, as well as the Unix timestamp in the future when the timer will end should be sent to this service. The ID of the time split, whether the timer is a work or a break timer, and the tag IDs associated with the timer should also be sent.

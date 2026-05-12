@@ -1,0 +1,99 @@
+info:
+  name: Post a time split
+  type: http
+  seq: 1
+  tags:
+    - Time_split
+
+http:
+  method: POST
+  url: "{{baseUrl}}/timekeeper/time-split"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "",
+        "description": "",
+        "deleted": false,
+        "timers": [
+          {
+            "len": "",
+            "name": "",
+            "work": false
+          }
+        ]
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Response for status 200
+    request:
+      url: "{{baseUrl}}/timekeeper/time-split"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "",
+            "description": "",
+            "deleted": false,
+            "timers": [
+              {
+                "len": "",
+                "name": "",
+                "work": false
+              }
+            ]
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: application/json
+      body:
+        type: json
+        data: |-
+          {
+            "time_split_id": ""
+          }
+  - name: 401 Response
+    description: Response for status 401
+    request:
+      url: "{{baseUrl}}/timekeeper/time-split"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "name": "",
+            "description": "",
+            "deleted": false,
+            "timers": [
+              {
+                "len": "",
+                "name": "",
+                "work": false
+              }
+            ]
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: text/plain
+      body:
+        type: text
+        data: ""
+
+docs: Adds a new time split to the database. The returned time split ID can be used in other endpoints in this service. The timer lengths should be in seconds

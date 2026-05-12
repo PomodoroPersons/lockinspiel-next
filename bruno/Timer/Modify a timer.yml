@@ -1,0 +1,125 @@
+info:
+  name: Modify a timer
+  type: http
+  seq: 3
+  tags:
+    - Timer
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/timekeeper/timer/:id"
+  params:
+    - name: id
+      value: ""
+      type: path
+  body:
+    type: json
+    data: |-
+      {
+        "time_split": "",
+        "start_timestamp": "",
+        "end_timestamp": "",
+        "work": false,
+        "tags": [],
+        "name": ""
+      }
+  auth:
+    type: bearer
+    token: "{{token}}"
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+
+examples:
+  - name: 200 Response
+    description: Response for status 200
+    request:
+      url: "{{baseUrl}}/timekeeper/timer/:id"
+      method: PUT
+      params:
+        - name: id
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "time_split": "",
+            "start_timestamp": "",
+            "end_timestamp": "",
+            "work": false,
+            "tags": [],
+            "name": ""
+          }
+    response:
+      status: 200
+      statusText: OK
+      headers:
+        - name: Content-Type
+          value: text/plain
+      body:
+        type: text
+        data: ""
+  - name: 401 Response
+    description: Response for status 401
+    request:
+      url: "{{baseUrl}}/timekeeper/timer/:id"
+      method: PUT
+      params:
+        - name: id
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "time_split": "",
+            "start_timestamp": "",
+            "end_timestamp": "",
+            "work": false,
+            "tags": [],
+            "name": ""
+          }
+    response:
+      status: 401
+      statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: text/plain
+      body:
+        type: text
+        data: ""
+  - name: 404 Response
+    description: Response for status 404
+    request:
+      url: "{{baseUrl}}/timekeeper/timer/:id"
+      method: PUT
+      params:
+        - name: id
+          value: ""
+          type: path
+      body:
+        type: json
+        data: |-
+          {
+            "time_split": "",
+            "start_timestamp": "",
+            "end_timestamp": "",
+            "work": false,
+            "tags": [],
+            "name": ""
+          }
+    response:
+      status: 404
+      statusText: Not Found
+      headers:
+        - name: Content-Type
+          value: text/plain
+      body:
+        type: text
+        data: ""
+
+docs: This route replaces the fields of the timer at the current ID with new fields. When a timer is paused, this route should be used to change the end_timestamp of the timer to the Unix timestamp at which the timer was paused. To resume a timer, a new timer should be posted with the Unix timestamp at which the timer was resumed, and the Unix timestamp in the future at which the remaining time will have elapsed.
