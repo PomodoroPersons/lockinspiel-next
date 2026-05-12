@@ -15,6 +15,13 @@
       "when": 1778523110647,
       "tag": "0001_time-split-id-on-timesheet",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778611356416,
+      "tag": "0002_timesheet-changes",
+      "breakpoints": true
     }
   ]
 }

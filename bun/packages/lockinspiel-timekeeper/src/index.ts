@@ -7,14 +7,12 @@ import "dotenv/config";
 import { drizzle } from "drizzle-orm/bun-sql";
 import { migrate } from "drizzle-orm/bun-sql/migrator";
 import {
-  tagTable,
   timesheetTable,
-  timesheetTagTable,
   timeSplitTable,
   timeSplitTimerTable,
 } from "./db/schema";
 import { formatLen } from "./util";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 
 if (!Bun.env["DATABASE_URL"]) {
   console.error("DATABASE_URL is not defined");
@@ -61,20 +59,10 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      const timers = await db.select().from(timeSplitTimerTable);
-      // .leftJoin(
-      //   timeSplitTable,
-      //   eq(timeSplitTimerTable.time_split_id, timeSplitTable.id),
-      // );
-      // .leftJoin(
-      //   timesheetTable,
-      //   eq(timeSplitTable.id, timesheetTable.time_split_timer),
-      // )
-      // .leftJoin(
-      //   timesheetTagTable,
-      //   eq(timesheetTagTable.timesheet_group, timesheetTable.timesheet_group),
-      // )
-      // .leftJoin(tagTable, eq(timesheetTagTable.tag_id, tagTable.id));
+      const timers = await db
+        .select()
+        .from(timesheetTable)
+        .orderBy(desc(timesheetTable.start_time));
 
       console.log(timers);
 
@@ -118,6 +106,15 @@ const app = new Elysia()
           work: body.work,
         })
         .returning({ id: timeSplitTable.id });
+
+      await db.insert(timesheetTable).values({
+        start_time: new Date(body.start_timestamp),
+        end_time: new Date(body.end_timestamp),
+        user_id: profile.user_id,
+        time_split_timer: inserted[0].id,
+        work: body.work,
+        tags: body.tags,
+      });
 
       return status(200, { timer_id: inserted[0].id });
     },

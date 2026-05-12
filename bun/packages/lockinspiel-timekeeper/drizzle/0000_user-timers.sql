@@ -88,7 +88,7 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.timesheet_group TO authentica
 
 CREATE TABLE timekeeper.timesheet(
     timesheet_group uuid NOT NULL, -- REFERENCES timesheet_group(id),
-    start_time TIMESTAMPTZ NOT NULL PRIMARY KEY,
+    start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
     user_id uuid REFERENCES auth.users(user_id) NOT NULL,
     work BOOLEAN NOT NULL,
@@ -101,6 +101,8 @@ CREATE TABLE timekeeper.timesheet(
     tsdb.create_default_indexes = false,
     tsdb.chunk_interval='7 days'
 );
+
+ALTER TABLE timekeeper.timesheet ADD CONSTRAINT timesheet_pk PRIMARY KEY (start_time);
 
 CREATE INDEX ON timekeeper.timesheet (user_id, start_time DESC);
 

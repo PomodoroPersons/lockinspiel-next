@@ -1,6 +1,6 @@
 {
-  "id": "9ef25a16-4001-43f2-9a6c-1d63580043c8",
-  "prevId": "de16759a-2257-47bf-8ed3-03f5c7549e66",
+  "id": "8c04a5f0-eeeb-4127-8c62-2e88aae5ed6c",
+  "prevId": "9ef25a16-4001-43f2-9a6c-1d63580043c8",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -162,52 +162,14 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "timekeeper.timesheet_group": {
-      "name": "timesheet_group",
-      "schema": "timekeeper",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "'generate_uuidv7()'"
-        },
-        "time_split_id": {
-          "name": "time_split_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
     "timekeeper.timesheet": {
       "name": "timesheet",
       "schema": "timekeeper",
       "columns": {
-        "timesheet_group": {
-          "name": "timesheet_group",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
         "start_time": {
           "name": "start_time",
           "type": "timestamp with time zone",
-          "primaryKey": true,
+          "primaryKey": false,
           "notNull": true
         },
         "end_time": {
@@ -228,6 +190,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "tags": {
+          "name": "tags",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
         "time_split_timer": {
           "name": "time_split_timer",
           "type": "integer",
@@ -245,42 +213,6 @@
           "columns": ["start_time", "end_time"]
         }
       },
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "timekeeper.timesheet_tag": {
-      "name": "timesheet_tag",
-      "schema": "timekeeper",
-      "columns": {
-        "timesheet_group": {
-          "name": "timesheet_group",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "tag_id": {
-          "name": "tag_id",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "user_id": {
-          "name": "user_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {
-        "timesheet_tag_timesheet_group_tag_id_pk": {
-          "name": "timesheet_tag_timesheet_group_tag_id_pk",
-          "columns": ["timesheet_group", "tag_id"]
-        }
-      },
-      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

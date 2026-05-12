@@ -9,6 +9,7 @@ import {
   primaryKey,
   timestamp,
   pgSchema,
+  jsonb,
 } from "drizzle-orm/pg-core";
 
 export const timekeeperSchema = pgSchema("timekeeper");
@@ -45,36 +46,14 @@ export const timeSplitTimerRelations = relations(
   }),
 );
 
-export const timesheetGroupTable = timekeeperSchema.table("timesheet_group", {
-  id: uuid("id").notNull().primaryKey().default("generate_uuidv7()"),
-  time_split_id: integer("time_split_id").notNull(),
-  user_id: uuid("user_id").notNull(),
-});
-
-export const timesheetGroupRelations = relations(
-  timesheetGroupTable,
-  ({ one }) => ({
-    time_split: one(timeSplitTable, {
-      fields: [timesheetGroupTable.time_split_id],
-      references: [timeSplitTable.id],
-    }),
-    user: one(usersTable, {
-      fields: [timesheetGroupTable.user_id],
-      references: [usersTable.user_id],
-    }),
-  }),
-);
-
 export const timesheetTable = timekeeperSchema.table(
   "timesheet",
   {
-    timesheet_group: uuid("timesheet_group").notNull(),
-    start_time: timestamp("start_time", { withTimezone: true })
-      .notNull()
-      .primaryKey(),
+    start_time: timestamp("start_time", { withTimezone: true }).notNull(),
     end_time: timestamp("end_time", { withTimezone: true }).notNull(),
     user_id: uuid("user_id").notNull(),
     work: boolean("work").notNull(),
+    tags: jsonb("tags").notNull(),
     time_split_timer: integer("time_split_timer").notNull(),
   },
   (t) => [unique().on(t.start_time, t.end_time)],
@@ -104,27 +83,3 @@ export const tagRelations = relations(tagTable, ({ one }) => ({
     references: [usersTable.user_id],
   }),
 }));
-
-export const timesheetTagTable = timekeeperSchema.table(
-  "timesheet_tag",
-  {
-    timesheet_group: uuid("timesheet_group").notNull(),
-    tag_id: integer("tag_id").notNull(),
-    user_id: uuid("user_id").notNull(),
-  },
-  (t) => [primaryKey({ columns: [t.timesheet_group, t.tag_id] })],
-);
-
-export const timesheetTagRelations = relations(
-  timesheetTagTable,
-  ({ one }) => ({
-    tag: one(tagTable, {
-      fields: [timesheetTagTable.tag_id],
-      references: [tagTable.id],
-    }),
-    user: one(usersTable, {
-      fields: [timesheetTagTable.user_id],
-      references: [usersTable.user_id],
-    }),
-  }),
-);
