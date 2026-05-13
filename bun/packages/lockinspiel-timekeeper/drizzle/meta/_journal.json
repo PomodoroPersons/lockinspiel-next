@@ -22,6 +22,13 @@
       "when": 1778611356416,
       "tag": "0002_timesheet-changes",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1778656033067,
+      "tag": "0003_smart_robin_chapel",
+      "breakpoints": true
     }
   ]
 }

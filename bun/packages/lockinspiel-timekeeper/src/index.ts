@@ -60,8 +60,6 @@ const app = new Elysia()
         .from(timesheetTable)
         .orderBy(desc(timesheetTable.start_time));
 
-      console.log(timers);
-
       return status(200, []);
     },
     {

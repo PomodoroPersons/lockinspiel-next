@@ -22,7 +22,7 @@ export const usersTable = authSchema.table("users", {
 
 export const timeSplitTable = timekeeperSchema.table("time_split", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-  user_id: uuid("user_id").primaryKey().default("generate_uuidv7()"),
+  user_id: uuid("user_id").default("generate_uuidv7()"),
   name: varchar("name").notNull(),
   description: varchar("description"),
   deleted: boolean("deleted").notNull().default(false),

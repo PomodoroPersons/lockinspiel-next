@@ -1,0 +1,1 @@
+ALTER TABLE "timekeeper"."time_split" ADD COLUMN "user_id" uuid DEFAULT gen_random_uuid() NOT NULL;
