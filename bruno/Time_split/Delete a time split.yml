@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/timekeeper/time-split/:id"
   params:
     - name: id
-      value: ""
+      value: "5"
       type: path
   auth:
     type: bearer

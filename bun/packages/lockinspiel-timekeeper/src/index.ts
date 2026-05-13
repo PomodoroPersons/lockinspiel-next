@@ -64,6 +64,7 @@ const app = new Elysia()
           end_timestamp: timesheetTable.end_time,
           tags: timesheetTable.tags,
           work: timeSplitTimerTable.work,
+          deleted: timeSplitTimerTable.deleted,
         })
         .from(timesheetTable)
         .leftJoin(
@@ -80,6 +81,7 @@ const app = new Elysia()
           start_timestamp: row.start_timestamp!.valueOf(),
           end_timestamp: row.end_timestamp!.valueOf(),
           tags: row.tags as number[],
+          deleted: row.deleted!,
         };
       });
       return status(200, timers);
@@ -112,6 +114,13 @@ const app = new Elysia()
       const profile = await jwt.verify(authorization.split(" ")[1]);
 
       if (!profile) return status(401, "Unauthorized");
+
+      const timeSplit = await db
+        .select()
+        .from(timeSplitTable)
+        .where(eq(timeSplitTable.id, body.time_split));
+
+      if (timeSplit.length <= 0) return status(404, "Time split not found");
 
       const inserted = await db
         .insert(timeSplitTimerTable)
@@ -149,6 +158,7 @@ const app = new Elysia()
         ],
       },
       response: {
+        404: t.Literal("Time split not found"),
         401: t.Literal("Unauthorized"),
         200: t.Object({
           timer_id: t.Integer(),
@@ -233,7 +243,9 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return status(200, []);
+      const tags = await db.select().from(tagTable);
+
+      return status(200, tags);
     },
     {
       detail: {
@@ -364,7 +376,10 @@ const app = new Elysia()
 
       if (tagResults.length <= 0) return status(404, "Tag not found");
 
-      await db.delete(tagTable).where(eq(tagTable.id, id));
+      await db
+        .update(tagTable)
+        .set({ deleted: true })
+        .where(eq(tagTable.id, id));
 
       return status(200, "OK");
     },
@@ -536,6 +551,41 @@ const app = new Elysia()
         })
         .where(eq(timeSplitTable.id, id));
 
+      if (body.timers.length > 0) {
+        // const timerIds = await db
+        //   .select({ id: timeSplitTimerTable.id })
+        //   .from(timeSplitTimerTable)
+        //   .where(eq(timeSplitTimerTable.time_split_id, id));
+
+        // await Promise.all(
+        //   timerIds.map((timer) =>
+        //     db
+        //       .delete(timesheetTable)
+        //       .where(eq(timesheetTable.time_split_timer, timer.id)),
+        //   ),
+        // );
+
+        // await db
+        //   .delete(timeSplitTimerTable)
+        //   .where(eq(timeSplitTimerTable.time_split_id, id));
+
+        await db
+          .update(timeSplitTimerTable)
+          .set({ deleted: true })
+          .where(eq(timeSplitTimerTable.time_split_id, id));
+
+        await Promise.all(
+          body.timers.map((t) =>
+            db.insert(timeSplitTimerTable).values({
+              name: t.name,
+              len: formatInterval(t.len),
+              time_split_id: id,
+              work: t.work,
+            }),
+          ),
+        );
+      }
+
       return status(200, "OK");
     },
     {
@@ -578,7 +628,10 @@ const app = new Elysia()
       if (timeSplitResults.length <= 0)
         return status(404, "Time split not found");
 
-      await db.delete(timeSplitTable).where(eq(timeSplitTable.id, id));
+      await db
+        .update(timeSplitTable)
+        .set({ deleted: true })
+        .where(eq(timeSplitTable.id, id));
 
       return status(200, "OK");
     },

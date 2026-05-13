@@ -12,7 +12,7 @@ http:
     type: json
     data: |-
       {
-        "name": ""
+        "name": "tagged"
       }
   auth:
     type: bearer

@@ -34,6 +34,7 @@ export const timeSplitTimerTable = timekeeperSchema.table("time_split_timer", {
   len: interval("len").notNull(),
   name: varchar("name").notNull(),
   work: boolean("work").notNull(),
+  deleted: boolean("deleted").notNull().default(false),
 });
 
 export const timeSplitTimerRelations = relations(

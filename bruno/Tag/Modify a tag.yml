@@ -10,13 +10,13 @@ http:
   url: "{{baseUrl}}/timekeeper/tag/:id"
   params:
     - name: id
-      value: ""
+      value: "1"
       type: path
   body:
     type: json
     data: |-
       {
-        "name": ""
+        "name": "tagged again"
       }
   auth:
     type: bearer

@@ -12,12 +12,13 @@ http:
     type: json
     data: |-
       {
-        "time_split": 1,
-        "start_timestamp": 1778605000051,
-        "end_timestamp": 1778608600051,
+        "time_split": 5,
+        "start_timestamp": 1778605000052,
+        "end_timestamp": 1778608600052,
         "work": false,
-        "tags": [],
-        "name": "testing lockinspiel"
+        "tags": [1],
+        "name": "testing lockinspiel",
+        "deleted": false
       }
   auth:
     type: bearer

@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/timekeeper/tag/:id"
   params:
     - name: id
-      value: ""
+      value: "1"
       type: path
   auth:
     type: bearer

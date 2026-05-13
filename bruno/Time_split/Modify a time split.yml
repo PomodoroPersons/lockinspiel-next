@@ -10,19 +10,19 @@ http:
   url: "{{baseUrl}}/timekeeper/time-split/:id"
   params:
     - name: id
-      value: ""
+      value: "5"
       type: path
   body:
     type: json
     data: |-
       {
-        "name": "",
-        "description": "",
+        "name": "better name",
+        "description": "better description",
         "deleted": false,
         "timers": [
           {
-            "len": "",
-            "name": "",
+            "len": 300,
+            "name": "so break we broken",
             "work": false
           }
         ]

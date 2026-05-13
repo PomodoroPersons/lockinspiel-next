@@ -7,6 +7,7 @@ export const Timer = t.Object({
   work: t.Boolean(),
   tags: t.Array(t.Integer()),
   name: t.String(),
+  deleted: t.Boolean(),
 });
 
 export const TimerWID = t.Object({
