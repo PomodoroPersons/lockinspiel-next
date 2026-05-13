@@ -91,8 +91,7 @@ CREATE TABLE timekeeper.timesheet(
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
     user_id uuid REFERENCES auth.users(user_id) NOT NULL,
-    work BOOLEAN NOT NULL,
-    UNIQUE (start_time, end_time)
+    work BOOLEAN NOT NULL
 ) WITH (
     tsdb.hypertable,
     tsdb.segmentby = 'user_id',

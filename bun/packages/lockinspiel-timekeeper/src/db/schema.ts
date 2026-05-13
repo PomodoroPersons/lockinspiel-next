@@ -46,18 +46,14 @@ export const timeSplitTimerRelations = relations(
   }),
 );
 
-export const timesheetTable = timekeeperSchema.table(
-  "timesheet",
-  {
-    start_time: timestamp("start_time", { withTimezone: true }).notNull(),
-    end_time: timestamp("end_time", { withTimezone: true }).notNull(),
-    user_id: uuid("user_id").notNull(),
-    work: boolean("work").notNull(),
-    tags: jsonb("tags").notNull(),
-    time_split_timer: integer("time_split_timer").notNull(),
-  },
-  (t) => [unique().on(t.start_time, t.end_time)],
-);
+export const timesheetTable = timekeeperSchema.table("timesheet", {
+  start_time: timestamp("start_time", { withTimezone: true }).notNull(),
+  end_time: timestamp("end_time", { withTimezone: true }).notNull(),
+  user_id: uuid("user_id").notNull(),
+  work: boolean("work").notNull(),
+  tags: integer("tags").array().notNull(),
+  time_split_timer: integer("time_split_timer").notNull(),
+});
 
 export const timesheetRelations = relations(timesheetTable, ({ one }) => ({
   user: one(usersTable, {

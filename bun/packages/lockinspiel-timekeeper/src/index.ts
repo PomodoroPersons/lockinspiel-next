@@ -1,7 +1,7 @@
 import { Elysia, Static, t } from "elysia";
 
 import { jwtUse, openapiUse, otelTracer } from "lockinspiel-backend-common";
-import { Timer, TimeSplitWID, model, Tag, TimeSplit } from "./model";
+import { TimeSplitWID, model, TimerWID } from "./model";
 
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/bun-sql";
@@ -13,7 +13,7 @@ import {
   timeSplitTimerTable,
 } from "./db/schema";
 import { formatInterval, formatLen, intervalToSeconds } from "./util";
-import { desc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 if (!Bun.env["DATABASE_URL"]) {
   console.error("DATABASE_URL is not defined");
@@ -55,12 +55,34 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      const timers = await db
-        .select()
+      const timerRows = await db
+        .select({
+          id: timeSplitTimerTable.id,
+          name: timeSplitTimerTable.name,
+          time_split: timeSplitTimerTable.time_split_id,
+          start_timestamp: timesheetTable.start_time,
+          end_timestamp: timesheetTable.end_time,
+          tags: timesheetTable.tags,
+          work: timeSplitTimerTable.work,
+        })
         .from(timesheetTable)
-        .orderBy(desc(timesheetTable.start_time));
+        .leftJoin(
+          timeSplitTimerTable,
+          eq(timeSplitTimerTable.id, timesheetTable.time_split_timer),
+        );
 
-      return status(200, []);
+      const timers: Static<typeof TimerWID>[] = timerRows.map((row) => {
+        return {
+          id: row.id!,
+          name: row.name!,
+          work: row.work!,
+          time_split: row.time_split!,
+          start_timestamp: row.start_timestamp!.valueOf(),
+          end_timestamp: row.end_timestamp!.valueOf(),
+          tags: row.tags as number[],
+        };
+      });
+      return status(200, timers);
     },
     {
       detail: {
@@ -165,6 +187,16 @@ const app = new Elysia()
           work: body.work,
         })
         .where(eq(timeSplitTimerTable.id, id));
+
+      await db
+        .update(timesheetTable)
+        .set({ tags: body.tags })
+        .where(
+          and(
+            eq(timesheetTable.time_split_timer, id),
+            eq(timesheetTable.start_time, new Date(body.start_timestamp)),
+          ),
+        );
 
       return status(200, "OK");
     },
@@ -373,6 +405,7 @@ const app = new Elysia()
         .values({
           name: body.name,
           description: body.description,
+          user_id: profile.user_id,
         })
         .returning({ id: timeSplitTable.id });
 

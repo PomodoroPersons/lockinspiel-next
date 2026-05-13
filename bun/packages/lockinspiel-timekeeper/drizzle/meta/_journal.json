@@ -29,6 +29,13 @@
       "when": 1778656033067,
       "tag": "0003_smart_robin_chapel",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1778693718437,
+      "tag": "0004_harsh_warlock",
+      "breakpoints": true
     }
   ]
 }
