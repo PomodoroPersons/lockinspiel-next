@@ -12,13 +12,18 @@ http:
     type: json
     data: |-
       {
-        "name": "",
-        "description": "",
+        "name": "my timer",
+        "description": "You have encoutered my pomodoro",
         "deleted": false,
         "timers": [
           {
-            "len": "",
-            "name": "",
+            "len": 1200,
+            "name": "We work",
+            "work": true
+          },
+          {
+            "len": 300,
+            "name": "We so break",
             "work": false
           }
         ]

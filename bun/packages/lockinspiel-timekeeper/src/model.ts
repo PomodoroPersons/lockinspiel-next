@@ -31,7 +31,7 @@ export const TimeSplitTimer = t.Object({
 
 export const TimeSplit = t.Object({
   name: t.String(),
-  description: t.String(),
+  description: t.Nullable(t.String()),
   deleted: t.Boolean(),
   timers: t.Array(TimeSplitTimer),
 });

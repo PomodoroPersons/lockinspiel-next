@@ -1,17 +1,18 @@
 import { Elysia, Static, t } from "elysia";
 
 import { jwtUse, openapiUse, otelTracer } from "lockinspiel-backend-common";
-import { Timer, TimeSplitWID, model } from "./model";
+import { Timer, TimeSplitWID, model, Tag, TimeSplit } from "./model";
 
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/bun-sql";
 import { migrate } from "drizzle-orm/bun-sql/migrator";
 import {
+  tagTable,
   timesheetTable,
   timeSplitTable,
   timeSplitTimerTable,
 } from "./db/schema";
-import { formatLen } from "./util";
+import { formatInterval, formatLen, intervalToSeconds } from "./util";
 import { desc, eq } from "drizzle-orm";
 
 if (!Bun.env["DATABASE_URL"]) {
@@ -24,11 +25,6 @@ await migrate(db, {
   migrationsFolder: "./drizzle",
   migrationsSchema: "timekeeper",
 });
-
-// TODO: This value should come from the database
-let TAG_ID = 0;
-// TODO: This value should come from the database
-let TIME_SPLITS: Static<typeof TimeSplitWID>[] = [];
 
 const app = new Elysia()
   .use(openapiUse)
@@ -162,12 +158,15 @@ const app = new Elysia()
 
       if (timerResults.length <= 0) return status(404, "Timer not found");
 
-      await db.update(timeSplitTimerTable).set({
-        len: formatLen(body.start_timestamp, body.end_timestamp),
-        name: body.name,
-        time_split_id: body.time_split,
-        work: body.work,
-      });
+      await db
+        .update(timeSplitTimerTable)
+        .set({
+          len: formatLen(body.start_timestamp, body.end_timestamp),
+          name: body.name,
+          time_split_id: body.time_split,
+          work: body.work,
+        })
+        .where(eq(timeSplitTimerTable.id, id));
 
       return status(200, "OK");
     },
@@ -234,7 +233,16 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return status(200, { tag_id: ++TAG_ID });
+      const inserted = await db
+        .insert(tagTable)
+        .values({
+          name: body.name,
+          user_id: profile.user_id,
+          deleted: false,
+        })
+        .returning({ id: tagTable.id });
+
+      return status(200, { tag_id: inserted[0].id });
     },
     {
       body: "Tag",
@@ -273,7 +281,17 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      if (id > TAG_ID) return status(404, "Tag not found");
+      const tagResults = await db
+        .select()
+        .from(tagTable)
+        .where(eq(tagTable.id, id));
+
+      if (tagResults.length <= 0) return status(404, "Tag not found");
+
+      await db
+        .update(tagTable)
+        .set({ name: body.name })
+        .where(eq(tagTable.id, id));
 
       return status(200, "OK");
     },
@@ -309,7 +327,14 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      if (id > TAG_ID) return status(404, "Tag not found");
+      const tagResults = await db
+        .select()
+        .from(tagTable)
+        .where(eq(tagTable.id, id));
+
+      if (tagResults.length <= 0) return status(404, "Tag not found");
+
+      await db.delete(tagTable).where(eq(tagTable.id, id));
 
       return status(200, "OK");
     },
@@ -345,9 +370,25 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      const time_split_id = TIME_SPLITS.length;
-      TIME_SPLITS.push({ id: time_split_id, ...body });
-      return status(200, { time_split_id });
+      const insertedId = await db
+        .insert(timeSplitTable)
+        .values({
+          name: body.name,
+          description: body.description,
+        })
+        .returning({ id: timeSplitTable.id });
+
+      const promises = body.timers.map((t) => {
+        return db.insert(timeSplitTimerTable).values({
+          name: t.name,
+          len: formatInterval(t.len),
+          work: t.work,
+          time_split_id: insertedId[0].id,
+        });
+      });
+      await Promise.all(promises);
+
+      return status(200, { time_split_id: insertedId[0].id });
     },
     {
       body: "TimeSplit",
@@ -380,7 +421,38 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return status(200, TIME_SPLITS);
+      const timeSplitRows = await db
+        .select()
+        .from(timeSplitTable)
+        .leftJoin(
+          timeSplitTimerTable,
+          eq(timeSplitTable.id, timeSplitTimerTable.time_split_id),
+        )
+        .where(eq(timeSplitTable.user_id, profile.user_id));
+
+      const timeSplitMap = new Map<number, Static<typeof TimeSplitWID>>();
+      timeSplitRows.forEach((row) => {
+        let timeSplitEntry = timeSplitMap.get(row.time_split.id);
+
+        if (!timeSplitEntry) {
+          const entry = { ...row.time_split, timers: [] };
+          timeSplitMap.set(row.time_split.id, entry);
+          timeSplitEntry = entry;
+        }
+
+        if (row.time_split_timer) {
+          timeSplitEntry.timers.push({
+            name: row.time_split_timer.name,
+            len: intervalToSeconds(row.time_split_timer.len),
+            work: row.time_split_timer.work,
+          });
+        }
+      });
+
+      const timeSplits: Static<typeof TimeSplitWID>[] = [];
+      timeSplitMap.forEach((split) => timeSplits.push(split));
+
+      return status(200, timeSplits);
     },
     {
       detail: {
@@ -416,7 +488,22 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      if (id >= TIME_SPLITS.length) return status(404, "Time split not found");
+      const timeSplitResults = await db
+        .select()
+        .from(timeSplitTable)
+        .where(eq(timeSplitTable.id, id));
+
+      if (timeSplitResults.length <= 0)
+        return status(404, "Time split not found");
+
+      await db
+        .update(timeSplitTable)
+        .set({
+          name: body.name,
+          description: body.description,
+          deleted: body.deleted,
+        })
+        .where(eq(timeSplitTable.id, id));
 
       return status(200, "OK");
     },
@@ -452,7 +539,15 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      if (id >= TIME_SPLITS.length) return status(404, "Time split not found");
+      const timeSplitResults = await db
+        .select()
+        .from(timeSplitTable)
+        .where(eq(timeSplitTable.id, id));
+
+      if (timeSplitResults.length <= 0)
+        return status(404, "Time split not found");
+
+      await db.delete(timeSplitTable).where(eq(timeSplitTable.id, id));
 
       return status(200, "OK");
     },
