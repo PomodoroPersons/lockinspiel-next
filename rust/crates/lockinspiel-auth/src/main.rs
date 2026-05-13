@@ -30,6 +30,20 @@ pub struct AuthApiState {
     jwt_header: jsonwebtoken::Header,
 }
 
+macro_rules! app_routes {
+    ($state:ty) => {
+        [
+            routes!(routes::signup, routes::delete_user),
+            routes!(routes::new_session, routes::logout),
+        ]
+        .into_iter()
+        .fold(OpenApiRouter::<$state>::new(), |router, routes| {
+            router.routes(routes)
+        })
+        .split_for_parts()
+    };
+}
+
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     let service_config = ServiceConfig::new("auth");
@@ -69,10 +83,7 @@ async fn main() -> eyre::Result<()> {
 
     let jwk_set = JwkSet { keys: vec![jwk] };
 
-    let (router, mut api) = OpenApiRouter::new()
-        .routes(routes!(routes::signup, routes::delete_user))
-        .routes(routes!(routes::new_session, routes::logout))
-        .split_for_parts();
+    let (router, mut api) = app_routes!(AuthApiState);
 
     lockinspiel_backend_common::fill_in_openapi(&mut api);
 
@@ -84,6 +95,10 @@ async fn main() -> eyre::Result<()> {
         )
         .route("/auth/.well-known/jwks.json", get(auth_jwk_set))
         .merge(Scalar::with_url("/auth/openapi", api))
+        .route(
+            "/auth/openapi/json",
+            get(async move || Json(app_routes!(AuthApiState).1)),
+        )
         .layer(lockinspiel_backend_common::layer())
         .with_state(AuthApiState {
             api_state,

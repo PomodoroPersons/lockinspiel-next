@@ -1,4 +1,4 @@
-use axum::{extract::FromRef, routing::get};
+use axum::{Json, extract::FromRef, routing::get};
 use color_eyre::eyre::{self, Context};
 use lockinspiel_backend_common::{ApiState, ServiceConfig, shutdown_signal};
 use tokio::net::TcpListener;
@@ -12,6 +12,16 @@ pub struct UserApiState {
     api_state: ApiState,
 }
 
+macro_rules! app_routes {
+    ($state:ty) => {
+        [].into_iter()
+            .fold(OpenApiRouter::<$state>::new(), |router, routes| {
+                router.routes(routes)
+            })
+            .split_for_parts()
+    };
+}
+
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     let service_config = ServiceConfig::new("user");
@@ -20,13 +30,17 @@ async fn main() -> eyre::Result<()> {
             .await
             .wrap_err("Failed to initialize API state")?;
 
-    let (router, mut api) = OpenApiRouter::new().split_for_parts();
+    let (router, mut api) = app_routes!(UserApiState);
 
     lockinspiel_backend_common::fill_in_openapi(&mut api);
 
     let app = router
         .route("/", get(|| async { "up" }))
         .merge(Scalar::with_url("/user/openapi", api))
+        .route(
+            "/user/openapi/json",
+            get(async move || Json(app_routes!(UserApiState).1)),
+        )
         .layer(lockinspiel_backend_common::layer())
         .with_state(UserApiState { api_state });
 
