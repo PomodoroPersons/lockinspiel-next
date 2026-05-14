@@ -1635,6 +1635,7 @@ dependencies = [
  "jsonwebtoken",
  "lockinspiel-backend-common",
  "lockinspiel-user-schema",
+ "logos",
  "serde",
  "tokio",
  "tracing",

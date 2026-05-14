@@ -6,6 +6,7 @@ use utoipa_axum::router::OpenApiRouter;
 use utoipa_scalar::{Scalar, Servable};
 
 pub mod routes;
+pub mod templating;
 
 #[derive(Clone, FromRef)]
 pub struct UserApiState {

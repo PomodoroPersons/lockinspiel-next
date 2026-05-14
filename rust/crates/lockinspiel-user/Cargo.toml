@@ -21,3 +21,4 @@ jiff.workspace = true
 lockinspiel-backend-common = { path = "../lockinspiel-backend-common" }
 axum-extra = { workspace = true, features = ["typed-header", "cookie"] }
 lockinspiel-user-schema = { path = "../schemas/lockinspiel-user-schema" }
+logos = "0.16.1"
