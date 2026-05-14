@@ -141,7 +141,7 @@ const app = new Elysia()
         tags: body.tags,
       });
 
-      return status(200, { timer_id: inserted[0].id });
+      return status(201, { timer_id: inserted[0].id });
     },
     {
       body: "Timer",
@@ -160,7 +160,7 @@ const app = new Elysia()
       response: {
         404: t.Literal("Time split not found"),
         401: t.Literal("Unauthorized"),
-        200: t.Object({
+        201: t.Object({
           timer_id: t.Integer(),
         }),
       },
@@ -284,7 +284,7 @@ const app = new Elysia()
         })
         .returning({ id: tagTable.id });
 
-      return status(200, { tag_id: inserted[0].id });
+      return status(201, { tag_id: inserted[0].id });
     },
     {
       body: "Tag",
@@ -302,7 +302,7 @@ const app = new Elysia()
       },
       response: {
         401: t.Literal("Unauthorized"),
-        200: t.Object({
+        201: t.Object({
           tag_id: t.Integer(),
         }),
       },
@@ -434,7 +434,7 @@ const app = new Elysia()
       });
       await Promise.all(promises);
 
-      return status(200, { time_split_id: insertedId[0].id });
+      return status(201, { time_split_id: insertedId[0].id });
     },
     {
       body: "TimeSplit",
@@ -452,7 +452,7 @@ const app = new Elysia()
       },
       response: {
         401: t.Literal("Unauthorized"),
-        200: t.Object({
+        201: t.Object({
           time_split_id: t.Integer(),
         }),
       },
