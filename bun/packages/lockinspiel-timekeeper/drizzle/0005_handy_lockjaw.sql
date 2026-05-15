@@ -1,1 +1,0 @@
-ALTER TABLE "timekeeper"."time_split_timer" ADD COLUMN "deleted" boolean DEFAULT false NOT NULL;

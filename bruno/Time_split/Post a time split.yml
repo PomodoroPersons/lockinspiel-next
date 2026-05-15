@@ -12,21 +12,15 @@ http:
     type: json
     data: |-
       {
-        "name": "my timer",
-        "description": "You have encoutered my pomodoro",
-        "deleted": false,
         "timers": [
           {
-            "len": 1200,
-            "name": "We work",
-            "work": true
-          },
-          {
-            "len": 300,
-            "name": "We so break",
+            "len": "",
+            "name": "",
             "work": false
           }
-        ]
+        ],
+        "name": "",
+        "description": ""
       }
   auth:
     type: bearer
@@ -39,8 +33,8 @@ settings:
   maxRedirects: 5
 
 examples:
-  - name: 200 Response
-    description: Response for status 200
+  - name: 201 Response
+    description: Response for status 201
     request:
       url: "{{baseUrl}}/timekeeper/time-split"
       method: POST
@@ -48,20 +42,19 @@ examples:
         type: json
         data: |-
           {
-            "name": "",
-            "description": "",
-            "deleted": false,
             "timers": [
               {
                 "len": "",
                 "name": "",
                 "work": false
               }
-            ]
+            ],
+            "name": "",
+            "description": ""
           }
     response:
-      status: 200
-      statusText: OK
+      status: 201
+      statusText: Created
       headers:
         - name: Content-Type
           value: application/json
@@ -80,16 +73,15 @@ examples:
         type: json
         data: |-
           {
-            "name": "",
-            "description": "",
-            "deleted": false,
             "timers": [
               {
                 "len": "",
                 "name": "",
                 "work": false
               }
-            ]
+            ],
+            "name": "",
+            "description": ""
           }
     response:
       status: 401

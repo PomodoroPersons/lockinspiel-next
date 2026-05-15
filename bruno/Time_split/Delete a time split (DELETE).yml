@@ -1,23 +1,20 @@
 info:
-  name: Modify a tag
+  name: Delete a time split (DELETE)
   type: http
-  seq: 3
+  seq: 7
   tags:
-    - Tag
+    - Time_split
 
 http:
-  method: PUT
-  url: "{{baseUrl}}/timekeeper/tag/:id"
+  method: DELETE
+  url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
   params:
     - name: id
       value: ""
       type: path
-  body:
-    type: json
-    data: |-
-      {
-        "name": ""
-      }
+    - name: time_split
+      value: ""
+      type: path
   auth:
     type: bearer
     token: "{{token}}"
@@ -32,18 +29,15 @@ examples:
   - name: 200 Response
     description: Response for status 200
     request:
-      url: "{{baseUrl}}/timekeeper/tag/:id"
-      method: PUT
+      url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
+      method: DELETE
       params:
         - name: id
           value: ""
           type: path
-      body:
-        type: json
-        data: |-
-          {
-            "name": ""
-          }
+        - name: time_split
+          value: ""
+          type: path
     response:
       status: 200
       statusText: OK
@@ -56,18 +50,15 @@ examples:
   - name: 401 Response
     description: Response for status 401
     request:
-      url: "{{baseUrl}}/timekeeper/tag/:id"
-      method: PUT
+      url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
+      method: DELETE
       params:
         - name: id
           value: ""
           type: path
-      body:
-        type: json
-        data: |-
-          {
-            "name": ""
-          }
+        - name: time_split
+          value: ""
+          type: path
     response:
       status: 401
       statusText: Unauthorized
@@ -80,18 +71,15 @@ examples:
   - name: 404 Response
     description: Response for status 404
     request:
-      url: "{{baseUrl}}/timekeeper/tag/:id"
-      method: PUT
+      url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
+      method: DELETE
       params:
         - name: id
           value: ""
           type: path
-      body:
-        type: json
-        data: |-
-          {
-            "name": ""
-          }
+        - name: time_split
+          value: ""
+          type: path
     response:
       status: 404
       statusText: Not Found
@@ -102,4 +90,4 @@ examples:
         type: text
         data: ""
 
-docs: Modifies the fields of the tag at the ID
+docs: Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.

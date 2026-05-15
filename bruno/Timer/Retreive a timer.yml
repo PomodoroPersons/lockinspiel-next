@@ -35,13 +35,12 @@ examples:
         data: |-
           [
             {
-              "id": "",
               "time_split": "",
-              "start_timestamp": "",
-              "end_timestamp": "",
               "work": false,
-              "tags": [],
-              "name": ""
+              "time_split_timer": "",
+              "start_time": "",
+              "end_time": "",
+              "tags": []
             }
           ]
   - name: 401 Response

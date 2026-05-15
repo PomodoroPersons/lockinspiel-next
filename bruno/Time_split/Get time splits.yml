@@ -8,6 +8,11 @@ info:
 http:
   method: GET
   url: "{{baseUrl}}/timekeeper/time-split"
+  params:
+    - name: id
+      value: ""
+      type: query
+      disabled: true
   auth:
     type: bearer
     token: "{{token}}"
@@ -24,6 +29,11 @@ examples:
     request:
       url: "{{baseUrl}}/timekeeper/time-split"
       method: GET
+      params:
+        - name: id
+          value: ""
+          type: query
+          disabled: true
     response:
       status: 200
       statusText: OK
@@ -36,31 +46,18 @@ examples:
           [
             {
               "id": "",
-              "name": "",
-              "description": "",
-              "deleted": false,
               "timers": [
                 {
+                  "id": "",
+                  "order_idx": "",
                   "len": "",
                   "name": "",
                   "work": false
                 }
-              ]
+              ],
+              "name": "",
+              "description": ""
             }
           ]
-  - name: 401 Response
-    description: Response for status 401
-    request:
-      url: "{{baseUrl}}/timekeeper/time-split"
-      method: GET
-    response:
-      status: 401
-      statusText: Unauthorized
-      headers:
-        - name: Content-Type
-          value: text/plain
-      body:
-        type: text
-        data: ""
 
 docs: Gets all the time splits associated with the user, as well as the default ones

@@ -1,7 +1,7 @@
 info:
   name: Delete a time split
   type: http
-  seq: 4
+  seq: 5
   tags:
     - Time_split
 
@@ -10,7 +10,7 @@ http:
   url: "{{baseUrl}}/timekeeper/time-split/:id"
   params:
     - name: id
-      value: "5"
+      value: ""
       type: path
   auth:
     type: bearer

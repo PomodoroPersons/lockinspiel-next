@@ -39,19 +39,5 @@ examples:
               "name": ""
             }
           ]
-  - name: 401 Response
-    description: Response for status 401
-    request:
-      url: "{{baseUrl}}/timekeeper/tag"
-      method: GET
-    response:
-      status: 401
-      statusText: Unauthorized
-      headers:
-        - name: Content-Type
-          value: text/plain
-      body:
-        type: text
-        data: ""
 
 docs: Gets all the tags associated with the user, as well as the default ones

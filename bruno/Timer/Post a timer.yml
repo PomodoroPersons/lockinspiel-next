@@ -12,13 +12,10 @@ http:
     type: json
     data: |-
       {
-        "time_split": 5,
-        "start_timestamp": 1778605000052,
-        "end_timestamp": 1778608600052,
-        "work": false,
-        "tags": [1],
-        "name": "testing lockinspiel",
-        "deleted": false
+        "time_split_timer": "",
+        "start_time": "",
+        "end_time": "",
+        "tags": []
       }
   auth:
     type: bearer
@@ -31,8 +28,8 @@ settings:
   maxRedirects: 5
 
 examples:
-  - name: 200 Response
-    description: Response for status 200
+  - name: 201 Response
+    description: Response for status 201
     request:
       url: "{{baseUrl}}/timekeeper/timer"
       method: POST
@@ -40,16 +37,14 @@ examples:
         type: json
         data: |-
           {
-            "time_split": "",
-            "start_timestamp": "",
-            "end_timestamp": "",
-            "work": false,
-            "tags": [],
-            "name": ""
+            "time_split_timer": "",
+            "start_time": "",
+            "end_time": "",
+            "tags": []
           }
     response:
-      status: 200
-      statusText: OK
+      status: 201
+      statusText: Created
       headers:
         - name: Content-Type
           value: application/json
@@ -57,7 +52,12 @@ examples:
         type: json
         data: |-
           {
-            "timer_id": ""
+            "time_split": "",
+            "work": false,
+            "time_split_timer": "",
+            "start_time": "",
+            "end_time": "",
+            "tags": []
           }
   - name: 401 Response
     description: Response for status 401
@@ -68,16 +68,37 @@ examples:
         type: json
         data: |-
           {
-            "time_split": "",
-            "start_timestamp": "",
-            "end_timestamp": "",
-            "work": false,
-            "tags": [],
-            "name": ""
+            "time_split_timer": "",
+            "start_time": "",
+            "end_time": "",
+            "tags": []
           }
     response:
       status: 401
       statusText: Unauthorized
+      headers:
+        - name: Content-Type
+          value: text/plain
+      body:
+        type: text
+        data: ""
+  - name: 404 Response
+    description: Response for status 404
+    request:
+      url: "{{baseUrl}}/timekeeper/timer"
+      method: POST
+      body:
+        type: json
+        data: |-
+          {
+            "time_split_timer": "",
+            "start_time": "",
+            "end_time": "",
+            "tags": []
+          }
+    response:
+      status: 404
+      statusText: Not Found
       headers:
         - name: Content-Type
           value: text/plain

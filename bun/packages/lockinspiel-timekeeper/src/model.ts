@@ -1,18 +1,16 @@
-import { t } from "elysia";
+import { t, TSchema } from "elysia";
+
+export const InsertableTimer = t.Object({
+  time_split_timer: t.Integer(),
+  start_time: t.Date(),
+  end_time: t.Date(),
+  tags: t.Array(t.Integer()),
+});
 
 export const Timer = t.Object({
   time_split: t.Integer(),
-  start_timestamp: t.Integer(),
-  end_timestamp: t.Integer(),
   work: t.Boolean(),
-  tags: t.Array(t.Integer()),
-  name: t.String(),
-  deleted: t.Boolean(),
-});
-
-export const TimerWID = t.Object({
-  id: t.Integer(),
-  ...Timer.properties,
+  ...InsertableTimer.properties,
 });
 
 export const Tag = t.Object({
@@ -30,24 +28,41 @@ export const TimeSplitTimer = t.Object({
   work: t.Boolean(),
 });
 
-export const TimeSplit = t.Object({
+export const TimeSplitTimerWOrder = t.Object({
+  order_idx: t.Integer(),
+  ...TimeSplitTimer.properties,
+});
+
+export const TimeSplitTimerWID = t.Object({
+  id: t.Integer(),
+  ...TimeSplitTimerWOrder.properties,
+});
+
+export const TimeSplitNoTimers = t.Object({
   name: t.String(),
   description: t.Nullable(t.String()),
-  deleted: t.Boolean(),
-  timers: t.Array(TimeSplitTimer),
 });
+
+export const TimeSplit = <Type extends TSchema>(timers: Type) =>
+  t.Object({
+    timers: t.Array(timers),
+    ...TimeSplitNoTimers.properties,
+  });
 
 export const TimeSplitWID = t.Object({
   id: t.Integer(),
-  ...TimeSplit.properties,
+  ...TimeSplit(TimeSplitTimerWID).properties,
 });
 
 export const model = {
   Timer: Timer,
-  TimerWID: TimerWID,
+  InsertableTimer: InsertableTimer,
   Tag: Tag,
   TagWID: TagWID,
   TimeSplitTimer: TimeSplitTimer,
-  TimeSplit: TimeSplit,
+  TimeSplitTimerWOrder: TimeSplitTimerWOrder,
+  TimeSplitTimerWID: TimeSplitTimerWID,
+  TimeSplitNoTimers: TimeSplitNoTimers,
+  TimeSplit: TimeSplit(TimeSplitTimer),
   TimeSplitWID: TimeSplitWID,
 };
