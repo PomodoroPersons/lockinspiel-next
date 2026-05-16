@@ -1,0 +1,7 @@
+info:
+  name: Time_split
+  type: folder
+  seq: 3
+
+request:
+  auth: inherit

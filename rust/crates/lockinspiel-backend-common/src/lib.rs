@@ -5,7 +5,7 @@ use std::{
 };
 
 use axum::{extract::Request, response::IntoResponse, routing::Route};
-use clap::Parser;
+use clap::{Args, Parser};
 use color_eyre::{
     config::Theme,
     eyre::{self, Context, bail},
@@ -19,7 +19,7 @@ use futures_util::FutureExt;
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
 use opentelemetry_sdk::{logs::SdkLoggerProvider, trace::SdkTracerProvider};
-use serde::Deserialize;
+use serde::{Deserialize, de::DeserializeOwned};
 use tokio::signal;
 use tower::{Layer, Service, ServiceBuilder};
 use tower_http::{
@@ -83,10 +83,14 @@ impl ServiceConfig {
     }
 }
 
+#[derive(Parser, Deserialize, Default)]
+pub struct NoExtraArgs {}
+
 #[derive(Parser, Deserialize)]
 #[command(version, about, long_about = None)]
 #[command(propagate_version = true)]
-struct Cli {
+#[serde(bound = "E: Deserialize<'de> + Default")]
+struct Cli<E: Args> {
     #[clap(short, long, env = "RUST_LOG")]
     #[serde(default)]
     log_level: CliLevelFilter,
@@ -102,9 +106,12 @@ struct Cli {
     #[clap(long, env = "OTEL_EXPORTER_OTLP_ENDPOINT")]
     #[serde(default)]
     otlp_endpoint: Option<String>,
+    #[clap(flatten)]
+    #[serde(default)]
+    service: E,
 }
 
-impl Default for Cli {
+impl<'de, E: Default + Args + Deserialize<'de>> Default for Cli<E> {
     fn default() -> Self {
         Self {
             log_level: CliLevelFilter::default(),
@@ -112,6 +119,7 @@ impl Default for Cli {
             auth_service: String::new(),
             db_url: String::new(),
             otlp_endpoint: None,
+            service: E::default(),
         }
     }
 }
@@ -123,13 +131,14 @@ pub struct ApiState {
     pub jwk_set: Arc<JwkSetManager>,
 }
 
-pub struct InitState {
+pub struct InitState<E> {
     pub addr: SocketAddr,
+    pub service_config: E,
     pub tracer_provider: Option<SdkTracerProvider>,
     pub logger_provider: Option<SdkLoggerProvider>,
 }
 
-impl InitState {
+impl<E> InitState<E> {
     pub fn shutdown(&self) -> eyre::Result<()> {
         if let Some(tracer) = &self.tracer_provider {
             tracer
@@ -146,10 +155,10 @@ impl InitState {
     }
 }
 
-pub async fn init(
+pub async fn init<E: Args + DeserializeOwned + Default>(
     service: ServiceConfig,
     migrations: EmbeddedMigrations,
-) -> eyre::Result<(InitState, ApiState)> {
+) -> eyre::Result<(InitState<E>, ApiState)> {
     dotenvy::dotenv().ok();
     let color = supports_color::on(supports_color::Stream::Stderr)
         .map(|c| c.has_basic)
@@ -164,7 +173,8 @@ pub async fn init(
         .display_env_section(false)
         .install()?;
 
-    let mut config = match std::fs::read_to_string(format!("{}.tson", service.service_type)) {
+    let mut config: Cli<E> = match std::fs::read_to_string(format!("{}.tson", service.service_type))
+    {
         Ok(file) => tysonscript_object_notation::from_str(&file)
             .wrap_err("Failed to deserialize config file")?,
         Err(e) => {
@@ -235,6 +245,7 @@ pub async fn init(
     Ok((
         InitState {
             addr: config.addr,
+            service_config: config.service,
             tracer_provider,
             logger_provider,
         },

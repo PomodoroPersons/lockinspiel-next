@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 aws-lc-rs.workspace = true
 axum.workspace = true
+clap.workspace = true
 diesel.workspace = true
 diesel-async.workspace = true
 serde.workspace = true
@@ -21,4 +22,4 @@ jiff.workspace = true
 lockinspiel-backend-common = { path = "../lockinspiel-backend-common" }
 axum-extra = { workspace = true, features = ["typed-header", "cookie"] }
 lockinspiel-user-schema = { path = "../schemas/lockinspiel-user-schema" }
-logos = "0.16.1"
+aws-sdk-s3 = "1.132.0"

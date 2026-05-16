@@ -1,21 +1,59 @@
+use std::sync::Arc;
+
+use aws_sdk_s3::config::{BehaviorVersion, Credentials, Region, SharedCredentialsProvider};
 use axum::{Json, extract::FromRef, routing::get};
+use clap::Parser;
 use color_eyre::eyre::{self, Context};
 use lockinspiel_backend_common::{ApiState, ServiceConfig, shutdown_signal};
+use serde::Deserialize;
 use tokio::net::TcpListener;
-use utoipa_axum::router::OpenApiRouter;
+use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_scalar::{Scalar, Servable};
 
+use crate::url_resolver::UrlResolver;
+
 pub mod routes;
-pub mod templating;
+pub mod url_resolver;
+
+#[derive(Parser, Deserialize, Default)]
+pub struct S3Config {
+    #[clap(long = "s3-bucket-name", env = "S3_BUCKET_NAME")]
+    #[serde(default)]
+    name: String,
+    #[clap(long = "s3-bucket-region", env = "S3_BUCKET_REGION")]
+    #[serde(default)]
+    region: Option<String>,
+    #[clap(long = "s3-bucket-access-key", env = "S3_BUCKET_ACCESS_KEY")]
+    #[serde(default)]
+    access_key: String,
+    #[clap(long = "s3-bucket-secret-key", env = "S3_BUCKET_SECRET_KEY")]
+    #[serde(default)]
+    secret_key: String,
+    #[clap(long = "s3-bucket-path-style", env = "S3_BUCKET_PATH_STYLE")]
+    #[serde(default)]
+    path_style: bool,
+    #[clap(long = "s3-bucket-endpoint", env = "S3_BUCKET_ENDPOINT")]
+    #[serde(default)]
+    endpoint: Option<String>,
+}
+
+#[derive(Parser, Deserialize, Default)]
+pub struct UserConfig {
+    #[clap(flatten)]
+    #[serde(default)]
+    s3_bucket: S3Config,
+}
 
 #[derive(Clone, FromRef)]
 pub struct UserApiState {
     api_state: ApiState,
+    url_resolver: Arc<UrlResolver>,
 }
 
 macro_rules! app_routes {
     ($state:ty) => {
-        [].into_iter()
+        [routes!(routes::create_profile)]
+            .into_iter()
             .fold(OpenApiRouter::<$state>::new(), |router, routes| {
                 router.routes(routes)
             })
@@ -26,10 +64,35 @@ macro_rules! app_routes {
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     let service_config = ServiceConfig::new("user");
-    let (init_state, api_state) =
-        lockinspiel_backend_common::init(service_config, lockinspiel_user_schema::MIGRATIONS)
-            .await
-            .wrap_err("Failed to initialize API state")?;
+    let (init_state, api_state) = lockinspiel_backend_common::init::<UserConfig>(
+        service_config,
+        lockinspiel_user_schema::MIGRATIONS,
+    )
+    .await
+    .wrap_err("Failed to initialize API state")?;
+
+    let mut s3_config = aws_sdk_s3::config::Builder::new()
+        .behavior_version(BehaviorVersion::latest())
+        .force_path_style(init_state.service_config.s3_bucket.path_style)
+        .region(
+            init_state
+                .service_config
+                .s3_bucket
+                .region
+                .clone()
+                .map(|region| Region::new(region)),
+        )
+        .credentials_provider(SharedCredentialsProvider::new(
+            Credentials::builder()
+                .access_key_id(init_state.service_config.s3_bucket.access_key.clone())
+                .secret_access_key(init_state.service_config.s3_bucket.secret_key.clone())
+                .provider_name("idk what this means")
+                .build(),
+        ));
+
+    s3_config.set_endpoint_url(init_state.service_config.s3_bucket.endpoint.clone());
+
+    let s3_client = aws_sdk_s3::Client::from_conf(s3_config.build());
 
     let (router, mut api) = app_routes!(UserApiState);
 
@@ -43,7 +106,13 @@ async fn main() -> eyre::Result<()> {
             get(async move || Json(app_routes!(UserApiState).1)),
         )
         .layer(lockinspiel_backend_common::layer())
-        .with_state(UserApiState { api_state });
+        .with_state(UserApiState {
+            api_state,
+            url_resolver: Arc::new(UrlResolver::new(
+                init_state.service_config.s3_bucket.name.clone(),
+                s3_client,
+            )),
+        });
 
     let listener = TcpListener::bind(init_state.addr)
         .await

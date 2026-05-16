@@ -34,3 +34,5 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
+GRANT INSERT, SELECT, UPDATE, DELETE ON __diesel_schema_migrations TO diesel;

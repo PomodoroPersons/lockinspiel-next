@@ -22,7 +22,7 @@ reqwest = { version = "0.13.2", features = ["json"] }
 dotenvy = "0.15.7"
 supports-color = "3.0.2"
 tysonscript-object-notation = "0.1.0"
-clap = { version = "4.6.0", features = ["derive", "env"] }
+clap.workspace = true
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
 tracing-error = "0.2.1"
 tracing-opentelemetry = "0.32.1"

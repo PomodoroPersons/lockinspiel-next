@@ -1,27 +1,24 @@
-// use axum::{Json, extract::State, http::StatusCode};
+use axum::{Json, extract::State, http::StatusCode};
 // use axum_extra::extract::{CookieJar, cookie::Cookie};
-// use color_eyre::eyre::{Context, OptionExt, eyre};
-// use diesel::{
-//     ExpressionMethods, HasQuery, OptionalExtension, QueryDsl, SelectableHelper,
-//     declare_sql_function, dsl::sql, prelude::Insertable, sql_types,
-// };
-// use diesel_async::RunQueryDsl;
+use color_eyre::eyre::{Context, OptionExt, eyre};
+use diesel::{
+    ExpressionMethods, HasQuery, OptionalExtension, QueryDsl, SelectableHelper,
+    declare_sql_function, dsl::sql, prelude::Insertable, sql_types,
+};
+use diesel_async::RunQueryDsl;
 // use jsonwebtoken::EncodingKey;
-// use lockinspiel_backend_common::{
-//     Placeholder,
-//     user::{
-//         DatabaseConnection, DatabaseUser, InsertableDatabaseUser, REFRESH_TOKEN_NAME,
-//         create_refresh_token_cookie,
-//     },
-//     error::{self, EyreError, WithStatusCode},
-//     users::{RefreshToken, User, UserClaims},
-// };
-// use serde::{Deserialize, Serialize};
-// use tracing::instrument;
-// use utoipa::ToSchema;
+use lockinspiel_backend_common::{
+    Placeholder,
+    auth::DatabaseConnection,
+    error::{self, EyreError, WithStatusCode},
+};
+use serde::{Deserialize, Serialize};
+use tracing::instrument;
+use utoipa::ToSchema;
 // use uuid::Uuid;
 
-// use lockinspiel_user_schema::schema::user::{refresh_tokens, users};
+use lockinspiel_user_schema::schema::user::users;
+use uuid::Uuid;
 
 // #[declare_sql_function]
 // extern "SQL" {
@@ -108,71 +105,73 @@
 //     user_id: uuid::Uuid,
 // }
 
-// #[utoipa::path(
-//     post,
-//     path = "/user/user",
-//     tag = "User",
-//     summary = "Create account",
-//     description = "Creates a new account with a username and passsword",
-//     request_body(content(
-//         (InsertableDatabaseUser, example = InsertableDatabaseUser::placeholder),
-//     )),
-//     responses(
-//         (status = OK, description = "Ok",
-//             content(
-//                 (LoginToken, example = LoginToken::placeholder)
-//             ),
-//             headers(
-//                 ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
-//             )
-//         ),
-//         (status = "4XX", description = "It's your fault",
-//             content(
-//                 (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
-//             )
-//         ),
-//         (status = "5XX", description = "We're having a skill issue",
-//             content(
-//                 (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
-//             )
-//         ),
-//     ),
-// )]
-// #[instrument(skip(db, encoding_key, jwt_header, cookie_jar))]
-// pub async fn signup(
-//     mut db: DatabaseConnection,
-//     cookie_jar: CookieJar,
-//     State(encoding_key): State<EncodingKey>,
-//     State(jwt_header): State<jsonwebtoken::Header>,
-//     Json(new_user): Json<InsertableDatabaseUser>,
-// ) -> Result<(CookieJar, Json<LoginToken>), error::EyreError> {
-//     db.signup_user(new_user)
-//         .await
-//         .wrap_err("Failed to insert user into database")
-//         .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
+#[derive(Insertable, ToSchema, Deserialize, Serialize, Debug, PartialEq)]
+#[diesel(table_name = users)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct InsertableUserProfile {
+    #[serde(skip)]
+    user_id: uuid::Uuid,
+    display_name: String,
+    bio: String,
+}
 
-//     let Some(user) = &db.user else {
-//         return Err(eyre!(
-//             "Failed to get signed up user from database connection"
-//         ))
-//         .with_status_code(StatusCode::INTERNAL_SERVER_ERROR);
-//     };
+impl Placeholder for InsertableUserProfile {
+    fn placeholder() -> Self {
+        Self {
+            user_id: Uuid::nil(),
+            display_name: "John Doe".to_owned(),
+            bio: "I wonder how Alice and Bob are doing".to_owned(),
+        }
+    }
+}
 
-//     let refresh_token = diesel::insert_into(refresh_tokens::table)
-//         .values(InsertableRefreshToken {
-//             user_id: user.user_id,
-//         })
-//         .returning(RefreshToken::as_returning())
-//         .get_result(&mut db.connection)
-//         .await
-//         .wrap_err("Failed to insert refresh token into database")
-//         .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
+#[utoipa::path(
+    post,
+    path = "/user/profile",
+    tag = "User",
+    summary = "Create profile",
+    description = "Creates a new user profile for the current session",
+    request_body(content(
+        (InsertableUserProfile, example = InsertableUserProfile::placeholder),
+    )),
+    responses(
+        (status = OK, description = "Ok"),
+        (status = "4XX", description = "It's your fault",
+            content(
+                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+            )
+        ),
+        (status = "5XX", description = "We're having a skill issue",
+            content(
+                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+            )
+        ),
+    ),
+    security(
+        ("bearer_jwt" = []),
+    )
+)]
+#[instrument(skip(db))]
+pub async fn create_profile(
+    mut db: DatabaseConnection,
+    Json(mut new_profile): Json<InsertableUserProfile>,
+) -> Result<(), error::EyreError> {
+    let Some(user_id) = db.user.map(|u| u.user_id) else {
+        return Err(eyre!("You need to be logged in to delete your account"))
+            .with_status_code(StatusCode::UNAUTHORIZED);
+    };
 
-//     let (encoded_access, refresh_token_cookie) =
-//         encode_tokens(&jwt_header, &encoding_key, user.clone(), refresh_token)?;
+    new_profile.user_id = user_id;
 
-//     Ok((cookie_jar.add(refresh_token_cookie), Json(encoded_access)))
-// }
+    diesel::insert_into(users::table)
+        .values(new_profile)
+        .execute(&mut db.connection)
+        .await
+        .wrap_err("Failed to insert user profile into database")
+        .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
+
+    Ok(())
+}
 
 // #[utoipa::path(
 //     delete,

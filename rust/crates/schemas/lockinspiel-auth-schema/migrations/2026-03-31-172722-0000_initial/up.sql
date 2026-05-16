@@ -42,16 +42,16 @@ WITH CHECK ( true );
 
 CREATE POLICY "Users can update their own profiles."
 ON auth.users FOR UPDATE TO authenticated
-USING ( (SELECT auth.uid()) = user_id)
-WITH CHECK ( (SELECT auth.uid()) = user_id);
+USING ( auth.uid() = user_id)
+WITH CHECK ( auth.uid() = user_id);
 
 CREATE POLICY "Users can delete their profiles."
 ON auth.users FOR DELETE TO authenticated
-USING ( (SELECT auth.uid()) = user_id);
+USING ( auth.uid() = user_id);
 
 CREATE TABLE auth.refresh_tokens(
     refresh_token uuid NOT NULL DEFAULT generate_uuidv7(),
-    user_id uuid REFERENCES auth.users(user_id) NOT NULL,
+    user_id uuid NOT NULL REFERENCES auth.users(user_id) ON DELETE CASCADE,
     exp TIMESTAMPTZ NOT NULL DEFAULT now() + '30 days',
     PRIMARY KEY (refresh_token, exp)
 ) WITH (
@@ -81,13 +81,13 @@ USING (true);
 
 CREATE POLICY "Anyone can create refresh tokens for themselves"
 ON auth.refresh_tokens FOR INSERT TO anon
-WITH CHECK ( (SELECT auth.uid()) = user_id);
+WITH CHECK ( auth.uid() = user_id);
 
 CREATE POLICY "Users can update their own refresh tokens."
 ON auth.refresh_tokens FOR UPDATE TO anon
-USING ( (SELECT auth.uid()) = user_id)
-WITH CHECK ( (SELECT auth.uid()) = user_id);
+USING ( auth.uid() = user_id)
+WITH CHECK ( auth.uid() = user_id);
 
 CREATE POLICY "Users can delete their refresh tokens."
 ON auth.refresh_tokens FOR DELETE TO anon
-USING ( (SELECT auth.uid()) = user_id);
+USING ( auth.uid() = user_id);

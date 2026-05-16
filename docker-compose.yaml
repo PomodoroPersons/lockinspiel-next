@@ -1,5 +1,4 @@
 services:
-
   db:
     volumes:
       # PGDATA directory is persisted between restarts
@@ -18,15 +17,7 @@ services:
     #    tmpfs:
     #      size: 134217728 # 128*2^20 bytes = 128Mb
     healthcheck:
-      test:
-        [
-        "CMD",
-        "pg_isready",
-        "-U",
-        "postgres",
-        "-h",
-        "localhost"
-        ]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -71,6 +62,21 @@ services:
     ports:
       - 3000:3000
 
+  garage:
+    image: dxflrs/garage:v2.3.0
+    network_mode: host
+    restart: unless-stopped
+    volumes:
+      - ./volumes/garage/garage.toml:/etc/garage.toml
+      - garagemeta:/var/lib/garage/meta
+      - garagedata:/var/lib/garage/data
+    environment:
+      GARAGE_CONFIG_FILE: /etc/garage.toml
+      GARAGE_DEFAULT_ACCESS_KEY: garageadminadmin
+      GARAGE_DEFAULT_SECRET_KEY: garageadminadmin
+      GARAGE_DEFAULT_BUCKET: default-bucket
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+  
   web-auth:
     restart: unless-stopped
     depends_on:
@@ -184,6 +190,12 @@ services:
       SERVICE_TYPE: user
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
       LISTEN_ADDR: "[::]:3000"
+      S3_BUCKET_NAME: default-bucket
+      S3_BUCKET_REGION: garage
+      S3_BUCKET_ACCESS_KEY: garageadminadmin
+      S3_BUCKET_SECRET_KEY: garageadminadmin
+      S3_BUCKET_PATH_STYLE: true
+      S3_BUCKET_ENDPOINT: http://localhost:3900
       # RUST_LOG: debug
     deploy:
       mode: replicated
@@ -191,4 +203,5 @@ services:
 
 volumes:
   pgdata:
-
+  garagemeta:
+  garagedata:

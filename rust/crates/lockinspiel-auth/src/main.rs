@@ -11,7 +11,7 @@ use jsonwebtoken::{
     jwk::{Jwk, JwkSet},
 };
 use lockinspiel_backend_common::{
-    ApiState, ServiceConfig,
+    ApiState, NoExtraArgs, ServiceConfig,
     auth::JWT_ALG,
     error::{EyreError, WithStatusCode},
     shutdown_signal,
@@ -48,10 +48,12 @@ macro_rules! app_routes {
 async fn main() -> eyre::Result<()> {
     let service_config = ServiceConfig::new("auth");
     let service_id = service_config.id.clone();
-    let (init_state, api_state) =
-        lockinspiel_backend_common::init(service_config, lockinspiel_auth_schema::MIGRATIONS)
-            .await
-            .wrap_err("Failed to initialize API state")?;
+    let (init_state, api_state) = lockinspiel_backend_common::init::<NoExtraArgs>(
+        service_config,
+        lockinspiel_auth_schema::MIGRATIONS,
+    )
+    .await
+    .wrap_err("Failed to initialize API state")?;
 
     // The key pair we generate is only compatible with
     // this algorithm

@@ -3,16 +3,19 @@ set -e
 
 psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
 	CREATE ROLE "service";
+	CREATE ROLE "diesel";
 
 	CREATE USER auth_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER timekeeper_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER analyzer_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER user_service WITH PASSWORD '$POSTGRES_PASSWORD';
 
-	GRANT service TO auth_service;
+	GRANT diesel TO auth_service;
 	GRANT service TO timekeeper_service;
 	GRANT service TO analyzer_service;
-	GRANT service TO user_service;
+	GRANT diesel TO user_service;
+
+	GRANT service TO diesel;
 
 	CREATE USER otelu WITH PASSWORD '$POSTGRES_PASSWORD';
 
