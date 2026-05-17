@@ -8,7 +8,8 @@ use diesel::{
     sql_types,
 };
 use jiff::{SignedDuration, civil};
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use utoipa::ToSchema;
 
 use crate::Placeholder;
 
@@ -139,5 +140,37 @@ impl FromSql<sql_types::Timestamp, Pg> for Timestamp {
 impl FromSql<sql_types::Timestamptz, Pg> for Timestamp {
     fn from_sql(bytes: PgValue<'_>) -> deserialize::Result<Self> {
         FromSql::<sql_types::Timestamp, Pg>::from_sql(bytes)
+    }
+}
+
+// From https://github.com/PPakalns/diesel_json/blob/9443c0168952bf2cb4ef156c9771438f9632ede0/src/lib.rs
+#[derive(FromSqlRow, AsExpression, ToSchema, Serialize, Deserialize, Debug, Clone)]
+#[serde(transparent)]
+#[diesel(sql_type = sql_types::Jsonb)]
+pub struct Json<T: Sized>(pub T);
+
+impl<T> Json<T> {
+    pub fn new(value: T) -> Json<T> {
+        Json(value)
+    }
+}
+
+impl<T> FromSql<sql_types::Jsonb, Pg> for Json<T>
+where
+    T: std::fmt::Debug + DeserializeOwned,
+{
+    fn from_sql(bytes: PgValue) -> diesel::deserialize::Result<Self> {
+        let value = <serde_json::Value as FromSql<sql_types::Jsonb, Pg>>::from_sql(bytes)?;
+        Ok(Json(serde_json::from_value::<T>(value)?))
+    }
+}
+
+impl<T> ToSql<sql_types::Jsonb, Pg> for Json<T>
+where
+    T: std::fmt::Debug + Serialize,
+{
+    fn to_sql(&self, out: &mut diesel::serialize::Output<Pg>) -> diesel::serialize::Result {
+        let value = serde_json::to_value(self)?;
+        <serde_json::Value as ToSql<sql_types::Jsonb, Pg>>::to_sql(&value, &mut out.reborrow())
     }
 }

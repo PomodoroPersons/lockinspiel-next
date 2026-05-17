@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use aws_lc_rs::signature::{ECDSA_P256_SHA256_FIXED_SIGNING, EcdsaKeyPair};
 use axum::{
     Json,
@@ -5,6 +7,7 @@ use axum::{
     http::StatusCode,
     routing::get,
 };
+use axum_extra::extract::cookie::{Cookie, SameSite};
 use color_eyre::eyre::{self, Context};
 use jsonwebtoken::{
     EncodingKey,
@@ -18,6 +21,7 @@ use lockinspiel_backend_common::{
 };
 use tokio::net::TcpListener;
 use tracing::{Instrument, info_span, instrument};
+use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_scalar::{Scalar, Servable};
 
@@ -31,8 +35,8 @@ pub struct AuthApiState {
 }
 
 macro_rules! app_routes {
-    ($state:ty) => {
-        [
+    ($state:ty) => {{
+        let (router, mut api) = [
             routes!(routes::signup, routes::delete_user),
             routes!(routes::new_session, routes::logout),
         ]
@@ -40,9 +44,24 @@ macro_rules! app_routes {
         .fold(OpenApiRouter::<$state>::new(), |router, routes| {
             router.routes(routes)
         })
-        .split_for_parts()
-    };
+        .split_for_parts();
+
+        lockinspiel_backend_common::fill_in_openapi(&mut api);
+        api.components.as_mut().map(|components| {
+            components.security_schemes.insert(
+                "refresh_cookie".to_owned(),
+                SecurityScheme::ApiKey(ApiKey::Cookie(ApiKeyValue::with_description(
+                    REFRESH_TOKEN_NAME,
+                    "An HTTP-Only cookie issued on signup and login",
+                ))),
+            )
+        });
+
+        (router, api)
+    }};
 }
+
+pub const REFRESH_TOKEN_NAME: &str = "lockinspiel_refresh";
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
@@ -85,9 +104,7 @@ async fn main() -> eyre::Result<()> {
 
     let jwk_set = JwkSet { keys: vec![jwk] };
 
-    let (router, mut api) = app_routes!(AuthApiState);
-
-    lockinspiel_backend_common::fill_in_openapi(&mut api);
+    let (router, api) = app_routes!(AuthApiState);
 
     let app = router
         .route("/", get(|| async { "up" }))
@@ -121,6 +138,16 @@ async fn main() -> eyre::Result<()> {
     init_state
         .shutdown()
         .wrap_err("Failed to shutdown OpenTelemetry services")
+}
+
+pub fn create_refresh_token_cookie() -> Cookie<'static> {
+    Cookie::build(REFRESH_TOKEN_NAME)
+        .path("/auth/session")
+        .http_only(true)
+        .secure(true)
+        .same_site(SameSite::Strict)
+        .max_age(Duration::from_secs(3600 * 30).try_into().unwrap())
+        .build()
 }
 
 #[instrument(skip(api_state))]

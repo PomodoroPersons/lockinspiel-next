@@ -1089,6 +1089,7 @@ dependencies = [
  "diesel_derives",
  "downcast-rs",
  "itoa",
+ "serde_json",
  "uuid",
 ]
 
@@ -2194,6 +2195,7 @@ dependencies = [
  "opentelemetry_sdk",
  "reqwest 0.13.2",
  "serde",
+ "serde_json",
  "supports-color",
  "thiserror 2.0.18",
  "tokio",
@@ -2227,6 +2229,8 @@ dependencies = [
  "lockinspiel-backend-common",
  "lockinspiel-user-schema",
  "serde",
+ "serde_json",
+ "thiserror 2.0.18",
  "tokio",
  "tracing",
  "utoipa",

@@ -35,6 +35,9 @@ pub struct S3Config {
     #[clap(long = "s3-bucket-endpoint", env = "S3_BUCKET_ENDPOINT")]
     #[serde(default)]
     endpoint: Option<String>,
+    #[clap(long = "s3-bucket-endpoint", env = "S3_BUCKET_INTERNAL_ENDPOINT")]
+    #[serde(default)]
+    internal_endpoint: Option<String>,
 }
 
 #[derive(Parser, Deserialize, Default)]
@@ -51,14 +54,25 @@ pub struct UserApiState {
 }
 
 macro_rules! app_routes {
-    ($state:ty) => {
-        [routes!(routes::create_profile)]
-            .into_iter()
-            .fold(OpenApiRouter::<$state>::new(), |router, routes| {
-                router.routes(routes)
-            })
-            .split_for_parts()
-    };
+    ($state:ty) => {{
+        let (router, mut api) = [
+            routes!(
+                routes::create_profile,
+                routes::get_profile,
+                routes::update_profile
+            ),
+            routes!(routes::put_avatar, routes::delete_avatar),
+        ]
+        .into_iter()
+        .fold(OpenApiRouter::<$state>::new(), |router, routes| {
+            router.routes(routes)
+        })
+        .split_for_parts();
+
+        lockinspiel_backend_common::fill_in_openapi(&mut api);
+
+        (router, api)
+    }};
 }
 
 #[tokio::main]
@@ -110,6 +124,11 @@ async fn main() -> eyre::Result<()> {
             api_state,
             url_resolver: Arc::new(UrlResolver::new(
                 init_state.service_config.s3_bucket.name.clone(),
+                init_state
+                    .service_config
+                    .s3_bucket
+                    .internal_endpoint
+                    .clone(),
                 s3_client,
             )),
         });

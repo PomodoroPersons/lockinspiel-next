@@ -9,10 +9,7 @@ use diesel_async::RunQueryDsl;
 use jsonwebtoken::EncodingKey;
 use lockinspiel_backend_common::{
     Placeholder,
-    auth::{
-        DatabaseConnection, DatabaseUser, InsertableDatabaseUser, REFRESH_TOKEN_NAME,
-        create_refresh_token_cookie,
-    },
+    auth::{DatabaseConnection, DatabaseUser, InsertableDatabaseUser},
     error::{self, EyreError, WithStatusCode},
     users::{RefreshToken, User, UserClaims},
 };
@@ -22,6 +19,8 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 use lockinspiel_auth_schema::schema::auth::{refresh_tokens, users};
+
+use crate::{REFRESH_TOKEN_NAME, create_refresh_token_cookie};
 
 #[declare_sql_function]
 extern "SQL" {

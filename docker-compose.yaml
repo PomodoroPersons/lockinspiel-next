@@ -64,8 +64,9 @@ services:
 
   garage:
     image: dxflrs/garage:v2.3.0
-    network_mode: host
     restart: unless-stopped
+    ports:
+      - 3900:3900
     volumes:
       - ./volumes/garage/garage.toml:/etc/garage.toml
       - garagemeta:/var/lib/garage/meta
@@ -196,6 +197,7 @@ services:
       S3_BUCKET_SECRET_KEY: garageadminadmin
       S3_BUCKET_PATH_STYLE: true
       S3_BUCKET_ENDPOINT: http://localhost:3900
+      S3_BUCKET_INTERNAL_ENDPOINT: http://garage:3900
       # RUST_LOG: debug
     deploy:
       mode: replicated

@@ -19,7 +19,7 @@ tokio = { version = "1.50.0", features = [
   "signal",
 ] }
 clap = { version = "4.6.0", features = ["derive", "env"] }
-diesel = { version = "2.3.7", features = ["uuid", "postgres_backend"] }
+diesel = { version = "2.3.7", features = ["uuid", "serde_json", "postgres_backend"] }
 diesel-async = { version = "0.8.0", features = [
   "postgres",
   "bb8",
@@ -28,6 +28,7 @@ diesel-async = { version = "0.8.0", features = [
 diesel_migrations = "2.3.1"
 uuid = { version = "1.23.0", features = ["serde", "v7"] }
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
 tower-http = { version = "0.6.8", features = [
   "trace",
   "catch-panic",
