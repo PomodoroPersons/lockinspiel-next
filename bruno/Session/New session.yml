@@ -8,9 +8,6 @@ info:
 http:
   method: POST
   url: "{{baseUrl}}/auth/session"
-  headers:
-    - name: lockinspiel_refresh
-      value: "{{apiKey}}"
   body:
     type: json
     data: |-
@@ -20,11 +17,6 @@ http:
           "username": "johndoe"
         }
       }
-  auth:
-    type: apikey
-    key: lockinspiel_refresh
-    value: "{{apiKey}}"
-    placement: header
 
 runtime:
   scripts:
@@ -47,9 +39,6 @@ examples:
     request:
       url: "{{baseUrl}}/auth/session"
       method: POST
-      headers:
-        - name: lockinspiel_refresh
-          value: "{{apiKey}}"
       body:
         type: json
         data: |-
@@ -76,9 +65,6 @@ examples:
     request:
       url: "{{baseUrl}}/auth/session"
       method: POST
-      headers:
-        - name: lockinspiel_refresh
-          value: "{{apiKey}}"
       body:
         type: json
         data: |-
@@ -110,9 +96,6 @@ examples:
     request:
       url: "{{baseUrl}}/auth/session"
       method: POST
-      headers:
-        - name: lockinspiel_refresh
-          value: "{{apiKey}}"
       body:
         type: json
         data: |-
@@ -140,4 +123,5 @@ examples:
              0: lockinspiel_backend_common::error::placeholder
                 at crates/lockinspiel-backend-common/src/error.rs:121</code></pre></body></html>
 
-docs: Creates a fresh session either via a username and password, or via a refresh token (which becomes invalidated after this request).
+docs: Creates a fresh session either via a username and password, or via a
+  refresh token (which becomes invalidated after this request).

@@ -61,7 +61,7 @@ macro_rules! app_routes {
     }};
 }
 
-pub const REFRESH_TOKEN_NAME: &str = "lockinspiel_refresh";
+pub const REFRESH_TOKEN_NAME: &str = "lockinspiel-refresh";
 
 #[tokio::main]
 async fn main() -> eyre::Result<()> {

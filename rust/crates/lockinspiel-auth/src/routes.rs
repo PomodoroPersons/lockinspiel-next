@@ -123,7 +123,7 @@ pub struct InsertableRefreshToken {
                 (LoginToken, example = LoginToken::placeholder)
             ),
             headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel-refresh` will contain the refresh token.")
             )
         ),
         (status = "4XX", description = "It's your fault",
@@ -240,7 +240,7 @@ pub async fn delete_user(
                 (LoginToken, example = LoginToken::placeholder)
             ),
             headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel-refresh` will contain the refresh token.")
             )
         ),
         (status = "4XX", description = "It's your fault",
@@ -345,7 +345,7 @@ pub async fn new_session(
                 (LoginToken, example = LoginToken::placeholder)
             ),
             headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel-refresh` will contain the refresh token.")
             )
         ),
         (status = "4XX", description = "It's your fault",
