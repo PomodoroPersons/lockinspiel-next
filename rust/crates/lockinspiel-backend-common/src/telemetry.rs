@@ -90,7 +90,7 @@ pub struct TelemetryMakeSpan(pub DefaultMakeSpan);
 impl<B> MakeSpan<B> for TelemetryMakeSpan {
     fn make_span(&mut self, request: &axum::http::Request<B>) -> tracing::Span {
         let span = self.0.make_span(request);
-        if request.uri().path() != "/health" {
+        if request.uri().path() != "/" {
             let parent_context = global::get_text_map_propagator(|propagator| {
                 propagator.extract(&HeaderMapCarrier::new(request.headers()))
             });
