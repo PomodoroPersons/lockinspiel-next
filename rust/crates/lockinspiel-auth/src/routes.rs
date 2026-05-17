@@ -88,6 +88,7 @@ pub fn encode_tokens(
 }
 
 impl Placeholder for LoginToken {
+    #[instrument]
     fn placeholder() -> Self {
         encode_tokens(
             &jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS256),

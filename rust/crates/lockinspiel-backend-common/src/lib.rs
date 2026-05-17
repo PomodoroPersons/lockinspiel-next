@@ -209,6 +209,17 @@ pub async fn init<E: Args + DeserializeOwned + Default>(
         bail!("db_url is not set");
     }
 
+    {
+        let mut harness = AsyncMigrationHarness::new(
+            diesel_async::AsyncPgConnection::establish(&config.db_url)
+                .await
+                .wrap_err("Failed to establish postgres connection for migration")?,
+        );
+        // SAFETY: Box<dyn Error + Send + Sync> is not also 'static,
+        // so must use unwrap
+        harness.run_pending_migrations(migrations).unwrap();
+    }
+
     let mut manager_config = ManagerConfig::default();
     manager_config.custom_setup = Box::new(|url| {
         diesel_async::AsyncPgConnection::establish(url)
@@ -230,15 +241,6 @@ pub async fn init<E: Args + DeserializeOwned + Default>(
         .build(db_config)
         .await
         .wrap_err("Failed to build database pool")?;
-
-    let mut harness = AsyncMigrationHarness::new(
-        pool.get_owned()
-            .await
-            .wrap_err("Failed to get owned connection to database")?,
-    );
-    // SAFETY: Box<dyn Error + Send + Sync> is not also 'static,
-    // so must use unwrap
-    harness.run_pending_migrations(migrations).unwrap();
 
     let reqwest_client = reqwest::Client::new();
 
