@@ -5,7 +5,7 @@ target "docker-metadata-action-analyzer" {}
 target "docker-metadata-action-user" {}
 
 group "default" {
-  targets = ["auth", "timekeeper", "frontend", "analyzer"]
+  targets = ["auth", "timekeeper", "frontend", "analyzer", "user"]
 }
 
 target "auth" {
