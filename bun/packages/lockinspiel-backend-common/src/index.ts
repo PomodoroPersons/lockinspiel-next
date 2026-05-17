@@ -38,6 +38,7 @@ export const otelTracer = opentelemetry({
       jwksUrl.toString()
     ]
   })],
+  checkIfShouldTrace: (req) => new URL(req.url).pathname !== '/',
 });
 
 export const openapiUse = openapi({
