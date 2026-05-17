@@ -1,4 +1,4 @@
-package live.lockinspiel;
+package live.lockinspiel.analyzer;
 
 import java.util.List;
 

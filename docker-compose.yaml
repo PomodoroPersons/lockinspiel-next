@@ -83,11 +83,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     build:
       args:
         SERVICE: lockinspiel-auth
@@ -127,6 +127,17 @@ services:
       mode: replicated
       replicas: 1
 
+  web-timekeeper-health:
+    image: curlimages/curl
+    network_mode: "service:web-timekeeper"  # Critical: shares api's network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+    entrypoint: ["sleep", "infinity"]  
+
   web-analyzer:
     restart: unless-stopped
     depends_on:
@@ -150,6 +161,17 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+
+  web-analyzer-health:
+    image: curlimages/curl
+    network_mode: "service:web-analyzer"  # Critical: shares api's network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+    entrypoint: ["sleep", "infinity"]  
 
   web-frontend:
     restart: unless-stopped
@@ -176,11 +198,11 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     build:
       args:
         SERVICE: lockinspiel-user
