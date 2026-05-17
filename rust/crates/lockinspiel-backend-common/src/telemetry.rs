@@ -97,7 +97,8 @@ impl<B> MakeSpan<B> for TelemetryMakeSpan {
             span.set_parent(parent_context).unwrap();
         } else {
             span.set_parent(Context::map_current(|cx| {
-                cx.with_remote_span_context(SpanContext::NONE)
+                cx.with_telemetry_suppressed()
+                    .with_remote_span_context(SpanContext::NONE)
             }))
             .unwrap();
         }
