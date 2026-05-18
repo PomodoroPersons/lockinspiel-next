@@ -1,0 +1,42 @@
+<div class="set-timer">
+
+  <div class="times">
+    <div class="time-input-group">
+      <h3>Work Time (min)</h3>
+      <input type="number" value="25" />
+    </div>
+    <div class="time-input-group">
+      <h3>Rest Time (min)</h3>
+      <input type="number" value="5" />
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="play-btn" (click)="startTimer()">▶</button>
+    <button
+      class="friends-btn"
+      [class.active]="friendsPanelOpen()"
+      (click)="toggleFriendsPanel()">
+      👤
+    </button>
+  </div>
+
+  <div class="friends-panel" [class.open]="friendsPanelOpen()">
+    <div class="friends-panel-inner">
+      <p class="friends-title">Friends</p>
+      <div class="friend-row">
+        <span>Isaac Mills</span>
+        <button class="add-btn">+</button>
+      </div>
+      <div class="friend-row">
+        <span>Arthur Grover</span>
+        <button class="add-btn">+</button>
+      </div>
+      <div class="friend-row">
+        <span>Makaden Espinosa</span>
+        <button class="add-btn">+</button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
-import { Demo } from './demo/demo';
+import { MainPage } from './main-page/main-page';
 
 export const routes: Routes = [
   {
-    component: Demo,
+    component: MainPage,
     path: '',
     pathMatch: 'full',
   },
