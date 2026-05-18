@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
-import { TimerService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, TimekeeperTimerWid, AuthNewSessionErrors, SessionService } from '../../api-client'
+import { TimerService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, TimekeeperTimer, AuthNewSessionErrors, SessionService } from '../../api-client'
 
 @Component({
   host: { ngSkipHydration: 'true' },
@@ -26,7 +26,7 @@ import { TimerService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, Tim
   `
 })
 export class Demo {
-  timer = signal<TimekeeperTimerWid[] | undefined>(undefined);
+  timer = signal<TimekeeperTimer[] | undefined>(undefined);
    error = signal<
     | undefined
     | {
@@ -70,11 +70,10 @@ export class Demo {
       const { data, error, response } = await this.#timerService.timekeeperPostTimer({
         httpClient: this.#http,
         body: {
-          start_timestamp: Date.now(),
-          end_timestamp: Date.now() + 3600,
+          start_time: Date.now(),
+          end_time: Date.now() + 3600,
           tags: [],
-          time_split: 1,
-          work: true
+          time_split_timer: 1,
         },
         auth() {
           console.log(jwt?.access_token)
