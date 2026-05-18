@@ -31,20 +31,39 @@ export type AuthLoginToken = {
     access_token: string;
 };
 
+export type UserInsertableUserProfile = {
+    bio: string;
+    display_name: string;
+};
+
+export type UserPutAvatarQuery = {
+    file_extension: string;
+};
+
+export type UserUserProfile = {
+    avatar_location?: string | null;
+    bio: string;
+    display_name: string;
+};
+
+export type UserUserProfileChangeset = {
+    bio: string;
+    display_name: string;
+};
+
 export type TimekeeperTimer = {
     time_split: string | number;
-    start_timestamp: string | number;
-    end_timestamp: string | number;
     work: boolean;
+    time_split_timer: string | number;
+    start_time: unknown | string | string | number;
+    end_time: unknown | string | string | number;
     tags: Array<string | number>;
 };
 
-export type TimekeeperTimerWid = {
-    id: string | number;
-    time_split: string | number;
-    start_timestamp: string | number;
-    end_timestamp: string | number;
-    work: boolean;
+export type TimekeeperInsertableTimer = {
+    time_split_timer: string | number;
+    start_time: unknown | string | string | number;
+    end_time: unknown | string | string | number;
     tags: Array<string | number>;
 };
 
@@ -63,27 +82,47 @@ export type TimekeeperTimeSplitTimer = {
     work: boolean;
 };
 
-export type TimekeeperTimeSplit = {
+export type TimekeeperTimeSplitTimerWOrder = {
+    order_idx: string | number;
+    len: string | number;
     name: string;
-    description: string;
-    deleted: boolean;
+    work: boolean;
+};
+
+export type TimekeeperTimeSplitTimerWid = {
+    id: string | number;
+    order_idx: string | number;
+    len: string | number;
+    name: string;
+    work: boolean;
+};
+
+export type TimekeeperTimeSplitNoTimers = {
+    name: string;
+    description: string | null;
+};
+
+export type TimekeeperTimeSplit = {
     timers: Array<{
         len: string | number;
         name: string;
         work: boolean;
     }>;
+    name: string;
+    description: string | null;
 };
 
 export type TimekeeperTimeSplitWid = {
     id: string | number;
-    name: string;
-    description: string;
-    deleted: boolean;
     timers: Array<{
+        id: string | number;
+        order_idx: string | number;
         len: string | number;
         name: string;
         work: boolean;
     }>;
+    name: string;
+    description: string | null;
 };
 
 export type AuthLogoutData = {
@@ -200,6 +239,145 @@ export type AuthSignupResponses = {
 
 export type AuthSignupResponse = AuthSignupResponses[keyof AuthSignupResponses];
 
+export type UserGetProfileData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/profile';
+};
+
+export type UserGetProfileErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type UserGetProfileError = UserGetProfileErrors[keyof UserGetProfileErrors];
+
+export type UserGetProfileResponses = {
+    /**
+     * Ok
+     */
+    200: UserUserProfile;
+};
+
+export type UserGetProfileResponse = UserGetProfileResponses[keyof UserGetProfileResponses];
+
+export type UserCreateProfileData = {
+    body: UserInsertableUserProfile;
+    path?: never;
+    query?: never;
+    url: '/user/profile';
+};
+
+export type UserCreateProfileErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type UserCreateProfileError = UserCreateProfileErrors[keyof UserCreateProfileErrors];
+
+export type UserCreateProfileResponses = {
+    /**
+     * Ok
+     */
+    200: unknown;
+};
+
+export type UserUpdateProfileData = {
+    body: UserUserProfileChangeset;
+    path?: never;
+    query?: never;
+    url: '/user/profile';
+};
+
+export type UserUpdateProfileErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type UserUpdateProfileError = UserUpdateProfileErrors[keyof UserUpdateProfileErrors];
+
+export type UserUpdateProfileResponses = {
+    /**
+     * Ok
+     */
+    200: unknown;
+};
+
+export type UserDeleteAvatarData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/user/profile/avatar';
+};
+
+export type UserDeleteAvatarErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type UserDeleteAvatarError = UserDeleteAvatarErrors[keyof UserDeleteAvatarErrors];
+
+export type UserDeleteAvatarResponses = {
+    /**
+     * Ok
+     */
+    200: unknown;
+};
+
+export type UserPutAvatarData = {
+    body: UserPutAvatarQuery;
+    path?: never;
+    query?: never;
+    url: '/user/profile/avatar';
+};
+
+export type UserPutAvatarErrors = {
+    /**
+     * It's your fault
+     */
+    '4XX': string;
+    /**
+     * We're having a skill issue
+     */
+    '5XX': string;
+};
+
+export type UserPutAvatarError = UserPutAvatarErrors[keyof UserPutAvatarErrors];
+
+export type UserPutAvatarResponses = {
+    /**
+     * Ok
+     */
+    200: string;
+};
+
+export type UserPutAvatarResponse = UserPutAvatarResponses[keyof UserPutAvatarResponses];
+
 export type TimekeeperGetIndexData = {
     body?: never;
     path?: never;
@@ -242,13 +420,13 @@ export type TimekeeperGetTimersResponses = {
     /**
      * Response for status 200
      */
-    200: Array<TimekeeperTimerWid>;
+    200: Array<TimekeeperTimer>;
 };
 
 export type TimekeeperGetTimersResponse = TimekeeperGetTimersResponses[keyof TimekeeperGetTimersResponses];
 
 export type TimekeeperPostTimerData = {
-    body: TimekeeperTimer;
+    body: TimekeeperInsertableTimer;
     path?: never;
     query?: never;
     url: '/timekeeper/timer';
@@ -259,28 +437,28 @@ export type TimekeeperPostTimerErrors = {
      * Response for status 401
      */
     401: 'Unauthorized';
+    /**
+     * Response for status 404
+     */
+    404: 'Time split timer not found';
 };
 
 export type TimekeeperPostTimerError = TimekeeperPostTimerErrors[keyof TimekeeperPostTimerErrors];
 
 export type TimekeeperPostTimerResponses = {
     /**
-     * Response for status 200
+     * Response for status 201
      */
-    200: {
-        timer_id: string | number;
-    };
+    201: TimekeeperTimer;
 };
 
 export type TimekeeperPostTimerResponse = TimekeeperPostTimerResponses[keyof TimekeeperPostTimerResponses];
 
 export type TimekeeperModifyTimerData = {
-    body: TimekeeperTimer;
-    path: {
-        id: string | number;
-    };
+    body: TimekeeperInsertableTimer;
+    path?: never;
     query?: never;
-    url: '/timekeeper/timer/{id}';
+    url: '/timekeeper/timer';
 };
 
 export type TimekeeperModifyTimerErrors = {
@@ -291,7 +469,7 @@ export type TimekeeperModifyTimerErrors = {
     /**
      * Response for status 404
      */
-    404: 'Timer not found';
+    404: 'Time split timer not found';
 };
 
 export type TimekeeperModifyTimerError = TimekeeperModifyTimerErrors[keyof TimekeeperModifyTimerErrors];
@@ -300,7 +478,7 @@ export type TimekeeperModifyTimerResponses = {
     /**
      * Response for status 200
      */
-    200: 'OK';
+    200: TimekeeperTimer;
 };
 
 export type TimekeeperModifyTimerResponse = TimekeeperModifyTimerResponses[keyof TimekeeperModifyTimerResponses];
@@ -311,15 +489,6 @@ export type TimekeeperGetTagsData = {
     query?: never;
     url: '/timekeeper/tag';
 };
-
-export type TimekeeperGetTagsErrors = {
-    /**
-     * Response for status 401
-     */
-    401: 'Unauthorized';
-};
-
-export type TimekeeperGetTagsError = TimekeeperGetTagsErrors[keyof TimekeeperGetTagsErrors];
 
 export type TimekeeperGetTagsResponses = {
     /**
@@ -348,9 +517,9 @@ export type TimekeeperAddTagError = TimekeeperAddTagErrors[keyof TimekeeperAddTa
 
 export type TimekeeperAddTagResponses = {
     /**
-     * Response for status 200
+     * Response for status 201
      */
-    200: {
+    201: {
         tag_id: string | number;
     };
 };
@@ -422,18 +591,11 @@ export type TimekeeperModifyTagResponse = TimekeeperModifyTagResponses[keyof Tim
 export type TimekeeperGetTimeSplitsData = {
     body?: never;
     path?: never;
-    query?: never;
+    query?: {
+        id?: string | number;
+    };
     url: '/timekeeper/time-split';
 };
-
-export type TimekeeperGetTimeSplitsErrors = {
-    /**
-     * Response for status 401
-     */
-    401: 'Unauthorized';
-};
-
-export type TimekeeperGetTimeSplitsError = TimekeeperGetTimeSplitsErrors[keyof TimekeeperGetTimeSplitsErrors];
 
 export type TimekeeperGetTimeSplitsResponses = {
     /**
@@ -462,9 +624,9 @@ export type TimekeeperAddTimeSplitError = TimekeeperAddTimeSplitErrors[keyof Tim
 
 export type TimekeeperAddTimeSplitResponses = {
     /**
-     * Response for status 200
+     * Response for status 201
      */
-    200: {
+    201: {
         time_split_id: string | number;
     };
 };
@@ -502,8 +664,39 @@ export type TimekeeperDeleteTimeSplitResponses = {
 
 export type TimekeeperDeleteTimeSplitResponse = TimekeeperDeleteTimeSplitResponses[keyof TimekeeperDeleteTimeSplitResponses];
 
+export type TimekeeperModifyTimeSplit2Data = {
+    body: TimekeeperTimeSplitTimerWOrder;
+    path: {
+        id: string | number;
+    };
+    query?: never;
+    url: '/timekeeper/time-split/{id}';
+};
+
+export type TimekeeperModifyTimeSplit2Errors = {
+    /**
+     * Response for status 401
+     */
+    401: 'Unauthorized';
+    /**
+     * Response for status 404
+     */
+    404: 'Time split not found';
+};
+
+export type TimekeeperModifyTimeSplit2Error = TimekeeperModifyTimeSplit2Errors[keyof TimekeeperModifyTimeSplit2Errors];
+
+export type TimekeeperModifyTimeSplit2Responses = {
+    /**
+     * Response for status 200
+     */
+    200: TimekeeperTimeSplitTimerWid;
+};
+
+export type TimekeeperModifyTimeSplit2Response = TimekeeperModifyTimeSplit2Responses[keyof TimekeeperModifyTimeSplit2Responses];
+
 export type TimekeeperModifyTimeSplitData = {
-    body: TimekeeperTimeSplit;
+    body: TimekeeperTimeSplitNoTimers;
     path: {
         id: string | number;
     };
@@ -532,3 +725,67 @@ export type TimekeeperModifyTimeSplitResponses = {
 };
 
 export type TimekeeperModifyTimeSplitResponse = TimekeeperModifyTimeSplitResponses[keyof TimekeeperModifyTimeSplitResponses];
+
+export type TimekeeperDeleteTimeSplit2Data = {
+    body?: never;
+    path: {
+        id: string | number;
+        time_split: string | number;
+    };
+    query?: never;
+    url: '/timekeeper/time-split/{id}/{time_split}';
+};
+
+export type TimekeeperDeleteTimeSplit2Errors = {
+    /**
+     * Response for status 401
+     */
+    401: 'Unauthorized';
+    /**
+     * Response for status 404
+     */
+    404: 'Time split timer not found';
+};
+
+export type TimekeeperDeleteTimeSplit2Error = TimekeeperDeleteTimeSplit2Errors[keyof TimekeeperDeleteTimeSplit2Errors];
+
+export type TimekeeperDeleteTimeSplit2Responses = {
+    /**
+     * Response for status 200
+     */
+    200: 'OK';
+};
+
+export type TimekeeperDeleteTimeSplit2Response = TimekeeperDeleteTimeSplit2Responses[keyof TimekeeperDeleteTimeSplit2Responses];
+
+export type TimekeeperModifyTimeSplit3Data = {
+    body: TimekeeperTimeSplitTimerWOrder;
+    path: {
+        id: string | number;
+        time_split: string | number;
+    };
+    query?: never;
+    url: '/timekeeper/time-split/{id}/{time_split}';
+};
+
+export type TimekeeperModifyTimeSplit3Errors = {
+    /**
+     * Response for status 401
+     */
+    401: 'Unauthorized';
+    /**
+     * Response for status 404
+     */
+    404: 'Time split timer not found';
+};
+
+export type TimekeeperModifyTimeSplit3Error = TimekeeperModifyTimeSplit3Errors[keyof TimekeeperModifyTimeSplit3Errors];
+
+export type TimekeeperModifyTimeSplit3Responses = {
+    /**
+     * Response for status 200
+     */
+    200: 'OK';
+};
+
+export type TimekeeperModifyTimeSplit3Response = TimekeeperModifyTimeSplit3Responses[keyof TimekeeperModifyTimeSplit3Responses];

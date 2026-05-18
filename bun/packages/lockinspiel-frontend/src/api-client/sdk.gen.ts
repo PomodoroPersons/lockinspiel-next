@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthDeleteUserData, AuthDeleteUserErrors, AuthDeleteUserResponses, AuthLogoutData, AuthLogoutErrors, AuthLogoutResponses, AuthNewSessionData, AuthNewSessionErrors, AuthNewSessionResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsErrors, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsErrors, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses } from './types.gen';
+import type { AuthDeleteUserData, AuthDeleteUserErrors, AuthDeleteUserResponses, AuthLogoutData, AuthLogoutErrors, AuthLogoutResponses, AuthNewSessionData, AuthNewSessionErrors, AuthNewSessionResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplit2Data, TimekeeperDeleteTimeSplit2Errors, TimekeeperDeleteTimeSplit2Responses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplit2Data, TimekeeperModifyTimeSplit2Errors, TimekeeperModifyTimeSplit2Responses, TimekeeperModifyTimeSplit3Data, TimekeeperModifyTimeSplit3Errors, TimekeeperModifyTimeSplit3Responses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses, UserCreateProfileData, UserCreateProfileErrors, UserCreateProfileResponses, UserDeleteAvatarData, UserDeleteAvatarErrors, UserDeleteAvatarResponses, UserGetProfileData, UserGetProfileErrors, UserGetProfileResponses, UserPutAvatarData, UserPutAvatarErrors, UserPutAvatarResponses, UserUpdateProfileData, UserUpdateProfileErrors, UserUpdateProfileResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -94,6 +94,86 @@ export class UserService {
 }
 
 @Injectable({ providedIn: 'root' })
+export class ProfileService {
+    /**
+     * Get profile
+     *
+     * Gets the user profile for the current session
+     */
+    public userGetProfile<ThrowOnError extends boolean = false>(options?: Options<UserGetProfileData, ThrowOnError>) {
+        return (options?.client ?? client).get<UserGetProfileResponses, UserGetProfileErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/user/profile',
+            ...options
+        });
+    }
+    
+    /**
+     * Create profile
+     *
+     * Creates a new user profile for the current session
+     */
+    public userCreateProfile<ThrowOnError extends boolean = false>(options: Options<UserCreateProfileData, ThrowOnError>) {
+        return (options.client ?? client).post<UserCreateProfileResponses, UserCreateProfileErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/user/profile',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Update profile
+     *
+     * Updates the user profile for the current session
+     */
+    public userUpdateProfile<ThrowOnError extends boolean = false>(options: Options<UserUpdateProfileData, ThrowOnError>) {
+        return (options.client ?? client).put<UserUpdateProfileResponses, UserUpdateProfileErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/user/profile',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete profile avatar
+     *
+     * Delete's the user profile's avatar from wherever it is stored
+     */
+    public userDeleteAvatar<ThrowOnError extends boolean = false>(options?: Options<UserDeleteAvatarData, ThrowOnError>) {
+        return (options?.client ?? client).delete<UserDeleteAvatarResponses, UserDeleteAvatarErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/user/profile/avatar',
+            ...options
+        });
+    }
+    
+    /**
+     * Replace profile avatar
+     *
+     * Returns the URL that should be used to upload an image of the user's new avatar
+     */
+    public userPutAvatar<ThrowOnError extends boolean = false>(options: Options<UserPutAvatarData, ThrowOnError>) {
+        return (options.client ?? client).put<UserPutAvatarResponses, UserPutAvatarErrors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/user/profile/avatar',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+}
+
+@Injectable({ providedIn: 'root' })
 export class DefaultService {
     /**
      * Liviness check
@@ -140,12 +220,12 @@ export class TimerService {
     /**
      * Modify a timer
      *
-     * This route replaces the fields of the timer at the current ID with new fields. When a timer is paused, this route should be used to change the end_timestamp of the timer to the Unix timestamp at which the timer was paused. To resume a timer, a new timer should be posted with the Unix timestamp at which the timer was resumed, and the Unix timestamp in the future at which the remaining time will have elapsed.
+     * This route replaces the fields of the timer at the passed in start time with new fields. When a timer is paused, this route should be used to change the end_timestamp of the timer to the Unix timestamp at which the timer was paused. To resume a timer, a new timer should be posted with the Unix timestamp at which the timer was resumed, and the Unix timestamp in the future at which the remaining time will have elapsed.
      */
     public timekeeperModifyTimer<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimerData, ThrowOnError>) {
         return (options.client ?? client).put<TimekeeperModifyTimerResponses, TimekeeperModifyTimerErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
-            url: '/timekeeper/timer/{id}',
+            url: '/timekeeper/timer',
             ...options,
             headers: {
                 'Content-Type': 'application/json',
@@ -163,7 +243,7 @@ export class TagService {
      * Gets all the tags associated with the user, as well as the default ones
      */
     public timekeeperGetTags<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTagsData, ThrowOnError>) {
-        return (options?.client ?? client).get<TimekeeperGetTagsResponses, TimekeeperGetTagsErrors, ThrowOnError>({
+        return (options?.client ?? client).get<TimekeeperGetTagsResponses, unknown, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/tag',
             ...options
@@ -226,7 +306,7 @@ export class TimeSplitService {
      * Gets all the time splits associated with the user, as well as the default ones
      */
     public timekeeperGetTimeSplits<ThrowOnError extends boolean = false>(options?: Options<TimekeeperGetTimeSplitsData, ThrowOnError>) {
-        return (options?.client ?? client).get<TimekeeperGetTimeSplitsResponses, TimekeeperGetTimeSplitsErrors, ThrowOnError>({
+        return (options?.client ?? client).get<TimekeeperGetTimeSplitsResponses, unknown, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split',
             ...options
@@ -268,10 +348,57 @@ export class TimeSplitService {
      *
      * Modifies the fields of the time split at the ID.
      */
+    public timekeeperModifyTimeSplit2<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplit2Data, ThrowOnError>) {
+        return (options.client ?? client).post<TimekeeperModifyTimeSplit2Responses, TimekeeperModifyTimeSplit2Errors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/timekeeper/time-split/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Modify a time split
+     *
+     * Modifies the fields of the time split at the ID.
+     */
     public timekeeperModifyTimeSplit<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplitData, ThrowOnError>) {
         return (options.client ?? client).put<TimekeeperModifyTimeSplitResponses, TimekeeperModifyTimeSplitErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split/{id}',
+            ...options,
+            headers: {
+                'Content-Type': 'application/json',
+                ...options.headers
+            }
+        });
+    }
+    
+    /**
+     * Delete a time split
+     *
+     * Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.
+     */
+    public timekeeperDeleteTimeSplit2<ThrowOnError extends boolean = false>(options: Options<TimekeeperDeleteTimeSplit2Data, ThrowOnError>) {
+        return (options.client ?? client).delete<TimekeeperDeleteTimeSplit2Responses, TimekeeperDeleteTimeSplit2Errors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/timekeeper/time-split/{id}/{time_split}',
+            ...options
+        });
+    }
+    
+    /**
+     * Modify a time split
+     *
+     * Modifies the fields of the time split at the ID.
+     */
+    public timekeeperModifyTimeSplit3<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplit3Data, ThrowOnError>) {
+        return (options.client ?? client).put<TimekeeperModifyTimeSplit3Responses, TimekeeperModifyTimeSplit3Errors, ThrowOnError>({
+            security: [{ scheme: 'bearer', type: 'http' }],
+            url: '/timekeeper/time-split/{id}/{time_split}',
             ...options,
             headers: {
                 'Content-Type': 'application/json',

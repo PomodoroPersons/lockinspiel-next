@@ -91,13 +91,80 @@ export const auth_LoginTokenSchema = {
     }
 } as const;
 
+export const user_InsertableUserProfileSchema = {
+    type: 'object',
+    required: [
+        'display_name',
+        'bio'
+    ],
+    properties: {
+        bio: {
+            type: 'string'
+        },
+        display_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const user_PutAvatarQuerySchema = {
+    type: 'object',
+    required: [
+        'file_extension'
+    ],
+    properties: {
+        file_extension: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const user_UserProfileSchema = {
+    type: 'object',
+    required: [
+        'display_name',
+        'bio'
+    ],
+    properties: {
+        avatar_location: {
+            type: [
+                'string',
+                'null'
+            ]
+        },
+        bio: {
+            type: 'string'
+        },
+        display_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
+export const user_UserProfileChangesetSchema = {
+    type: 'object',
+    required: [
+        'display_name',
+        'bio'
+    ],
+    properties: {
+        bio: {
+            type: 'string'
+        },
+        display_name: {
+            type: 'string'
+        }
+    }
+} as const;
+
 export const timekeeper_TimerSchema = {
     type: 'object',
     required: [
         'time_split',
-        'start_timestamp',
-        'end_timestamp',
         'work',
+        'time_split_timer',
+        'start_time',
+        'end_time',
         'tags'
     ],
     properties: {
@@ -113,32 +180,56 @@ export const timekeeper_TimerSchema = {
                 }
             ]
         },
-        start_timestamp: {
-            anyOf: [
-                {
-                    format: 'integer',
-                    default: 0,
-                    type: 'string'
-                },
-                {
-                    type: 'integer'
-                }
-            ]
-        },
-        end_timestamp: {
-            anyOf: [
-                {
-                    format: 'integer',
-                    default: 0,
-                    type: 'string'
-                },
-                {
-                    type: 'integer'
-                }
-            ]
-        },
         work: {
             type: 'boolean'
+        },
+        time_split_timer: {
+            anyOf: [
+                {
+                    format: 'integer',
+                    default: 0,
+                    type: 'string'
+                },
+                {
+                    type: 'integer'
+                }
+            ]
+        },
+        start_time: {
+            anyOf: [
+                {
+                    type: 'Date'
+                },
+                {
+                    format: 'date-time',
+                    type: 'string'
+                },
+                {
+                    format: 'date',
+                    type: 'string'
+                },
+                {
+                    type: 'number'
+                }
+            ]
+        },
+        end_time: {
+            anyOf: [
+                {
+                    type: 'Date'
+                },
+                {
+                    format: 'date-time',
+                    type: 'string'
+                },
+                {
+                    format: 'date',
+                    type: 'string'
+                },
+                {
+                    type: 'number'
+                }
+            ]
         },
         tags: {
             type: 'array',
@@ -159,18 +250,16 @@ export const timekeeper_TimerSchema = {
     $id: '#/components/schemas/Timer'
 } as const;
 
-export const timekeeper_TimerWIDSchema = {
+export const timekeeper_InsertableTimerSchema = {
     type: 'object',
     required: [
-        'id',
-        'time_split',
-        'start_timestamp',
-        'end_timestamp',
-        'work',
+        'time_split_timer',
+        'start_time',
+        'end_time',
         'tags'
     ],
     properties: {
-        id: {
+        time_split_timer: {
             anyOf: [
                 {
                     format: 'integer',
@@ -182,44 +271,41 @@ export const timekeeper_TimerWIDSchema = {
                 }
             ]
         },
-        time_split: {
+        start_time: {
             anyOf: [
                 {
-                    format: 'integer',
-                    default: 0,
+                    type: 'Date'
+                },
+                {
+                    format: 'date-time',
                     type: 'string'
                 },
                 {
-                    type: 'integer'
-                }
-            ]
-        },
-        start_timestamp: {
-            anyOf: [
-                {
-                    format: 'integer',
-                    default: 0,
+                    format: 'date',
                     type: 'string'
                 },
                 {
-                    type: 'integer'
+                    type: 'number'
                 }
             ]
         },
-        end_timestamp: {
+        end_time: {
             anyOf: [
                 {
-                    format: 'integer',
-                    default: 0,
+                    type: 'Date'
+                },
+                {
+                    format: 'date-time',
                     type: 'string'
                 },
                 {
-                    type: 'integer'
+                    format: 'date',
+                    type: 'string'
+                },
+                {
+                    type: 'number'
                 }
             ]
-        },
-        work: {
-            type: 'boolean'
         },
         tags: {
             type: 'array',
@@ -237,7 +323,7 @@ export const timekeeper_TimerWIDSchema = {
             }
         }
     },
-    $id: '#/components/schemas/TimerWID'
+    $id: '#/components/schemas/InsertableTimer'
 } as const;
 
 export const timekeeper_TagSchema = {
@@ -309,71 +395,28 @@ export const timekeeper_TimeSplitTimerSchema = {
     $id: '#/components/schemas/TimeSplitTimer'
 } as const;
 
-export const timekeeper_TimeSplitSchema = {
+export const timekeeper_TimeSplitTimerWOrderSchema = {
     type: 'object',
     required: [
+        'order_idx',
+        'len',
         'name',
-        'description',
-        'deleted',
-        'timers'
+        'work'
     ],
     properties: {
-        name: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        deleted: {
-            type: 'boolean'
-        },
-        timers: {
-            type: 'array',
-            items: {
-                type: 'object',
-                required: [
-                    'len',
-                    'name',
-                    'work'
-                ],
-                properties: {
-                    len: {
-                        anyOf: [
-                            {
-                                format: 'integer',
-                                default: 0,
-                                type: 'string'
-                            },
-                            {
-                                type: 'integer'
-                            }
-                        ]
-                    },
-                    name: {
-                        type: 'string'
-                    },
-                    work: {
-                        type: 'boolean'
-                    }
+        order_idx: {
+            anyOf: [
+                {
+                    format: 'integer',
+                    default: 0,
+                    type: 'string'
                 },
-                $id: '#/components/schemas/TimeSplitTimer'
-            }
-        }
-    },
-    $id: '#/components/schemas/TimeSplit'
-} as const;
-
-export const timekeeper_TimeSplitWIDSchema = {
-    type: 'object',
-    required: [
-        'id',
-        'name',
-        'description',
-        'deleted',
-        'timers'
-    ],
-    properties: {
-        id: {
+                {
+                    type: 'integer'
+                }
+            ]
+        },
+        len: {
             anyOf: [
                 {
                     format: 'integer',
@@ -388,12 +431,102 @@ export const timekeeper_TimeSplitWIDSchema = {
         name: {
             type: 'string'
         },
-        description: {
+        work: {
+            type: 'boolean'
+        }
+    },
+    $id: '#/components/schemas/TimeSplitTimerWOrder'
+} as const;
+
+export const timekeeper_TimeSplitTimerWIDSchema = {
+    type: 'object',
+    required: [
+        'id',
+        'order_idx',
+        'len',
+        'name',
+        'work'
+    ],
+    properties: {
+        id: {
+            anyOf: [
+                {
+                    format: 'integer',
+                    default: 0,
+                    type: 'string'
+                },
+                {
+                    type: 'integer'
+                }
+            ]
+        },
+        order_idx: {
+            anyOf: [
+                {
+                    format: 'integer',
+                    default: 0,
+                    type: 'string'
+                },
+                {
+                    type: 'integer'
+                }
+            ]
+        },
+        len: {
+            anyOf: [
+                {
+                    format: 'integer',
+                    default: 0,
+                    type: 'string'
+                },
+                {
+                    type: 'integer'
+                }
+            ]
+        },
+        name: {
             type: 'string'
         },
-        deleted: {
+        work: {
             type: 'boolean'
+        }
+    },
+    $id: '#/components/schemas/TimeSplitTimerWID'
+} as const;
+
+export const timekeeper_TimeSplitNoTimersSchema = {
+    type: 'object',
+    required: [
+        'name',
+        'description'
+    ],
+    properties: {
+        name: {
+            type: 'string'
         },
+        description: {
+            nullable: true,
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    $id: '#/components/schemas/TimeSplitNoTimers'
+} as const;
+
+export const timekeeper_TimeSplitSchema = {
+    type: 'object',
+    required: [
+        'timers',
+        'name',
+        'description'
+    ],
+    properties: {
         timers: {
             type: 'array',
             items: {
@@ -425,6 +558,117 @@ export const timekeeper_TimeSplitWIDSchema = {
                 },
                 $id: '#/components/schemas/TimeSplitTimer'
             }
+        },
+        name: {
+            type: 'string'
+        },
+        description: {
+            nullable: true,
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    $id: '#/components/schemas/TimeSplit'
+} as const;
+
+export const timekeeper_TimeSplitWIDSchema = {
+    type: 'object',
+    required: [
+        'id',
+        'timers',
+        'name',
+        'description'
+    ],
+    properties: {
+        id: {
+            anyOf: [
+                {
+                    format: 'integer',
+                    default: 0,
+                    type: 'string'
+                },
+                {
+                    type: 'integer'
+                }
+            ]
+        },
+        timers: {
+            type: 'array',
+            items: {
+                type: 'object',
+                required: [
+                    'id',
+                    'order_idx',
+                    'len',
+                    'name',
+                    'work'
+                ],
+                properties: {
+                    id: {
+                        anyOf: [
+                            {
+                                format: 'integer',
+                                default: 0,
+                                type: 'string'
+                            },
+                            {
+                                type: 'integer'
+                            }
+                        ]
+                    },
+                    order_idx: {
+                        anyOf: [
+                            {
+                                format: 'integer',
+                                default: 0,
+                                type: 'string'
+                            },
+                            {
+                                type: 'integer'
+                            }
+                        ]
+                    },
+                    len: {
+                        anyOf: [
+                            {
+                                format: 'integer',
+                                default: 0,
+                                type: 'string'
+                            },
+                            {
+                                type: 'integer'
+                            }
+                        ]
+                    },
+                    name: {
+                        type: 'string'
+                    },
+                    work: {
+                        type: 'boolean'
+                    }
+                },
+                $id: '#/components/schemas/TimeSplitTimerWID'
+            }
+        },
+        name: {
+            type: 'string'
+        },
+        description: {
+            nullable: true,
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ]
         }
     },
     $id: '#/components/schemas/TimeSplitWID'
