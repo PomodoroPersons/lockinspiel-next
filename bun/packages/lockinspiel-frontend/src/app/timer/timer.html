@@ -1,0 +1,33 @@
+<div class="timer">
+
+  <div class="mode-label" [class.rest]="mode() === 'rest'">
+    {{ mode() === 'work' ? 'Work' : 'Rest' }}
+  </div>
+
+  <div class="countdown">
+    {{ displayTime() }}
+  </div>
+
+  <div class="controls">
+    <button
+      class="ctrl-btn"
+      [class.active]="!running() && remainingMs() > 0"
+      [disabled]="running()"
+      (click)="start()">
+      ▶
+    </button>
+    <button
+      class="ctrl-btn"
+      [class.active]="running()"
+      [disabled]="!running()"
+      (click)="pause()">
+      ⏸
+    </button>
+    <button
+      class="ctrl-btn stop"
+      (click)="stop()">
+      ⏹
+    </button>
+  </div>
+
+</div>

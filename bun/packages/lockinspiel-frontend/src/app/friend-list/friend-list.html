@@ -1,0 +1,58 @@
+<div class="friend-list">
+
+  <!-- ── Main view ── -->
+  @if (view() === 'main') {
+    <div class="top-bar">
+      <button class="top-btn" (click)="setView('add')">+ Add</button>
+      <button class="top-btn" (click)="setView('mail')">✉ Mail</button>
+    </div>
+    <div class="list">
+      @for (friend of friends; track friend.id) {
+        <div class="friend-row">
+          <div class="avatar">{{ friend.username[0] }}</div>
+          <span class="username">{{ friend.username }}</span>
+          <button class="remove-btn">✕</button>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Add Friend view ── -->
+  @if (view() === 'add') {
+    <div class="top-bar">
+      <button class="back-btn" (click)="setView('main')">✕</button>
+      <span class="view-title">Add Friend</span>
+    </div>
+    <div class="add-form">
+      <input
+        class="username-input"
+        type="text"
+        placeholder="Enter username..." />
+      <button class="enter-btn" (click)="setView('main')">Enter</button>
+    </div>
+  }
+
+  <!-- ── Mail view ── -->
+  @if (view() === 'mail') {
+    <div class="top-bar">
+      <button class="back-btn" (click)="setView('main')">✕</button>
+      <span class="view-title">Invites</span>
+    </div>
+    <div class="list">
+      @for (invite of invites; track invite.id) {
+        <div class="invite-row">
+          <div class="avatar">{{ invite.username[0] }}</div>
+          <span class="username">{{ invite.username }}</span>
+          <div class="invite-btns">
+            <button class="accept-btn">✓</button>
+            <button class="decline-btn">✕</button>
+          </div>
+        </div>
+      }
+      @if (invites.length === 0) {
+        <p class="empty">No pending invites</p>
+      }
+    </div>
+  }
+
+</div>
