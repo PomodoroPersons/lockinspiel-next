@@ -1,10 +1,12 @@
 target "docker-metadata-action-auth" {}
 target "docker-metadata-action-timekeeper" {}
-target "docker-metadata-action-analyzer" {}
 target "docker-metadata-action-frontend" {}
+target "docker-metadata-action-analyzer" {}
+target "docker-metadata-action-user" {}
+target "docker-metadata-action-timesync" {}
 
 group "default" {
-  targets = ["auth", "timekeeper", "analyzer", "frontend"]
+  targets = ["auth", "timekeeper", "frontend", "analyzer", "user", "timesync"]
 }
 
 target "auth" {
@@ -24,6 +26,12 @@ target "timekeeper" {
   }
 }
 
+target "frontend" {
+  inherits = ["docker-metadata-action-frontend"]
+  context = "./bun"
+  dockerfile = "Dockerfile.frontend"
+}
+
 target "analyzer" {
   inherits = ["docker-metadata-action-analyzer"]
   context = "./java"
@@ -33,8 +41,18 @@ target "analyzer" {
   }
 }
 
-target "frontend" {
-  inherits = ["docker-metadata-action-frontend"]
-  context = "./bun"
-  dockerfile = "Dockerfile.frontend"
+target "user" {
+  inherits = ["docker-metadata-action-user"]
+  context = "./rust"
+  args = {
+    SERVICE = "lockinspiel-user"
+  }
+}
+
+target "timesync" {
+  inherits = ["docker-metadata-action-timesync"]
+  context = "./rust"
+  args = {
+    SERVICE = "lockinspiel-timesync"
+  }
 }

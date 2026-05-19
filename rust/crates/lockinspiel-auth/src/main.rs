@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use aws_lc_rs::signature::{ECDSA_P256_SHA256_FIXED_SIGNING, EcdsaKeyPair};
 use axum::{
     Json,
@@ -5,19 +7,21 @@ use axum::{
     http::StatusCode,
     routing::get,
 };
+use axum_extra::extract::cookie::{Cookie, SameSite};
 use color_eyre::eyre::{self, Context};
 use jsonwebtoken::{
     EncodingKey,
     jwk::{Jwk, JwkSet},
 };
 use lockinspiel_backend_common::{
-    ApiState, ServiceConfig,
+    ApiState, NoExtraArgs, ServiceConfig,
     auth::JWT_ALG,
     error::{EyreError, WithStatusCode},
     shutdown_signal,
 };
 use tokio::net::TcpListener;
 use tracing::{Instrument, info_span, instrument};
+use utoipa::openapi::security::{ApiKey, ApiKeyValue, SecurityScheme};
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_scalar::{Scalar, Servable};
 
@@ -30,14 +34,45 @@ pub struct AuthApiState {
     jwt_header: jsonwebtoken::Header,
 }
 
+macro_rules! app_routes {
+    ($state:ty) => {{
+        let (router, mut api) = [
+            routes!(routes::signup, routes::delete_user),
+            routes!(routes::new_session, routes::logout),
+        ]
+        .into_iter()
+        .fold(OpenApiRouter::<$state>::new(), |router, routes| {
+            router.routes(routes)
+        })
+        .split_for_parts();
+
+        lockinspiel_backend_common::fill_in_openapi(&mut api);
+        api.components.as_mut().map(|components| {
+            components.security_schemes.insert(
+                "refresh_cookie".to_owned(),
+                SecurityScheme::ApiKey(ApiKey::Cookie(ApiKeyValue::with_description(
+                    REFRESH_TOKEN_NAME,
+                    "An HTTP-Only cookie issued on signup and login",
+                ))),
+            )
+        });
+
+        (router, api)
+    }};
+}
+
+pub const REFRESH_TOKEN_NAME: &str = "lockinspiel-refresh";
+
 #[tokio::main]
 async fn main() -> eyre::Result<()> {
     let service_config = ServiceConfig::new("auth");
     let service_id = service_config.id.clone();
-    let (init_state, api_state) =
-        lockinspiel_backend_common::init(service_config, lockinspiel_auth_schema::MIGRATIONS)
-            .await
-            .wrap_err("Failed to initialize API state")?;
+    let (init_state, api_state) = lockinspiel_backend_common::init::<NoExtraArgs>(
+        service_config,
+        lockinspiel_auth_schema::MIGRATIONS,
+    )
+    .await
+    .wrap_err("Failed to initialize API state")?;
 
     // The key pair we generate is only compatible with
     // this algorithm
@@ -69,12 +104,7 @@ async fn main() -> eyre::Result<()> {
 
     let jwk_set = JwkSet { keys: vec![jwk] };
 
-    let (router, mut api) = OpenApiRouter::new()
-        .routes(routes!(routes::signup, routes::delete_user))
-        .routes(routes!(routes::new_session, routes::logout))
-        .split_for_parts();
-
-    lockinspiel_backend_common::fill_in_openapi(&mut api);
+    let (router, api) = app_routes!(AuthApiState);
 
     let app = router
         .route("/", get(|| async { "up" }))
@@ -84,6 +114,10 @@ async fn main() -> eyre::Result<()> {
         )
         .route("/auth/.well-known/jwks.json", get(auth_jwk_set))
         .merge(Scalar::with_url("/auth/openapi", api))
+        .route(
+            "/auth/openapi/json",
+            get(async move || Json(app_routes!(AuthApiState).1)),
+        )
         .layer(lockinspiel_backend_common::layer())
         .with_state(AuthApiState {
             api_state,
@@ -104,6 +138,16 @@ async fn main() -> eyre::Result<()> {
     init_state
         .shutdown()
         .wrap_err("Failed to shutdown OpenTelemetry services")
+}
+
+pub fn create_refresh_token_cookie() -> Cookie<'static> {
+    Cookie::build(REFRESH_TOKEN_NAME)
+        .path("/auth/session")
+        .http_only(true)
+        .secure(true)
+        .same_site(SameSite::Strict)
+        .max_age(Duration::from_secs(3600 * 30).try_into().unwrap())
+        .build()
 }
 
 #[instrument(skip(api_state))]

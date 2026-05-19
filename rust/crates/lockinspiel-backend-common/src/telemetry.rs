@@ -8,14 +8,14 @@ use diesel::connection::{Instrumentation, InstrumentationEvent};
 use opentelemetry::{
     Context, KeyValue, global,
     propagation::{Extractor, Injector},
-    trace::{SpanContext, Status, TraceContextExt},
+    trace::{SamplingDecision, SamplingResult, SpanContext, Status, TraceContextExt, TraceState},
 };
 use opentelemetry_otlp::{Compression, WithExportConfig, WithTonicConfig};
 use opentelemetry_sdk::{
     Resource,
     logs::SdkLoggerProvider,
     propagation::TraceContextPropagator,
-    trace::{RandomIdGenerator, Sampler, SdkTracerProvider},
+    trace::{RandomIdGenerator, Sampler, SdkTracerProvider, ShouldSample},
 };
 use opentelemetry_semantic_conventions::{
     SCHEMA_URL,
@@ -90,14 +90,15 @@ pub struct TelemetryMakeSpan(pub DefaultMakeSpan);
 impl<B> MakeSpan<B> for TelemetryMakeSpan {
     fn make_span(&mut self, request: &axum::http::Request<B>) -> tracing::Span {
         let span = self.0.make_span(request);
-        if request.uri().path() != "/health" {
+        if request.uri().path() != "/" {
             let parent_context = global::get_text_map_propagator(|propagator| {
                 propagator.extract(&HeaderMapCarrier::new(request.headers()))
             });
             span.set_parent(parent_context).unwrap();
         } else {
             span.set_parent(Context::map_current(|cx| {
-                cx.with_remote_span_context(SpanContext::NONE)
+                cx.with_telemetry_suppressed()
+                    .with_remote_span_context(SpanContext::NONE)
             }))
             .unwrap();
         }
@@ -185,6 +186,35 @@ fn resource(service: &ServiceConfig) -> Resource {
         .build()
 }
 
+#[derive(Clone, Debug)]
+pub struct DontSamplePlaceholders(Sampler);
+
+impl ShouldSample for DontSamplePlaceholders {
+    fn should_sample(
+        &self,
+        parent_context: Option<&Context>,
+        trace_id: opentelemetry::TraceId,
+        name: &str,
+        span_kind: &opentelemetry::trace::SpanKind,
+        attributes: &[KeyValue],
+        links: &[opentelemetry::trace::Link],
+    ) -> SamplingResult {
+        if name != "placeholder" {
+            self.0
+                .should_sample(parent_context, trace_id, name, span_kind, attributes, links)
+        } else {
+            SamplingResult {
+                decision: SamplingDecision::Drop,
+                attributes: vec![],
+                trace_state: match parent_context {
+                    Some(ctx) => ctx.span().span_context().trace_state().clone(),
+                    None => TraceState::default(),
+                },
+            }
+        }
+    }
+}
+
 pub fn init_tracing_provider(
     service: &ServiceConfig,
     otlp_endpoint: Option<&str>,
@@ -202,8 +232,8 @@ pub fn init_tracing_provider(
     Some(
         SdkTracerProvider::builder()
             // Customize sampling strategy
-            .with_sampler(Sampler::ParentBased(Box::new(Sampler::TraceIdRatioBased(
-                1.0,
+            .with_sampler(Sampler::ParentBased(Box::new(DontSamplePlaceholders(
+                Sampler::TraceIdRatioBased(1.0),
             ))))
             // If export trace to AWS X-Ray, you can use XrayIdGenerator
             .with_id_generator(RandomIdGenerator::default())

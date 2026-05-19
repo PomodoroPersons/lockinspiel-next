@@ -9,10 +9,7 @@ use diesel_async::RunQueryDsl;
 use jsonwebtoken::EncodingKey;
 use lockinspiel_backend_common::{
     Placeholder,
-    auth::{
-        DatabaseConnection, DatabaseUser, InsertableDatabaseUser, REFRESH_TOKEN_NAME,
-        create_refresh_token_cookie,
-    },
+    auth::{DatabaseConnection, DatabaseUser, InsertableDatabaseUser},
     error::{self, EyreError, WithStatusCode},
     users::{RefreshToken, User, UserClaims},
 };
@@ -22,6 +19,8 @@ use utoipa::ToSchema;
 use uuid::Uuid;
 
 use lockinspiel_auth_schema::schema::auth::{refresh_tokens, users};
+
+use crate::{REFRESH_TOKEN_NAME, create_refresh_token_cookie};
 
 #[declare_sql_function]
 extern "SQL" {
@@ -89,6 +88,7 @@ pub fn encode_tokens(
 }
 
 impl Placeholder for LoginToken {
+    #[instrument]
     fn placeholder() -> Self {
         encode_tokens(
             &jsonwebtoken::Header::new(jsonwebtoken::Algorithm::HS256),
@@ -123,7 +123,7 @@ pub struct InsertableRefreshToken {
                 (LoginToken, example = LoginToken::placeholder)
             ),
             headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel-refresh` will contain the refresh token.")
             )
         ),
         (status = "4XX", description = "It's your fault",
@@ -240,7 +240,7 @@ pub async fn delete_user(
                 (LoginToken, example = LoginToken::placeholder)
             ),
             headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel-refresh` will contain the refresh token.")
             )
         ),
         (status = "4XX", description = "It's your fault",
@@ -345,7 +345,7 @@ pub async fn new_session(
                 (LoginToken, example = LoginToken::placeholder)
             ),
             headers(
-                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel_refresh` will contain the refresh token.")
+                ("Set-Cookie" = String, description = "An HTTP-Only cookie called `lockinspiel-refresh` will contain the refresh token.")
             )
         ),
         (status = "4XX", description = "It's your fault",

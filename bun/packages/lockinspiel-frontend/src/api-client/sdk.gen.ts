@@ -31,7 +31,7 @@ export class SessionService {
         return (options?.client ?? client).delete<AuthLogoutResponses, AuthLogoutErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }, {
                     in: 'cookie',
-                    name: 'lockinspiel_refresh',
+                    name: 'lockinspiel-refresh',
                     type: 'apiKey'
                 }],
             url: '/auth/session',
@@ -48,7 +48,7 @@ export class SessionService {
         return (options.client ?? client).post<AuthNewSessionResponses, AuthNewSessionErrors, ThrowOnError>({
             security: [{
                     in: 'cookie',
-                    name: 'lockinspiel_refresh',
+                    name: 'lockinspiel-refresh',
                     type: 'apiKey'
                 }],
             url: '/auth/session',

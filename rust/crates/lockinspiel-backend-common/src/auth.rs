@@ -1,4 +1,4 @@
-use std::{borrow::Cow, num::NonZeroU32, time::Duration};
+use std::{borrow::Cow, num::NonZeroU32};
 
 use aws_lc_rs::{digest, pbkdf2};
 use axum::{
@@ -7,7 +7,6 @@ use axum::{
 };
 use axum_extra::{
     TypedHeader,
-    extract::cookie::{Cookie, SameSite},
     headers::{Authorization, authorization::Bearer},
     typed_header::TypedHeaderRejection,
 };
@@ -54,7 +53,6 @@ pub const PBKDF2_ITERATIONS: NonZeroU32 = NonZeroU32::new(310_000).unwrap();
 pub static JWT_ALG: jsonwebtoken::Algorithm = jsonwebtoken::Algorithm::ES256;
 pub const CREDENTIAL_LEN: usize = digest::SHA256_OUTPUT_LEN;
 pub const SALT_LEN: usize = 16;
-pub const REFRESH_TOKEN_NAME: &str = "lockinspiel_refresh";
 pub type Credential = [u8; CREDENTIAL_LEN];
 pub type Salt = [u8; SALT_LEN];
 
@@ -481,14 +479,4 @@ where
 
         return Ok(db_connection);
     }
-}
-
-pub fn create_refresh_token_cookie() -> Cookie<'static> {
-    Cookie::build(REFRESH_TOKEN_NAME)
-        .path("/auth/session")
-        .http_only(true)
-        .secure(true)
-        .same_site(SameSite::Strict)
-        .max_age(Duration::from_secs(3600 * 30).try_into().unwrap())
-        .build()
 }

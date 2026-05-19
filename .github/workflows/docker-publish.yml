@@ -105,6 +105,22 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/analyzer
 
+      - name: Extract Docker metadata for user image
+        id: meta-user
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          bake-target: docker-metadata-action-user
+          images: |
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/user
+
+      - name: Extract Docker metadata for timesync image
+        id: meta-timesync
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          bake-target: docker-metadata-action-timesync
+          images: |
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/timesync
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/bake-action
       - name: Build and push Docker image
@@ -117,6 +133,8 @@ jobs:
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
             cwd://${{ steps.meta-frontend.outputs.bake-file }}
             cwd://${{ steps.meta-analyzer.outputs.bake-file }}
+            cwd://${{ steps.meta-user.outputs.bake-file }}
+            cwd://${{ steps.meta-timesync.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
           targets: default
           set: |
@@ -162,6 +180,12 @@ jobs:
               },
               "lockinspiel-analyzer/values.yaml": {
                 "image.tag": "${{ github.ref_name }}"
+              },
+              "lockinspiel-user/values.yaml": {
+                "image.tag": "${{ github.ref_name }}"
+              },
+              "lockinspiel-timesync/values.yaml": {
+                "image.tag": "${{ github.ref_name }}"
               }
             }
 
@@ -189,5 +213,11 @@ jobs:
               },
               "lockinspiel-analyzer/values-staging.yaml": {
                 "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).analyzer['containerimage.digest'] }}"
+              },
+              "lockinspiel-user/values-staging.yaml": {
+                "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).user['containerimage.digest'] }}"
+              },
+              "lockinspiel-timesync/values-staging.yaml": {
+                "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).timesync['containerimage.digest'] }}"
               }
             }

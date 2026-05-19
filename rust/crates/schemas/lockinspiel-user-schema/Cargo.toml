@@ -1,0 +1,8 @@
+[package]
+name = "lockinspiel-user-schema"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+diesel.workspace = true
+diesel_migrations.workspace = true

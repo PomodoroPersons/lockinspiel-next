@@ -18,6 +18,6 @@ utoipa-scalar.workspace = true
 utoipa-axum.workspace = true
 uuid.workspace = true
 jiff.workspace = true
-lockinspiel-backend-common = { version = "0.1.0", path = "../lockinspiel-backend-common" }
+lockinspiel-backend-common = { path = "../lockinspiel-backend-common" }
 axum-extra = { workspace = true, features = ["typed-header", "cookie"] }
-lockinspiel-auth-schema = { version = "0.1.0", path = "../schemas/lockinspiel-auth-schema" }
+lockinspiel-auth-schema = { path = "../schemas/lockinspiel-auth-schema" }

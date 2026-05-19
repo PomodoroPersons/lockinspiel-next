@@ -14,6 +14,7 @@ COPY ./crates/lockinspiel-backend-common ./crates/lockinspiel-backend-common
 COPY ./crates/schemas ./crates/schemas
 ARG SERVICE
 COPY ./crates/$SERVICE ./crates/$SERVICE
+COPY ./crates/$SERVICE/static* ./crates/$SERVICE/static
 RUN cargo build --release --bin $SERVICE
 
 FROM debian:trixie-slim AS runtime-base

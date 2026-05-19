@@ -1,5 +1,4 @@
 services:
-
   db:
     volumes:
       # PGDATA directory is persisted between restarts
@@ -18,15 +17,7 @@ services:
     #    tmpfs:
     #      size: 134217728 # 128*2^20 bytes = 128Mb
     healthcheck:
-      test:
-        [
-        "CMD",
-        "pg_isready",
-        "-U",
-        "postgres",
-        "-h",
-        "localhost"
-        ]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -71,16 +62,32 @@ services:
     ports:
       - 3000:3000
 
+  garage:
+    image: dxflrs/garage:v2.3.0
+    restart: unless-stopped
+    ports:
+      - 3900:3900
+    volumes:
+      - ./volumes/garage/garage.toml:/etc/garage.toml
+      - garagemeta:/var/lib/garage/meta
+      - garagedata:/var/lib/garage/data
+    environment:
+      GARAGE_CONFIG_FILE: /etc/garage.toml
+      GARAGE_DEFAULT_ACCESS_KEY: garageadminadmin
+      GARAGE_DEFAULT_SECRET_KEY: garageadminadmin
+      GARAGE_DEFAULT_BUCKET: default-bucket
+    command: ["/garage", "server", "--single-node", "--default-bucket"]
+  
   web-auth:
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     build:
       args:
         SERVICE: lockinspiel-auth
@@ -120,6 +127,17 @@ services:
       mode: replicated
       replicas: 1
 
+  web-timekeeper-health:
+    image: curlimages/curl
+    network_mode: "service:web-timekeeper"  # Critical: shares api's network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+    entrypoint: ["sleep", "infinity"]  
+
   web-analyzer:
     restart: unless-stopped
     depends_on:
@@ -144,6 +162,17 @@ services:
       mode: replicated
       replicas: 1
 
+  web-analyzer-health:
+    image: curlimages/curl
+    network_mode: "service:web-analyzer"  # Critical: shares api's network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 3
+      start_period: 45s
+    entrypoint: ["sleep", "infinity"]  
+
   web-frontend:
     restart: unless-stopped
     depends_on:
@@ -164,6 +193,59 @@ services:
       mode: replicated
       replicas: 1
 
+  web-user:
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    build:
+      args:
+        SERVICE: lockinspiel-user
+      context: ./rust
+    environment:
+      AUTH_SERVICE: http://web-auth:3000
+      DATABASE_URL: postgres://user_service:example@db/docker
+      SERVICE_TYPE: user
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
+      LISTEN_ADDR: "[::]:3000"
+      S3_BUCKET_NAME: default-bucket
+      S3_BUCKET_REGION: garage
+      S3_BUCKET_ACCESS_KEY: garageadminadmin
+      S3_BUCKET_SECRET_KEY: garageadminadmin
+      S3_BUCKET_PATH_STYLE: true
+      S3_BUCKET_ENDPOINT: http://localhost:3900
+      S3_BUCKET_INTERNAL_ENDPOINT: http://garage:3900
+      # RUST_LOG: debug
+    deploy:
+      mode: replicated
+      replicas: 1
+
+  web-timesync:
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    build:
+      args:
+        SERVICE: lockinspiel-timesync
+      context: ./rust
+    environment:
+      LISTEN_ADDR: "[::]:3000"
+    deploy:
+      mode: replicated
+      replicas: 1
+
 volumes:
   pgdata:
-
+  garagemeta:
+  garagedata:
