@@ -2,7 +2,9 @@
 
   <header class="header">
     <span class="logo">Lockinspiel</span>
-    <button class="profile-btn">User Profile</button>
+    <button class="profile-btn" (click)="openOwnProfile()">
+      R
+    </button>
   </header>
 
   <div class="content">
@@ -24,7 +26,8 @@
             [restMinutes]="restMinutes()"
             (timerStopped)="onTimerStopped()" />
         } @else {
-          <app-set-timer (timerStarted)="onTimerStarted({workMinutes: 25, restMinutes: 5})" />
+          <app-set-timer
+            (timerStarted)="onTimerStarted({workMinutes: 25, restMinutes: 5})" />
         }
       </div>
     </main>
@@ -34,7 +37,7 @@
         Friends
       </button>
       <div class="sidebar-panel" [class.closed]="!friendsOpen()">
-        <app-friend-list />
+        <app-friend-list (profileClicked)="openFriendProfile($event)" />
       </div>
     </div>
 
@@ -43,5 +46,16 @@
   <footer class="footer">
     <button class="settings-btn">⚙ Settings</button>
   </footer>
+
+  <!-- ── Modal overlay ── -->
+  @if (modalOpen()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <app-user-profile
+          [user]="modalUser()"
+          (closed)="closeModal()" />
+      </div>
+    </div>
+  }
 
 </div>

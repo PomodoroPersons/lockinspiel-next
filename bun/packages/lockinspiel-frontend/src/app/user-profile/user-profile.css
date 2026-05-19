@@ -1,0 +1,149 @@
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+/* ── Profile header ───────────────────────────────────────── */
+.profile-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.avatar-large {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+/* ── Username ─────────────────────────────────────────────── */
+.username {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+/* ── Status ───────────────────────────────────────────────── */
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-dot {
+  width: 0.65rem;
+  height: 0.65rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.status-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: capitalize;
+}
+
+/* ── Bio ──────────────────────────────────────────────────── */
+.bio {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+/* ── Inputs ───────────────────────────────────────────────── */
+.edit-input {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 0.875rem;
+  padding: 0.75rem;
+  outline: none;
+  transition: border 0.2s ease;
+}
+
+.edit-input:focus {
+  border-color: rgba(167, 139, 250, 0.6);
+}
+
+.edit-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.bio-input {
+  resize: none;
+  height: 80px;
+}
+
+.status-select {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.75rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.status-select option {
+  background: #1a1a2e;
+}
+
+/* ── Buttons ──────────────────────────────────────────────── */
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.cancel-btn {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.apply-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  border: none;
+  border-radius: 0.75rem;
+  color: white;
+  padding: 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: opacity 0.2s ease;
+}
+
+.apply-btn:hover {
+  opacity: 0.85;
+}

@@ -1,1 +1,62 @@
-<p>user-profile works!</p>
+<div class="modal-content">
+
+  <!-- ── Header row ── -->
+  <div class="profile-header">
+    <div class="avatar-large">
+      {{ user().username[0] }}
+    </div>
+    <div class="profile-info">
+      @if (!user().isOwn) {
+        <div class="username">{{ user().username }}</div>
+        <div class="status-row">
+          <span class="status-dot"
+                [style.background]="statusColor(user().status)">
+          </span>
+          <span class="status-text">{{ user().status }}</span>
+        </div>
+      }
+      @if (user().isOwn) {
+        <input
+          class="edit-input"
+          type="text"
+          placeholder="Username"
+          [ngModel]="editUsername()"
+          (ngModelChange)="editUsername.set($event)" />
+        <div class="status-row">
+          <span class="status-dot"
+                [style.background]="statusColor(editStatus())">
+          </span>
+          <select
+            class="status-select"
+            [ngModel]="editStatus()"
+            (ngModelChange)="editStatus.set($event)">
+            @for (s of statuses; track s) {
+              <option [value]="s">{{ s }}</option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- ── Bio ── -->
+  @if (!user().isOwn) {
+    <p class="bio">{{ user().bio }}</p>
+  }
+  @if (user().isOwn) {
+    <textarea
+      class="edit-input bio-input"
+      placeholder="Write a bio..."
+      [ngModel]="editBio()"
+      (ngModelChange)="editBio.set($event)">
+    </textarea>
+    <div class="modal-actions">
+      <button class="cancel-btn" (click)="cancel()">Cancel</button>
+      <button class="apply-btn" (click)="apply()">Apply</button>
+    </div>
+  }
+  @if (!user().isOwn) {
+    <button class="cancel-btn" (click)="cancel()">Close</button>
+  }
+
+</div>
