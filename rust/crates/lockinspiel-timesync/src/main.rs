@@ -14,8 +14,8 @@ const SERVER: Token = Token(usize::MAX);
 
 struct Connection {
     buf: [u8; 2048],
-    total: usize,
     socket: mio::net::TcpStream,
+    total: usize,
 }
 
 fn main() {
