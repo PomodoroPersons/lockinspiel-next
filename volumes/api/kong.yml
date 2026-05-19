@@ -54,6 +54,15 @@ services:
         strip_path: false
         paths:
           - /user
+  - name: web-api-timesync-service
+    host: web-timesync
+    port: 3000
+    protocol: http
+    routes:
+      - name: web-api-timesync-routes
+        strip_path: false
+        paths:
+          - /timesync
   - name: web-api-frontend-service
     host: web-frontend
     port: 3000

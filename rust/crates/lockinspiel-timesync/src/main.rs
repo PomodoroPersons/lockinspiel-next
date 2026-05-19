@@ -7,7 +7,12 @@ use std::{
 use lockinspiel_timesync::ResponseBuffer;
 
 fn main() {
-    let tcp_socket = TcpListener::bind("[::]:2342").unwrap();
+    let tcp_socket = TcpListener::bind(
+        std::env::var("LISTEN_ADDR")
+            .as_ref()
+            .map_or("[::]:2342", |f| f.as_str()),
+    )
+    .unwrap();
     std::thread::scope(|s| {
         for _ in 0..std::thread::available_parallelism().unwrap().get() * 2 {
             s.spawn(|| {

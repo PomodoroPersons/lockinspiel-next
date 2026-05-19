@@ -3,9 +3,10 @@ target "docker-metadata-action-timekeeper" {}
 target "docker-metadata-action-frontend" {}
 target "docker-metadata-action-analyzer" {}
 target "docker-metadata-action-user" {}
+target "docker-metadata-action-timesync" {}
 
 group "default" {
-  targets = ["auth", "timekeeper", "frontend", "analyzer", "user"]
+  targets = ["auth", "timekeeper", "frontend", "analyzer", "user", "timesync"]
 }
 
 target "auth" {
@@ -45,5 +46,13 @@ target "user" {
   context = "./rust"
   args = {
     SERVICE = "lockinspiel-user"
+  }
+}
+
+target "timesync" {
+  inherits = ["docker-metadata-action-timesync"]
+  context = "./rust"
+  args = {
+    SERVICE = "lockinspiel-timesync"
   }
 }
