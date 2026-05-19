@@ -13,9 +13,9 @@ use slab::Slab;
 const SERVER: Token = Token(usize::MAX);
 
 struct Connection {
-    socket: mio::net::TcpStream,
     buf: [u8; 2048],
     total: usize,
+    socket: mio::net::TcpStream,
 }
 
 fn main() {
