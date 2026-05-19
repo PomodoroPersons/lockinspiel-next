@@ -6,10 +6,11 @@ import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { UserProfileService } from '../user-profile/user-profile.service';
+import { UserData, UserProfile } from '../user-profile/user-profile';
 
 @Component({
   selector: 'app-main-page',
-  imports: [Timer, SetTimer, SavedList, FriendList, CommonModule, RouterModule],
+  imports: [UserProfile, Timer, SetTimer, SavedList, FriendList, CommonModule, RouterModule],
   templateUrl: './main-page.html',
   styleUrl: './main-page.css',
 })
@@ -23,12 +24,37 @@ export class MainPage {
   workMinutes = signal(25);
   restMinutes = signal(5);
 
+  modalOpen = signal(false);
+  modalUser = signal<UserData>({
+    user: this.userProfile.userProfile(),
+    isOwn: true,
+    status: "free"
+  });
+
   toggleFriends() {
     this.friendsOpen.set(!this.friendsOpen());
   }
 
   toggleSaved() {
     this.savedOpen.set(!this.savedOpen());
+  }
+
+  openOwnProfile() {
+    this.modalUser.set({
+      user: this.userProfile.userProfile(),
+      isOwn: true,
+      status: "free"
+    });
+    this.modalOpen.set(true);
+  }
+
+  openFriendProfile(user: UserData) {
+    this.modalOpen.set(true);
+    this.modalUser.set(user);
+  }
+
+  closeModal() {
+    this.modalOpen.set(false);
   }
 
   onTimerStarted(config: { workMinutes: number; restMinutes: number }) {

@@ -9,8 +9,12 @@
     <div class="list">
       @for (friend of friends; track friend.id) {
         <div class="friend-row">
-          <div class="avatar">{{ friend.username[0] }}</div>
-          <span class="username">{{ friend.username }}</span>
+          <div class="avatar" (click)="openProfile(friend)">
+            {{ friend.username[0] }}
+          </div>
+          <span class="username clickable" (click)="openProfile(friend)">
+            {{ friend.username }}
+          </span>
           <button class="remove-btn">✕</button>
         </div>
       }
