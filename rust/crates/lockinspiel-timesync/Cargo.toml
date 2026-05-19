@@ -1,0 +1,14 @@
+[package]
+name = "lockinspiel-timesync"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+itoa = "1.0.18"
+
+[dev-dependencies]
+criterion = "0.8.2"
+
+[[bench]]
+name = "benchmark"
+harness = false
