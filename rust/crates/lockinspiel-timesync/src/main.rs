@@ -59,7 +59,8 @@ fn main() {
                             token => {
                                 if let Some(conn) = connections.get_mut(token.0) {
                                     if event.is_readable()
-                                        && handle_readable(conn, &mut response_buffer).unwrap()
+                                        && handle_readable(conn, &mut response_buffer)
+                                            .unwrap_or(true)
                                     {
                                         poll.registry().deregister(&mut conn.socket).unwrap();
                                     }
