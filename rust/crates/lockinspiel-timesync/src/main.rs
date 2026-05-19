@@ -63,6 +63,8 @@ fn main() {
                                             .unwrap_or(true)
                                     {
                                         poll.registry().deregister(&mut conn.socket).unwrap();
+                                        connections.try_remove(token.0);
+                                        continue;
                                     }
                                     if event.is_writable() {
                                         poll.registry()
