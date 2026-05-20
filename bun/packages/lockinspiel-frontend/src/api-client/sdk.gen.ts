@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 
 import type { Client, Options as Options2, TDataShape } from './client';
 import { client } from './client.gen';
-import type { AuthDeleteUserData, AuthDeleteUserErrors, AuthDeleteUserResponses, AuthLogoutData, AuthLogoutErrors, AuthLogoutResponses, AuthNewSessionData, AuthNewSessionErrors, AuthNewSessionResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplit2Data, TimekeeperDeleteTimeSplit2Errors, TimekeeperDeleteTimeSplit2Responses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplit2Data, TimekeeperModifyTimeSplit2Errors, TimekeeperModifyTimeSplit2Responses, TimekeeperModifyTimeSplit3Data, TimekeeperModifyTimeSplit3Errors, TimekeeperModifyTimeSplit3Responses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses, UserCreateProfileData, UserCreateProfileErrors, UserCreateProfileResponses, UserDeleteAvatarData, UserDeleteAvatarErrors, UserDeleteAvatarResponses, UserGetProfileData, UserGetProfileErrors, UserGetProfileResponses, UserPutAvatarData, UserPutAvatarErrors, UserPutAvatarResponses, UserUpdateProfileData, UserUpdateProfileErrors, UserUpdateProfileResponses } from './types.gen';
+import type { AuthDeleteUserData, AuthDeleteUserErrors, AuthDeleteUserResponses, AuthLogoutData, AuthLogoutErrors, AuthLogoutResponses, AuthNewSessionData, AuthNewSessionErrors, AuthNewSessionResponses, AuthSignupData, AuthSignupErrors, AuthSignupResponses, TimekeeperAddTagData, TimekeeperAddTagErrors, TimekeeperAddTagResponses, TimekeeperAddTimeSplitData, TimekeeperAddTimeSplitErrors, TimekeeperAddTimeSplitResponses, TimekeeperDeleteTagData, TimekeeperDeleteTagErrors, TimekeeperDeleteTagResponses, TimekeeperDeleteTimeSplit2Data, TimekeeperDeleteTimeSplit2Errors, TimekeeperDeleteTimeSplit2Responses, TimekeeperDeleteTimeSplitData, TimekeeperDeleteTimeSplitErrors, TimekeeperDeleteTimeSplitResponses, TimekeeperGetIndexData, TimekeeperGetIndexResponses, TimekeeperGetTagsData, TimekeeperGetTagsResponses, TimekeeperGetTimersData, TimekeeperGetTimersErrors, TimekeeperGetTimersResponses, TimekeeperGetTimeSplitsData, TimekeeperGetTimeSplitsResponses, TimekeeperModifyTagData, TimekeeperModifyTagErrors, TimekeeperModifyTagResponses, TimekeeperModifyTimerData, TimekeeperModifyTimerErrors, TimekeeperModifyTimerResponses, TimekeeperModifyTimeSplitData, TimekeeperModifyTimeSplitErrors, TimekeeperModifyTimeSplitResponses, TimekeeperModifyTimeSplitTimerData, TimekeeperModifyTimeSplitTimerErrors, TimekeeperModifyTimeSplitTimerResponses, TimekeeperPostTimerData, TimekeeperPostTimerErrors, TimekeeperPostTimerResponses, TimekeeperPostTimeSplitTimerData, TimekeeperPostTimeSplitTimerErrors, TimekeeperPostTimeSplitTimerResponses, UserCreateProfileData, UserCreateProfileErrors, UserCreateProfileResponses, UserDeleteAvatarData, UserDeleteAvatarErrors, UserDeleteAvatarResponses, UserGetProfileData, UserGetProfileErrors, UserGetProfileResponses, UserPutAvatarData, UserPutAvatarErrors, UserPutAvatarResponses, UserUpdateProfileData, UserUpdateProfileErrors, UserUpdateProfileResponses } from './types.gen';
 
 export type Options<TData extends TDataShape = TDataShape, ThrowOnError extends boolean = boolean, TResponse = unknown> = Options2<TData, ThrowOnError, TResponse> & {
     /**
@@ -344,12 +344,12 @@ export class TimeSplitService {
     }
     
     /**
-     * Modify a time split
+     * Post a time split timer
      *
-     * Modifies the fields of the time split at the ID.
+     * Adds a time split timer to the time split at the ID.
      */
-    public timekeeperModifyTimeSplit2<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplit2Data, ThrowOnError>) {
-        return (options.client ?? client).post<TimekeeperModifyTimeSplit2Responses, TimekeeperModifyTimeSplit2Errors, ThrowOnError>({
+    public timekeeperPostTimeSplitTimer<ThrowOnError extends boolean = false>(options: Options<TimekeeperPostTimeSplitTimerData, ThrowOnError>) {
+        return (options.client ?? client).post<TimekeeperPostTimeSplitTimerResponses, TimekeeperPostTimeSplitTimerErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split/{id}',
             ...options,
@@ -378,9 +378,9 @@ export class TimeSplitService {
     }
     
     /**
-     * Delete a time split
+     * Delete a time split timer
      *
-     * Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.
+     * Deletes the time split timer at the given ID. This just marks the time split timer as deleted, and doesn't actually delete the time split timer in the database. Timers posted with a deleted time split timer will still have that time split timer, the time split timer just won't appear when querying some endpoints.
      */
     public timekeeperDeleteTimeSplit2<ThrowOnError extends boolean = false>(options: Options<TimekeeperDeleteTimeSplit2Data, ThrowOnError>) {
         return (options.client ?? client).delete<TimekeeperDeleteTimeSplit2Responses, TimekeeperDeleteTimeSplit2Errors, ThrowOnError>({
@@ -391,12 +391,12 @@ export class TimeSplitService {
     }
     
     /**
-     * Modify a time split
+     * Modify a time split timer
      *
-     * Modifies the fields of the time split at the ID.
+     * Modifies the fields of the time split timer at the ID.
      */
-    public timekeeperModifyTimeSplit3<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplit3Data, ThrowOnError>) {
-        return (options.client ?? client).put<TimekeeperModifyTimeSplit3Responses, TimekeeperModifyTimeSplit3Errors, ThrowOnError>({
+    public timekeeperModifyTimeSplitTimer<ThrowOnError extends boolean = false>(options: Options<TimekeeperModifyTimeSplitTimerData, ThrowOnError>) {
+        return (options.client ?? client).put<TimekeeperModifyTimeSplitTimerResponses, TimekeeperModifyTimeSplitTimerErrors, ThrowOnError>({
             security: [{ scheme: 'bearer', type: 'http' }],
             url: '/timekeeper/time-split/{id}/{time_split}',
             ...options,

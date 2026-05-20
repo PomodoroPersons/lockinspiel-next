@@ -1,5 +1,5 @@
 info:
-  name: Delete a time split (DELETE)
+  name: Delete a time split timer
   type: http
   seq: 7
   tags:
@@ -90,4 +90,4 @@ examples:
         type: text
         data: ""
 
-docs: Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.
+docs: Deletes the time split timer at the given ID. This just marks the time split timer as deleted, and doesn't actually delete the time split timer in the database. Timers posted with a deleted time split timer will still have that time split timer, the time split timer just won't appear when querying some endpoints.
