@@ -50,9 +50,15 @@ import type {
   TimekeeperModifyTimeSplitData,
   TimekeeperModifyTimeSplitErrors,
   TimekeeperModifyTimeSplitResponses,
+  TimekeeperModifyTimeSplitTimerData,
+  TimekeeperModifyTimeSplitTimerErrors,
+  TimekeeperModifyTimeSplitTimerResponses,
   TimekeeperPostTimerData,
   TimekeeperPostTimerErrors,
   TimekeeperPostTimerResponses,
+  TimekeeperPostTimeSplitTimerData,
+  TimekeeperPostTimeSplitTimerErrors,
+  TimekeeperPostTimeSplitTimerResponses,
   UserCreateProfileData,
   UserCreateProfileErrors,
   UserCreateProfileResponses,
@@ -314,7 +320,7 @@ export class TimerService {
   /**
    * Retreive a timer
    *
-   * Retreives the most recently started/ended timer if no parameters are specified. Otherwise returns the timers that match the parameters.
+   * Retreives the most recently started/ended timer if no parameters are specified. Otherwise, returns the timers that match the parameters.
    */
   public timekeeperGetTimers<ThrowOnError extends boolean = false>(
     options?: Options<TimekeeperGetTimersData, ThrowOnError>,
