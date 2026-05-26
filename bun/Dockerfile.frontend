@@ -10,7 +10,8 @@ COPY ./packages/lockinspiel-backend-common/package.json ./packages/lockinspiel-b
 COPY bun.lock bun.lock
 COPY ./packages/lockinspiel-frontend/package.json ./packages/lockinspiel-frontend/package.json
 
-RUN bun install
+RUN bun install && \
+  apk add nodejs
 
 COPY ./packages/lockinspiel-frontend ./packages/lockinspiel-frontend
 COPY ./packages/lockinspiel-backend-common/src ./packages/lockinspiel-backend-common/src
@@ -19,7 +20,6 @@ COPY ./packages/lockinspiel-backend-common/tsconfig.json ./packages/lockinspiel-
 ENV NODE_ENV=production
 WORKDIR /app/packages/lockinspiel-frontend
 
-RUN apk add nodejs
 RUN bunx ng build
 
 FROM base AS runner
