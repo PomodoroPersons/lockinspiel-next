@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { Timekeeper } from './timekeeper';
+import { TimekeeperService } from './timekeeper';
 
 describe('Timekeeper', () => {
-  let service: Timekeeper;
+  let service: TimekeeperService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(Timekeeper);
+    service = TestBed.inject(TimekeeperService);
   });
 
   it('should be created', () => {

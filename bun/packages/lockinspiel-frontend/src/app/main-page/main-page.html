@@ -1,4 +1,5 @@
 <div class="page-wrapper">
+
   <header class="header">
     <span class="logo">Lockinspiel</span>
     @if (userProfile.userProfile()) {
@@ -11,6 +12,7 @@
   </header>
 
   <div class="content">
+
     <div class="sidebar sidebar-left">
       <div class="sidebar-panel" [class.closed]="!savedOpen()">
         <app-saved-list />
@@ -24,11 +26,10 @@
           <app-timer
             [workMinutes]="workMinutes()"
             [restMinutes]="restMinutes()"
-            (timerStopped)="onTimerStopped()"
-          />
+            (timerStopped)="onTimerStopped()" />
         } @else {
           <app-set-timer
-            (timerStarted)="onTimerStarted({workMinutes: 25, restMinutes: 5})" />
+            (timerStarted)="onTimerStarted({ workMinutes: 25, restMinutes: 5 })" />
         }
       </div>
     </main>
@@ -39,10 +40,11 @@
         <app-friend-list (profileClicked)="openFriendProfile($event)" />
       </div>
     </div>
+
   </div>
 
   <footer class="footer">
-    <button class="settings-btn" (click)="router.navigate(['/settings'])">⚙ Settings</button>
+    <button class="settings-btn">⚙ Settings</button>
   </footer>
 
   <!-- ── Modal overlay ── -->

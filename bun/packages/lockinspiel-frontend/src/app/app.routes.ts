@@ -11,5 +11,6 @@ export const routes: Routes = [
   {
     component: MainPage,
     path: 'home',
+    pathMatch: 'full',
   },
 ];
