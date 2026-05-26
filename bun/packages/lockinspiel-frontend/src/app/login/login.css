@@ -1,0 +1,103 @@
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100dvh;
+  width: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* ── Login box ────────────────────────────────────────────── */
+.login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  width: 400px;
+  max-width: 90vw;
+}
+
+/* ── Logo ─────────────────────────────────────────────────── */
+.login-logo {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  background: linear-gradient(90deg, #a78bfa, #60a5fa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-align: center;
+}
+
+.login-sub {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.875rem;
+  margin-top: -1rem;
+}
+
+/* ── Inputs ───────────────────────────────────────────────── */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.input-group label {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input-group input {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 1rem;
+  padding: 0.875rem 1rem;
+  outline: none;
+  transition: border 0.2s ease, background 0.2s ease;
+}
+
+.input-group input:focus {
+  border-color: rgba(167, 139, 250, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.input-group input::placeholder {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Error ────────────────────────────────────────────────── */
+.error-msg {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.75rem;
+  color: #f87171;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+
+/* ── Button ───────────────────────────────────────────────── */
+.login-btn {
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  border: none;
+  border-radius: 0.75rem;
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+  padding: 0.875rem;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.login-btn:hover {
+  opacity: 0.85;
+  transform: scale(1.02);
+}

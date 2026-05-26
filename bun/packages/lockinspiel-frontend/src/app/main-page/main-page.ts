@@ -10,7 +10,7 @@ import { UserData, UserProfile } from '../user-profile/user-profile';
 
 @Component({
   selector: 'app-main-page',
-  imports: [UserProfile, Timer, SetTimer, SavedList, FriendList, CommonModule, RouterModule],
+  imports: [Timer, SetTimer, UserProfile, SavedList, FriendList, CommonModule],
   templateUrl: './main-page.html',
   styleUrl: './main-page.css',
 })

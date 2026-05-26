@@ -1,22 +1,15 @@
 import { Routes } from '@angular/router';
 import { MainPage } from './main-page/main-page';
-import { UserProfile } from './user-profile/user-profile';
-import { Setting } from './setting/setting';
+import { Login } from './login/login';
 
 export const routes: Routes = [
   {
-    component: MainPage,
+    component: Login,
     path: '',
     pathMatch: 'full',
   },
   {
-    component: UserProfile,
-    path: 'profile',
-    pathMatch: 'full',
-  },
-  {
-    component: Setting,
-    path: 'settings',
-    pathMatch: 'full',
+    component: MainPage,
+    path: 'home',
   },
 ];
