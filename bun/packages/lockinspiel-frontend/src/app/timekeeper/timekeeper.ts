@@ -6,6 +6,8 @@ import {
   ProfileService,
   SessionService,
   TagService,
+  TimekeeperModifyTagData,
+  TimekeeperTag,
   TimekeeperTimer,
   TimekeeperTimeSplit,
   TimekeeperTimeSplitNoTimers,
@@ -15,7 +17,6 @@ import {
   UserPutAvatarQuery,
   UserService,
 } from '../../api-client';
-import { Auth } from '../../api-client/client';
 
 @Injectable({
   providedIn: 'root',
@@ -106,5 +107,26 @@ export class TimekeeperService {
 
   public async retrieveTimers(auth: AuthLoginToken) {
     return await this.timerService.timekeeperGetTimers({ auth: auth.access_token });
+  }
+
+  // Tag endpoints
+  public async createTag(body: TimekeeperTag, auth: AuthLoginToken) {
+    return await this.tagService.timekeeperAddTag({ body, auth: auth.access_token });
+  }
+
+  public async updateTag(id: number, body: TimekeeperTag, auth: AuthLoginToken) {
+    return await this.tagService.timekeeperModifyTag({
+      body,
+      auth: auth.access_token,
+      path: { id },
+    });
+  }
+
+  public async deleteTag(id: number, auth: AuthLoginToken) {
+    return await this.tagService.timekeeperDeleteTag({ auth: auth.access_token, path: { id } });
+  }
+
+  public async getTags(auth: AuthLoginToken) {
+    return await this.tagService.timekeeperGetTags({ auth: auth.access_token });
   }
 }
