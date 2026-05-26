@@ -1,18 +1,15 @@
 info:
-  name: Modify a time split (PUT)
+  name: Post a time split timer
   type: http
-  seq: 6
+  seq: 4
   tags:
     - Time_split
 
 http:
-  method: PUT
-  url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
+  method: POST
+  url: "{{baseUrl}}/timekeeper/time-split/:id"
   params:
     - name: id
-      value: ""
-      type: path
-    - name: time_split
       value: ""
       type: path
   body:
@@ -38,13 +35,10 @@ examples:
   - name: 200 Response
     description: Response for status 200
     request:
-      url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
-      method: PUT
+      url: "{{baseUrl}}/timekeeper/time-split/:id"
+      method: POST
       params:
         - name: id
-          value: ""
-          type: path
-        - name: time_split
           value: ""
           type: path
       body:
@@ -61,20 +55,24 @@ examples:
       statusText: OK
       headers:
         - name: Content-Type
-          value: text/plain
+          value: application/json
       body:
-        type: text
-        data: ""
+        type: json
+        data: |-
+          {
+            "id": "",
+            "order_idx": "",
+            "len": "",
+            "name": "",
+            "work": false
+          }
   - name: 401 Response
     description: Response for status 401
     request:
-      url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
-      method: PUT
+      url: "{{baseUrl}}/timekeeper/time-split/:id"
+      method: POST
       params:
         - name: id
-          value: ""
-          type: path
-        - name: time_split
           value: ""
           type: path
       body:
@@ -98,13 +96,10 @@ examples:
   - name: 404 Response
     description: Response for status 404
     request:
-      url: "{{baseUrl}}/timekeeper/time-split/:id/:time_split"
-      method: PUT
+      url: "{{baseUrl}}/timekeeper/time-split/:id"
+      method: POST
       params:
         - name: id
-          value: ""
-          type: path
-        - name: time_split
           value: ""
           type: path
       body:
@@ -126,4 +121,4 @@ examples:
         type: text
         data: ""
 
-docs: Modifies the fields of the time split at the ID.
+docs: Adds a time split timer to the time split at the ID.

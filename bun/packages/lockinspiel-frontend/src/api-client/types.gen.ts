@@ -664,7 +664,7 @@ export type TimekeeperDeleteTimeSplitResponses = {
 
 export type TimekeeperDeleteTimeSplitResponse = TimekeeperDeleteTimeSplitResponses[keyof TimekeeperDeleteTimeSplitResponses];
 
-export type TimekeeperModifyTimeSplit2Data = {
+export type TimekeeperPostTimeSplitTimerData = {
     body: TimekeeperTimeSplitTimerWOrder;
     path: {
         id: string | number;
@@ -673,7 +673,7 @@ export type TimekeeperModifyTimeSplit2Data = {
     url: '/timekeeper/time-split/{id}';
 };
 
-export type TimekeeperModifyTimeSplit2Errors = {
+export type TimekeeperPostTimeSplitTimerErrors = {
     /**
      * Response for status 401
      */
@@ -684,16 +684,16 @@ export type TimekeeperModifyTimeSplit2Errors = {
     404: 'Time split not found';
 };
 
-export type TimekeeperModifyTimeSplit2Error = TimekeeperModifyTimeSplit2Errors[keyof TimekeeperModifyTimeSplit2Errors];
+export type TimekeeperPostTimeSplitTimerError = TimekeeperPostTimeSplitTimerErrors[keyof TimekeeperPostTimeSplitTimerErrors];
 
-export type TimekeeperModifyTimeSplit2Responses = {
+export type TimekeeperPostTimeSplitTimerResponses = {
     /**
      * Response for status 200
      */
     200: TimekeeperTimeSplitTimerWid;
 };
 
-export type TimekeeperModifyTimeSplit2Response = TimekeeperModifyTimeSplit2Responses[keyof TimekeeperModifyTimeSplit2Responses];
+export type TimekeeperPostTimeSplitTimerResponse = TimekeeperPostTimeSplitTimerResponses[keyof TimekeeperPostTimeSplitTimerResponses];
 
 export type TimekeeperModifyTimeSplitData = {
     body: TimekeeperTimeSplitNoTimers;
@@ -758,7 +758,7 @@ export type TimekeeperDeleteTimeSplit2Responses = {
 
 export type TimekeeperDeleteTimeSplit2Response = TimekeeperDeleteTimeSplit2Responses[keyof TimekeeperDeleteTimeSplit2Responses];
 
-export type TimekeeperModifyTimeSplit3Data = {
+export type TimekeeperModifyTimeSplitTimerData = {
     body: TimekeeperTimeSplitTimerWOrder;
     path: {
         id: string | number;
@@ -768,7 +768,7 @@ export type TimekeeperModifyTimeSplit3Data = {
     url: '/timekeeper/time-split/{id}/{time_split}';
 };
 
-export type TimekeeperModifyTimeSplit3Errors = {
+export type TimekeeperModifyTimeSplitTimerErrors = {
     /**
      * Response for status 401
      */
@@ -779,13 +779,13 @@ export type TimekeeperModifyTimeSplit3Errors = {
     404: 'Time split timer not found';
 };
 
-export type TimekeeperModifyTimeSplit3Error = TimekeeperModifyTimeSplit3Errors[keyof TimekeeperModifyTimeSplit3Errors];
+export type TimekeeperModifyTimeSplitTimerError = TimekeeperModifyTimeSplitTimerErrors[keyof TimekeeperModifyTimeSplitTimerErrors];
 
-export type TimekeeperModifyTimeSplit3Responses = {
+export type TimekeeperModifyTimeSplitTimerResponses = {
     /**
      * Response for status 200
      */
     200: 'OK';
 };
 
-export type TimekeeperModifyTimeSplit3Response = TimekeeperModifyTimeSplit3Responses[keyof TimekeeperModifyTimeSplit3Responses];
+export type TimekeeperModifyTimeSplitTimerResponse = TimekeeperModifyTimeSplitTimerResponses[keyof TimekeeperModifyTimeSplitTimerResponses];

@@ -1,0 +1,5 @@
+refresh_openapi:
+  curl http://localhost:8000/user/openapi/json -o src/openapi/user.json
+  curl http://localhost:8000/timekeeper/openapi/json -o src/openapi/timekeeper.json
+  curl http://localhost:8000/auth/openapi/json -o src/openapi/auth.json
+  bun ~/tries/2026-05-09-openapi-ts/packages/openapi-ts/bin/run.js

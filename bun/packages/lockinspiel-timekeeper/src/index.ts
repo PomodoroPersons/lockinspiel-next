@@ -722,10 +722,10 @@ const app = new Elysia()
         id: t.Integer(),
       }),
       detail: {
-        summary: "Modify a time split",
-        description: "Modifies the fields of the time split at the ID.",
+        summary: "Post a time split timer",
+        description: "Adds a time split timer to the time split at the ID.",
         tags: ["Time split"],
-        operationId: "modifyTimeSplit",
+        operationId: "postTimeSplitTimer",
         security: [
           {
             bearerAuth: [],
@@ -815,10 +815,10 @@ const app = new Elysia()
         time_split: t.Integer(),
       }),
       detail: {
-        summary: "Modify a time split",
-        description: "Modifies the fields of the time split at the ID.",
+        summary: "Modify a time split timer",
+        description: "Modifies the fields of the time split timer at the ID.",
         tags: ["Time split"],
-        operationId: "modifyTimeSplit",
+        operationId: "modifyTimeSplitTimer",
         security: [
           {
             bearerAuth: [],
@@ -942,9 +942,9 @@ const app = new Elysia()
         time_split: t.Integer(),
       }),
       detail: {
-        summary: "Delete a time split",
+        summary: "Delete a time split timer",
         description:
-          "Deletes the time split at the given ID. This just marks the time split as deleted, and doesn't actually delete the time split in the database. Timers posted with a deleted time split will still have that time split, the time split just won't appear when querying some endpoints.",
+          "Deletes the time split timer at the given ID. This just marks the time split timer as deleted, and doesn't actually delete the time split timer in the database. Timers posted with a deleted time split timer will still have that time split timer, the time split timer just won't appear when querying some endpoints.",
         tags: ["Time split"],
         operationId: "deleteTimeSplit",
         security: [

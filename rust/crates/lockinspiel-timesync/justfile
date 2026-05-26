@@ -1,0 +1,16 @@
+profile:
+    rm -rf /tmp/pgo-data
+    RUSTFLAGS="-Cprofile-generate=/tmp/pgo-data" cargo build --release --target=x86_64-unknown-linux-gnu
+    target/x86_64-unknown-linux-gnu/release/lockinspiel-timesync &
+    wrk -t22 -c400 -H "Connection: close" http://127.0.0.1:8080
+    killall lockinspiel-timesync
+    wrk -t22 -c400 -d1 -H "Connection: close" http://127.0.0.1:8080
+    llvm-profdata merge -o /tmp/pgo-data/merged.profdata /tmp/pgo-data
+    RUSTFLAGS="-Cprofile-use=/tmp/pgo-data/merged.profdata" cargo build --release --target=x86_64-unknown-linux-gnu
+
+
+bench:
+    rm -rf /tmp/pgo-data
+    RUSTFLAGS="-Cprofile-generate=/tmp/pgo-data" cargo bench --target=x86_64-unknown-linux-gnu -- "13 queens final"
+    llvm-profdata merge -o /tmp/pgo-data/merged.profdata /tmp/pgo-data
+    RUSTFLAGS="-Cprofile-use=/tmp/pgo-data/merged.profdata" cargo bench --target=x86_64-unknown-linux-gnu -- "13 queens final"
