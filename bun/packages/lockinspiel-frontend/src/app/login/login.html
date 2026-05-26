@@ -1,0 +1,33 @@
+<div class="login-wrapper">
+
+  <div class="login-box">
+
+    <div class="login-logo">Lockinspiel</div>
+
+    <div class="input-group">
+      <label>Username</label>
+      <input
+        type="text"
+        placeholder="Enter username"
+        [value]="username()"
+        (input)="updateUsername($event)" />
+    </div>
+
+    <div class="input-group">
+      <label>Password</label>
+      <input
+        type="password"
+        placeholder="Enter password"
+        [value]="password()"
+        (input)="updatePassword($event)" />
+    </div>
+
+    @if (error()) {
+      <div class="error-msg">{{ error() }}</div>
+    }
+
+    <button class="login-btn" (click)="login()">Enter</button>
+
+  </div>
+
+</div>
