@@ -1,7 +1,11 @@
 <div class="page-wrapper">
   <header class="header">
     <span class="logo">Lockinspiel</span>
-    <button class="profile-btn" (click)="router.navigate(['/profile'])">User Profile</button>
+    @if (userProfile.userProfile()) {
+      <button class="profile-btn" (click)="router.navigate(['/profile'])">{{ userProfile.userProfile()?.display_name }}</button>
+    } @else {
+      <button class="profile-btn" (click)="router.navigate(['/profile'])">User Profile</button>
+    }
   </header>
 
   <div class="content">

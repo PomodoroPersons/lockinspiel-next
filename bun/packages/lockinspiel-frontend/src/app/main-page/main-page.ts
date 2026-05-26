@@ -5,6 +5,7 @@ import { SavedList } from '../saved-list/saved-list';
 import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { UserProfileService } from '../user-profile/user-profile.service';
 
 @Component({
   selector: 'app-main-page',
@@ -14,6 +15,7 @@ import { Router, RouterModule } from '@angular/router';
 })
 export class MainPage {
   public router = inject(Router);
+  protected userProfile = inject(UserProfileService);
 
   friendsOpen = signal(false);
   savedOpen = signal(false);
