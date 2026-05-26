@@ -4,7 +4,7 @@ import { SetTimer } from '../set-timer/set-timer';
 import { SavedList } from '../saved-list/saved-list';
 import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { Router } from '@angular/router';
 import { UserProfileService } from '../user-profile/user-profile.service';
 import { UserData, UserProfile } from '../user-profile/user-profile';
 
