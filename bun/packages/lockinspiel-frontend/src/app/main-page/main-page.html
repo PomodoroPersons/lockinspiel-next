@@ -23,13 +23,9 @@
     <main class="center">
       <div class="center-box">
         @if (timerRunning()) {
-          <app-timer
-            [workMinutes]="workMinutes()"
-            [restMinutes]="restMinutes()"
-            (timerStopped)="onTimerStopped()" />
+        <app-timer [workMinutes]="workMinutes()" [restMinutes]="restMinutes()" (timerStopped)="onTimerStopped()" />
         } @else {
-          <app-set-timer
-            (timerStarted)="onTimerStarted({ workMinutes: 25, restMinutes: 5 })" />
+        <app-set-timer (timerStarted)="onTimerStarted({ workMinutes: 25, restMinutes: 5 })" />
         }
       </div>
     </main>
@@ -49,13 +45,11 @@
 
   <!-- ── Modal overlay ── -->
   @if (modalOpen()) {
-    <div class="modal-overlay" (click)="closeModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
-        <app-user-profile
-          [user]="modalUser()"
-          (closed)="closeModal()" />
-      </div>
+  <div class="modal-overlay" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <app-user-profile [user]="modalUser()" (closed)="closeModal()" />
     </div>
+  </div>
   }
 
 </div>
