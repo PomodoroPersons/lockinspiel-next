@@ -9,7 +9,7 @@
 
 /* ── Favorite button ──────────────────────────────────────── */     /* ----- NEEDS WORK ----- */
 .friends-panel {
-  position: absolute;
+  position: sticky;
   top: 10%;
   left: 123.5%;
   width: 0;
