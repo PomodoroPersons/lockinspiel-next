@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { MainPage } from './main-page/main-page';
-import { Login } from './login/login'
+import { Login } from './login/login';
+import { canActivate } from './services/auth/auth';
 
 export const routes: Routes = [
   {
@@ -12,5 +13,6 @@ export const routes: Routes = [
     component: MainPage,
     path: 'home',
     pathMatch: 'full',
+    canActivate: [canActivate],
   },
 ];

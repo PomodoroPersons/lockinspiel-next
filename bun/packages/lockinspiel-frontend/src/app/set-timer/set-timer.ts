@@ -1,7 +1,11 @@
 import { Component, signal, output, inject } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { TimekeeperTimeSplit } from '../../api-client';
+import {
+  TimekeeperTimeSplit,
+  TimekeeperTimeSplitTimerWOrder,
+  TimekeeperTimeSplitWid,
+} from '../../api-client';
 import { TimekeeperService } from '../services/timekeeper/timekeeper';
 import { AuthService } from '../services/auth/auth';
 
@@ -32,13 +36,13 @@ export class SetTimer {
 
   friendsPanelOpen = signal(false);
 
-  timerStarted = output<TimekeeperTimeSplit>();
+  timerStarted = output<TimekeeperTimeSplitWid>();
 
   toggleFriendsPanel() {
     this.friendsPanelOpen.set(!this.friendsPanelOpen());
   }
 
-  startTimer() {
+  async startTimer() {
     if (this.timeSplitGroup.invalid) {
       console.warn('invalid form values', this.timeSplitGroup.controls);
       return;
@@ -48,21 +52,40 @@ export class SetTimer {
     const timeSplit = {
       name: controls.name.value!,
       description: controls.description.value!,
-      timers: [
+      timers: <TimekeeperTimeSplitTimerWOrder[]>[
         {
+          order_idx: 0,
           len: controls.workTime.value!,
-          name: '',
+          name: 'Work',
           work: true,
         },
         {
+          order_idx: 1,
           len: controls.restTime.value!,
-          name: '',
+          name: 'Rest',
           work: false,
         },
       ],
     };
 
-    this.timekeeper.createTimeSplit(timeSplit);
-    this.timerStarted.emit(timeSplit);
+    const id = await this.timekeeper.createTimeSplit(timeSplit);
+    if (id.error) {
+      console.error('an error ocurred while trying to make the time split', id.error);
+      return;
+    }
+
+    const timeSplitTimers = await Promise.all(
+      timeSplit.timers.map(async (t) => {
+        const timer = await this.timekeeper.createTimeSplitTimer(id.data.time_split_id, t);
+        return timer.data!;
+      }),
+    );
+
+    this.timerStarted.emit({
+      id: id.data.time_split_id,
+      name: timeSplit.name,
+      description: timeSplit.description,
+      timers: timeSplitTimers,
+    });
   }
 }

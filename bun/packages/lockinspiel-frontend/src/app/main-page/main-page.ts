@@ -6,7 +6,7 @@ import { SavedList } from '../saved-list/saved-list';
 import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { TimekeeperTimeSplit } from '../../api-client';
+import { TimekeeperTimeSplitWid } from '../../api-client';
 
 @Component({
   selector: 'app-main-page',
@@ -20,8 +20,7 @@ export class MainPage {
   friendsOpen = signal(false);
   savedOpen = signal(false);
 
-  timerRunning = signal<number | null>(0);
-  timeSplit = signal<TimekeeperTimeSplit | null>(null);
+  timeSplit = signal<TimekeeperTimeSplitWid | null>(null);
 
   modalOpen = signal(false);
   modalUser = signal<UserData>({
@@ -58,9 +57,7 @@ export class MainPage {
     this.modalOpen.set(false);
   }
 
-  onTimerStarted(config: TimekeeperTimeSplit) {}
-
-  onTimerStopped() {
-    this.timerRunning.set(null);
+  onTimerStarted(timeSplit: TimekeeperTimeSplitWid) {
+    this.timeSplit.set(timeSplit);
   }
 }

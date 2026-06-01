@@ -14,12 +14,8 @@
 
     <main class="center">
       <div class="center-box">
-        @if (timerRunning()) {
-          <app-timer
-            [timers]="timeSplit()?.timers"
-            [timerRunning]="timerRunning()"
-            (timerStopped)="onTimerStopped()"
-          />
+        @if (timeSplit()) {
+          <app-timer [timeSplit]="timeSplit()" />
         } @else {
           <app-set-timer (timerStarted)="onTimerStarted($event)" />
         }

@@ -6,6 +6,8 @@ import {
   TimekeeperTimer,
   TimekeeperTimeSplit,
   TimekeeperTimeSplitNoTimers,
+  TimekeeperTimeSplitTimer,
+  TimekeeperTimeSplitTimerWOrder,
   TimerService,
   TimeSplitService,
   UserInsertableUserProfile,
@@ -60,6 +62,14 @@ export class TimekeeperService {
     return await this.timeSplitService.timekeeperAddTimeSplit({
       body,
       auth: this.auth.authSession?.access_token,
+    });
+  }
+
+  public async createTimeSplitTimer(id: number | string, body: TimekeeperTimeSplitTimerWOrder) {
+    return await this.timeSplitService.timekeeperPostTimeSplitTimer({
+      body,
+      auth: this.auth.authSession?.access_token,
+      path: { id },
     });
   }
 

@@ -3,6 +3,8 @@
     <div class="mode-label" [class.rest]="timerType() === 'rest'">
       {{ timerType() === 'work' ? 'Work' : 'Rest' }}
     </div>
+  } @else {
+    <div class="mode-label">...</div>
   }
 
   <div class="countdown">
@@ -10,7 +12,7 @@
   </div>
 
   <div class="controls">
-    <button class="ctrl-btn" [class.active]="timerRunning() == null" (click)="toggleTimerState()">
+    <button class="ctrl-btn" [class.active]="currentTimer() !== null" (click)="toggleTimerState()">
       @if (timerPaused()) {
         ▶
       } @else {

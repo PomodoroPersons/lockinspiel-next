@@ -13,6 +13,7 @@ import {
   UserService,
 } from '../../../api-client';
 import { RequestResult } from '../../../api-client/client';
+import { CanActivateFn } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -36,7 +37,9 @@ export class AuthService {
     'fields'
   > {
     if (!this.authSession) return { data: undefined, error: 'unauthorized' };
-    return await this.userService.authDeleteUser({ auth: this.authSession.access_token });
+    const result = await this.userService.authDeleteUser({ auth: this.authSession.access_token });
+    this.authSession = undefined;
+    return result;
   }
 
   // Session endpoints
@@ -45,6 +48,7 @@ export class AuthService {
     auth: AuthLoginToken,
   ): RequestResult<AuthNewSessionResponses, AuthNewSessionErrors, false, 'fields'> {
     if (!this.authSession) return { data: undefined, error: 'unauthorized' };
+    this.authSession.access_token = auth.access_token;
     return await this.sessionService.authNewSession({ body, auth: auth.access_token });
   }
 
@@ -55,6 +59,16 @@ export class AuthService {
     'fields'
   > {
     if (!this.authSession) return { data: undefined, error: 'unauthorized' };
-    return await this.sessionService.authLogout({ auth: this.authSession.access_token });
+    const result = await this.sessionService.authLogout({ auth: this.authSession.access_token });
+    this.authSession = undefined;
+    return result;
+  }
+
+  public canActivate(): boolean {
+    return this.authSession !== undefined;
   }
 }
+
+export const canActivate: CanActivateFn = () => {
+  return inject(AuthService).canActivate();
+};

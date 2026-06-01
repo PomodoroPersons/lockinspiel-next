@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -9,11 +9,11 @@ import { Router } from '@angular/router';
   styleUrl: './login.css',
 })
 export class Login {
+  private router = inject(Router);
+
   username = signal('');
   password = signal('');
   error = signal('');
-
-  constructor(private router: Router) {}
 
   updateUsername(e: Event) {
     this.username.set((e.target as HTMLInputElement).value);
