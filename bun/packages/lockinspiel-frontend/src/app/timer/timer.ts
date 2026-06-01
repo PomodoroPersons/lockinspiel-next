@@ -28,6 +28,10 @@ export class Timer implements OnDestroy {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   });
 
+  remainingMs() {
+    return 25 * Timer.minutesToMs;
+  }
+
   toggleTimerState() {
     if (this.timerRunning() == null) return;
 

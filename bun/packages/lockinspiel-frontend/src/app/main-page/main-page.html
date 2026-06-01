@@ -24,7 +24,7 @@
       <div class="center-box">
         @if (timerRunning()) {
           <app-timer
-            [timers]="timeSplit()?.timers"
+            [timers]="timeSplit()?.timers ?? []"
             [timerRunning]="timerRunning()"
             (timerStopped)="onTimerStopped()"
           />
