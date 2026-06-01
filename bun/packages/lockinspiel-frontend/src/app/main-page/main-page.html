@@ -1,7 +1,7 @@
 <div class="page-wrapper">
   <header class="header">
     <span class="logo">Lockinspiel</span>
-    <button class="profile-btn" (click)="router.navigate(['/profile'])">User Profile</button>
+    <button class="profile-btn" (click)="openOwnProfile()">R</button>
   </header>
 
   <div class="content">
@@ -29,12 +29,20 @@
     <div class="sidebar sidebar-right">
       <button class="sidebar-tab tab-left" (click)="toggleFriends()">Friends</button>
       <div class="sidebar-panel" [class.closed]="!friendsOpen()">
-        <app-friend-list />
+        <app-friend-list (profileClicked)="openFriendProfile($event)" />
       </div>
     </div>
   </div>
 
   <footer class="footer">
-    <button class="settings-btn" (click)="router.navigate(['/settings'])">⚙ Settings</button>
+    <button class="settings-btn">⚙ Settings</button>
   </footer>
+
+  @if (modalOpen()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <app-user-profile [user]="modalUser()" (closed)="closeModal()" />
+      </div>
+    </div>
+  }
 </div>
