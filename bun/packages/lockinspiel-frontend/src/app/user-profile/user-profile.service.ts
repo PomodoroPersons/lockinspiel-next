@@ -15,8 +15,7 @@ export class UserProfileService {
         httpClient,
       });
 
-      if (data)
-        this.userProfile.set(data);
+      if (data) this.userProfile.set(data);
     }
   }
 }

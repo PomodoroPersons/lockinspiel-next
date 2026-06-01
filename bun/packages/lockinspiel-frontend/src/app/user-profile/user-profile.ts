@@ -27,7 +27,7 @@ export class UserProfile {
   statuses: UserData['status'][] = ['free', 'busy', 'dnd', 'offline'];
 
   ngOnInit() {
-    const user = this.user()
+    const user = this.user();
     if (user.user) {
       this.editUsername.set(user.user.display_name);
       this.editBio.set(user.user.bio);

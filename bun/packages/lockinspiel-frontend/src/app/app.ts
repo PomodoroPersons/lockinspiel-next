@@ -9,7 +9,7 @@ import { isPlatformBrowser } from '@angular/common';
   selector: 'app-root',
   imports: [RouterOutlet],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
   protected readonly title = signal('lockinspiel-frontend');
@@ -27,12 +27,12 @@ export class App {
       let { data: accessToken } = await this.#sessionService.authNewSession({
         httpClient: this.#http,
         body: {
-          refresh_token: {}
-        }
+          refresh_token: {},
+        },
       });
 
       client.setConfig({
-        auth: accessToken?.access_token
+        auth: accessToken?.access_token,
       });
     }
   }

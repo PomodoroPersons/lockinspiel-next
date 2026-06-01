@@ -10,10 +10,7 @@ import type {
 import type { Injector } from '@angular/core';
 
 import type { Auth } from '../core/auth.gen';
-import type {
-  ServerSentEventsOptions,
-  ServerSentEventsResult,
-} from '../core/serverSentEvents.gen';
+import type { ServerSentEventsOptions, ServerSentEventsResult } from '../core/serverSentEvents.gen';
 import type { Client as CoreClient, Config as CoreConfig } from '../core/types.gen';
 import type { Middleware } from './utils.gen';
 

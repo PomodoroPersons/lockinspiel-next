@@ -1,4 +1,10 @@
-import { ApplicationConfig, inject, PLATFORM_ID, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  PLATFORM_ID,
+  provideAppInitializer,
+  provideBrowserGlobalErrorListeners,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -11,13 +17,19 @@ import { HttpClient } from '@angular/common/http';
 import { SessionService } from '../api-client';
 
 client.setConfig({
-  baseUrl: typeof window !== 'undefined' ? window.location.origin : typeof Bun !== 'undefined' ? Bun.env['BASE_URL'] : 'https://lockinspiel.live',
+  baseUrl:
+    typeof window !== 'undefined'
+      ? window.location.origin
+      : typeof Bun !== 'undefined'
+        ? Bun.env['BASE_URL']
+        : 'https://lockinspiel.live',
 });
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes), provideClientHydration(withEventReplay()),
+    provideRouter(routes),
+    provideClientHydration(withEventReplay()),
     provideHeyApiClient(client),
     provideAppInitializer(async () => {
       const platformId = inject(PLATFORM_ID);
@@ -28,16 +40,16 @@ export const appConfig: ApplicationConfig = {
         let { data: accessToken } = await sessionService.authNewSession({
           httpClient,
           body: {
-            refresh_token: {}
-          }
+            refresh_token: {},
+          },
         });
 
         client.setConfig({
-          auth: accessToken?.access_token
+          auth: accessToken?.access_token,
         });
-        console.log(accessToken)
+        console.log(accessToken);
       }
       await userProfileService.initialize(httpClient);
     }),
-  ]
+  ],
 };

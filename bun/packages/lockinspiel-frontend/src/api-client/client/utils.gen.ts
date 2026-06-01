@@ -3,10 +3,7 @@
 import { HttpHeaders } from '@angular/common/http';
 
 import { getAuthToken } from '../core/auth.gen';
-import type {
-  QuerySerializer,
-  QuerySerializerOptions,
-} from '../core/bodySerializer.gen';
+import type { QuerySerializer, QuerySerializerOptions } from '../core/bodySerializer.gen';
 import {
   serializeArrayParam,
   serializeObjectParam,

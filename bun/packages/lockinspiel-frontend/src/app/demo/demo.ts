@@ -1,7 +1,14 @@
 import { Component, inject, signal } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { JsonPipe } from '@angular/common';
-import { TimerService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, TimekeeperTimer, AuthNewSessionErrors, SessionService } from '../../api-client'
+import {
+  TimerService,
+  TimekeeperPostTimerErrors,
+  TimekeeperGetTimersErrors,
+  TimekeeperTimer,
+  AuthNewSessionErrors,
+  SessionService,
+} from '../../api-client';
 
 @Component({
   host: { ngSkipHydration: 'true' },
@@ -23,14 +30,15 @@ import { TimerService, TimekeeperPostTimerErrors, TimekeeperGetTimersErrors, Tim
         </div>
       </div>
     }
-  `
+  `,
 })
 export class Demo {
   timer = signal<TimekeeperTimer[] | undefined>(undefined);
-   error = signal<
+  error = signal<
     | undefined
     | {
-        error: TimekeeperGetTimersErrors[keyof TimekeeperGetTimersErrors]
+        error:
+          | TimekeeperGetTimersErrors[keyof TimekeeperGetTimersErrors]
           | TimekeeperPostTimerErrors[keyof TimekeeperPostTimerErrors]
           | AuthNewSessionErrors[keyof AuthNewSessionErrors]
           | Error;
@@ -48,8 +56,8 @@ export class Demo {
       const { data, error, response } = await this.#sessionService.authNewSession({
         httpClient: this.#http,
         body: {
-          refresh_token: {}
-        }
+          refresh_token: {},
+        },
       });
 
       if (error) {
@@ -76,9 +84,9 @@ export class Demo {
           time_split_timer: 1,
         },
         auth() {
-          console.log(jwt?.access_token)
-          return jwt?.access_token
-        }
+          console.log(jwt?.access_token);
+          return jwt?.access_token;
+        },
         // auth: jwt?.access_token
       });
 
@@ -98,7 +106,7 @@ export class Demo {
     {
       const { data, error, response } = await this.#timerService.timekeeperGetTimers({
         httpClient: this.#http,
-        auth: jwt?.access_token
+        auth: jwt?.access_token,
       });
 
       if (error) {

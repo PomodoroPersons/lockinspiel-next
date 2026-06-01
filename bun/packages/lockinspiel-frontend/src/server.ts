@@ -7,10 +7,9 @@ if (typeof Bun !== 'undefined') {
 }
 import { Hono } from 'hono';
 
-
 const browserDistFolder = join(import.meta.dirname, '../browser');
 
-const app = new Hono()
+const app = new Hono();
 const angularApp = new AngularAppEngine();
 
 /**
@@ -18,10 +17,11 @@ const angularApp = new AngularAppEngine();
  */
 if (serveStatic) {
   app.use(
-    "*", serveStatic({
+    '*',
+    serveStatic({
       root: browserDistFolder,
       onFound: (_path, c) => {
-        c.header('Cache-Control', `public, immutable, max-age=31536000`)
+        c.header('Cache-Control', `public, immutable, max-age=31536000`);
       },
     }),
   );
@@ -30,13 +30,13 @@ if (serveStatic) {
 /**
  * Handle all other requests by rendering the Angular application.
  */
-app.all("*", (c, next) =>
+app.all('*', (c, next) =>
   angularApp
     .handle(c.req.raw)
     .then(async (response) => {
-      return response ? response : await next()
+      return response ? response : await next();
     })
-    .catch(next)
+    .catch(next),
 );
 
 const port = process.env['LISTEN_PORT'] || 4000;
@@ -44,9 +44,7 @@ export default {
   port,
   fetch: app.fetch,
 };
-export const reqHandler = createRequestHandler((req: Request) =>
-  app.fetch(req)
-);
+export const reqHandler = createRequestHandler((req: Request) => app.fetch(req));
 // export const reqHandler = app.fetch;
 // export default {
 //   port,

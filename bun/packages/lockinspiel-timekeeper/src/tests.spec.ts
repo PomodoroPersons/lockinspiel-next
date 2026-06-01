@@ -199,9 +199,12 @@ describe("timekeeper", () => {
     test("delete time split timer", async () => {
       const { status: deleteStatus, error: deleteError } = await app.timekeeper[
         "time-split"
-      ]({ id: createdTimeSplit })({ time_split: createdTimeSplitTimer }).delete(undefined, {
-        headers: { ...authorization },
-      });
+      ]({ id: createdTimeSplit })({ time_split: createdTimeSplitTimer }).delete(
+        undefined,
+        {
+          headers: { ...authorization },
+        },
+      );
 
       expect(deleteError).toBeNull();
       expect(deleteStatus).toBe(200);

@@ -29,7 +29,7 @@ export class MainPage {
   modalUser = signal<UserData>({
     user: this.userProfile.userProfile(),
     isOwn: true,
-    status: "free"
+    status: 'free',
   });
 
   toggleFriends() {
@@ -44,7 +44,7 @@ export class MainPage {
     this.modalUser.set({
       user: this.userProfile.userProfile(),
       isOwn: true,
-      status: "free"
+      status: 'free',
     });
     this.modalOpen.set(true);
   }
