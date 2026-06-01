@@ -5,6 +5,7 @@ import { SavedList } from '../saved-list/saved-list';
 import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
+import { TimekeeperTimeSplit } from '../../api-client';
 
 @Component({
   selector: 'app-main-page',
@@ -13,13 +14,13 @@ import { Router, RouterModule } from '@angular/router';
   styleUrl: './main-page.css',
 })
 export class MainPage {
-  public router = inject(Router);
+  router = inject(Router);
 
   friendsOpen = signal(false);
   savedOpen = signal(false);
-  timerRunning = signal(false);
-  workMinutes = signal(25);
-  restMinutes = signal(5);
+
+  timerRunning = signal<number | null>(0);
+  timeSplit = signal<TimekeeperTimeSplit | null>(null);
 
   toggleFriends() {
     this.friendsOpen.set(!this.friendsOpen());
@@ -29,13 +30,9 @@ export class MainPage {
     this.savedOpen.set(!this.savedOpen());
   }
 
-  onTimerStarted(config: { workMinutes: number; restMinutes: number }) {
-    this.workMinutes.set(config.workMinutes);
-    this.restMinutes.set(config.restMinutes);
-    this.timerRunning.set(true);
-  }
+  onTimerStarted(config: TimekeeperTimeSplit) {}
 
   onTimerStopped() {
-    this.timerRunning.set(false);
+    this.timerRunning.set(null);
   }
 }

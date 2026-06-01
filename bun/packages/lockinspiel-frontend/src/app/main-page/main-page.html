@@ -16,12 +16,12 @@
       <div class="center-box">
         @if (timerRunning()) {
           <app-timer
-            [workMinutes]="workMinutes()"
-            [restMinutes]="restMinutes()"
+            [timers]="timeSplit()?.timers"
+            [timerRunning]="timerRunning()"
             (timerStopped)="onTimerStopped()"
           />
         } @else {
-          <app-set-timer (timerStarted)="onTimerStarted({ workMinutes: 25, restMinutes: 5 })" />
+          <app-set-timer (timerStarted)="onTimerStarted($event)" />
         }
       </div>
     </main>
