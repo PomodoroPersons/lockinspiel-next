@@ -1,5 +1,7 @@
-import { Component, signal, computed, OnDestroy, input, output } from '@angular/core';
+import { Component, OnDestroy, output, input, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TimekeeperTimeSplit } from '../../api-client';
+import { TimekeeperService } from '../services/timekeeper/timekeeper';
 
 @Component({
   selector: 'app-timer',
@@ -8,18 +10,15 @@ import { CommonModule } from '@angular/common';
   styleUrl: './timer.css',
 })
 export class Timer implements OnDestroy {
-  workMinutes = input<number>(25);
-  restMinutes = input<number>(5);
+  private timekeeper = inject(TimekeeperService);
 
   timerStopped = output<void>();
 
-  mode = signal<'work' | 'rest'>('work');
-  running = signal(false);
-  timerEndMs = signal<number | null>(null);
-  pausedRemainingMs = signal<number | null>(null);
-  remainingMs = signal(25 * 60 * 1000);
+  timers = input<TimekeeperTimeSplit['timers']>([]);
+  timerRunning = input<number | null>(null);
+  timerPaused = signal<boolean>(true);
 
-  private intervalId: ReturnType<typeof setInterval> | null = null;
+  private static readonly minutesToMs = 60 * 1000;
 
   displayTime = computed(() => {
     const ms = this.remainingMs();
@@ -29,61 +28,24 @@ export class Timer implements OnDestroy {
     return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   });
 
-  start() {
-    if (this.running()) return;
-    const ms = this.pausedRemainingMs() ?? this.remainingMs();
-    this.timerEndMs.set(Date.now() + ms);
-    this.pausedRemainingMs.set(null);
-    this.running.set(true);
+  toggleTimerState() {
+    if (this.timerRunning() == null) return;
 
-    this.intervalId = setInterval(() => {
-      const remaining = this.timerEndMs()! - Date.now();
-      if (remaining <= 0) {
-        this.remainingMs.set(0);
-        this.timerFinished();
-      } else {
-        this.remainingMs.set(remaining);
-      }
-    }, 100);
+    // I need the timesheet!!!!
+    this.timerPaused.set(!this.timerPaused());
   }
 
-  pause() {
-    if (!this.running()) return;
-    this.pausedRemainingMs.set(this.remainingMs());
-    this.running.set(false);
-    this.clearInterval();
-  }
+  stop() {}
 
-  stop() {
-    this.running.set(false);
-    this.pausedRemainingMs.set(null);
-    this.timerEndMs.set(null);
-    this.clearInterval();
-    this.mode.set('work');
-    this.remainingMs.set(this.workMinutes() * 60 * 1000);
-    this.timerStopped.emit();
-  }
+  timerType(): 'work' | 'rest' | 'unknown' {
+    if (this.timerRunning() === null) return 'unknown';
 
-  private timerFinished() {
-    this.clearInterval();
-    this.running.set(false);
-    if (this.mode() === 'work') {
-      this.mode.set('rest');
-      this.remainingMs.set(this.restMinutes() * 60 * 1000);
+    if (this.timers()[this.timerRunning()!].work) {
+      return 'work';
     } else {
-      this.mode.set('work');
-      this.remainingMs.set(this.workMinutes() * 60 * 1000);
+      return 'rest';
     }
   }
 
-  private clearInterval() {
-    if (this.intervalId !== null) {
-      clearInterval(this.intervalId);
-      this.intervalId = null;
-    }
-  }
-
-  ngOnDestroy() {
-    this.clearInterval();
-  }
+  ngOnDestroy() {}
 }

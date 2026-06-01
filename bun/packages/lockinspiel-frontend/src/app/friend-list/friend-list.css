@@ -204,3 +204,15 @@
   text-align: center;
   margin-top: 1rem;
 }
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  color: white;
+}
+
+.avatar {
+  cursor: pointer;
+}

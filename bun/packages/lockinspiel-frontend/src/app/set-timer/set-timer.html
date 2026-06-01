@@ -1,22 +1,26 @@
 <div class="set-timer">
-
-  <div class="times">
+  <form class="times" [formGroup]="timeSplitGroup" (ngSubmit)="startTimer()">
+    <div class="time-input-group">
+      <h3>Name</h3>
+      <input type="text" [formControl]="timeSplitGroup.controls.name" />
+    </div>
+    <div class="time-input-group">
+      <h3>Description</h3>
+      <input type="text" [formControl]="timeSplitGroup.controls.description" />
+    </div>
     <div class="time-input-group">
       <h3>Work Time (min)</h3>
-      <input type="number" value="25" />
+      <input type="number" [formControl]="timeSplitGroup.controls.workTime" />
     </div>
     <div class="time-input-group">
       <h3>Rest Time (min)</h3>
-      <input type="number" value="5" />
+      <input type="number" [formControl]="timeSplitGroup.controls.restTime" />
     </div>
-  </div>
+  </form>
 
   <div class="actions">
     <button class="play-btn" (click)="startTimer()">▶</button>
-    <button
-      class="friends-btn"
-      [class.active]="friendsPanelOpen()"
-      (click)="toggleFriendsPanel()">
+    <button class="friends-btn" [class.active]="friendsPanelOpen()" (click)="toggleFriendsPanel()">
       👤
     </button>
   </div>
@@ -38,5 +42,4 @@
       </div>
     </div>
   </div>
-
 </div>

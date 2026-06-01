@@ -37,18 +37,21 @@
 }
 
 .profile-btn {
-  background: rgba(255, 255, 255, 0.1);
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  border: none;
   color: white;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  padding: 0.5rem 1.25rem;
-  border-radius: 2rem;
+  font-size: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  font-size: 0.875rem;
-  transition: background 0.2s ease;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .profile-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.08);
+  opacity: 0.85;
 }
 
 /* ── Content row ──────────────────────────────────────────── */
@@ -175,4 +178,26 @@
 .settings-btn:hover {
   color: white;
   background: rgba(255, 255, 255, 0.08);
+}
+
+/* ── Modal ────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+
+.modal {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  width: 480px;
+  max-width: 90vw;
 }

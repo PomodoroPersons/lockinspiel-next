@@ -1,33 +1,22 @@
 <div class="timer">
-
-  <div class="mode-label" [class.rest]="mode() === 'rest'">
-    {{ mode() === 'work' ? 'Work' : 'Rest' }}
-  </div>
+  @if (timerType() != 'unknown') {
+    <div class="mode-label" [class.rest]="timerType() === 'rest'">
+      {{ timerType() === 'work' ? 'Work' : 'Rest' }}
+    </div>
+  }
 
   <div class="countdown">
     {{ displayTime() }}
   </div>
 
   <div class="controls">
-    <button
-      class="ctrl-btn"
-      [class.active]="!running() && remainingMs() > 0"
-      [disabled]="running()"
-      (click)="start()">
-      ▶
+    <button class="ctrl-btn" [class.active]="timerRunning() == null" (click)="toggleTimerState()">
+      @if (timerPaused()) {
+        ▶
+      } @else {
+        ⏸
+      }
     </button>
-    <button
-      class="ctrl-btn"
-      [class.active]="running()"
-      [disabled]="!running()"
-      (click)="pause()">
-      ⏸
-    </button>
-    <button
-      class="ctrl-btn stop"
-      (click)="stop()">
-      ⏹
-    </button>
+    <button class="ctrl-btn stop" (click)="stop()">⏹</button>
   </div>
-
 </div>
