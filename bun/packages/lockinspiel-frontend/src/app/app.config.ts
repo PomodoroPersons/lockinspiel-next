@@ -13,7 +13,7 @@ import { provideHeyApiClient } from '../api-client/client/client.gen';
 import { client } from '../api-client/client.gen';
 import { UserProfileService } from './user-profile/user-profile.service';
 import { isPlatformBrowser } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withFetch } from '@angular/common/http';
 import { SessionService } from '../api-client';
 
 client.setConfig({
@@ -27,6 +27,7 @@ client.setConfig({
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideHttpClient(withFetch()),
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
     provideClientHydration(withEventReplay()),
@@ -47,7 +48,6 @@ export const appConfig: ApplicationConfig = {
         client.setConfig({
           auth: accessToken?.access_token,
         });
-        console.log(accessToken);
       }
       await userProfileService.initialize(httpClient);
     }),

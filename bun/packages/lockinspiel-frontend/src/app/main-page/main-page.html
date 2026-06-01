@@ -4,7 +4,7 @@
     <span class="logo">Lockinspiel</span>
     @if (userProfile.userProfile()) {
       <button class="profile-btn" (click)="openOwnProfile()">
-        {{ userProfile.userProfile()?.display_name }}
+        {{ userProfile.userProfile()?.display_name | firstLetter }}
       </button>
     } @else {
       <button class="profile-btn" (click)="openOwnProfile()">User Profile</button>

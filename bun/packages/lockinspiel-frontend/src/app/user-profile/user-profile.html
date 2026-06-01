@@ -3,7 +3,7 @@
   <!-- ── Header row ── -->
   <div class="profile-header">
     <div class="avatar-large">
-      {{ user().user?.display_name }}
+      {{ user().user?.display_name | firstLetter }}
     </div>
     <div class="profile-info">
       @if (!user().isOwn) {

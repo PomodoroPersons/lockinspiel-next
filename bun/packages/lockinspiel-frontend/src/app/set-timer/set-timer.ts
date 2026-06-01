@@ -1,9 +1,7 @@
-import { Component, signal, output, inject } from '@angular/core';
+import { Component, signal, output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { TimekeeperTimeSplit } from '../../api-client';
-import { TimekeeperService } from '../services/timekeeper/timekeeper';
-import { AuthService } from '../services/auth/auth';
 
 @Component({
   selector: 'app-set-timer',
@@ -12,9 +10,6 @@ import { AuthService } from '../services/auth/auth';
   styleUrl: './set-timer.css',
 })
 export class SetTimer {
-  private timekeeper = inject(TimekeeperService);
-  private auth = inject(AuthService);
-
   timeSplitGroup = new FormGroup({
     name: new FormControl<string>('', [Validators.minLength(1), Validators.required]),
     description: new FormControl<string | null>(null),
@@ -62,7 +57,7 @@ export class SetTimer {
       ],
     };
 
-    this.timekeeper.createTimeSplit(timeSplit);
+    // this.timekeeper.createTimeSplit(timeSplit);
     this.timerStarted.emit(timeSplit);
   }
 }

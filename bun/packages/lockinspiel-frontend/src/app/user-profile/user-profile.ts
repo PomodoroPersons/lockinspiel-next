@@ -1,4 +1,4 @@
-import { Component, input, output, signal } from '@angular/core';
+import { Component, input, output, signal, Pipe, PipeTransform } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UserUserProfile } from '../../api-client';
@@ -9,9 +9,19 @@ export interface UserData {
   status: 'free' | 'busy' | 'dnd' | 'offline';
 }
 
+@Pipe({
+  name: 'firstLetter'
+})
+export class FirstLetterPipe implements PipeTransform {
+  transform(value: string | undefined): string {
+    if (!value) return '';
+    return value.charAt(0);
+  }
+}
+
 @Component({
   selector: 'app-user-profile',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FirstLetterPipe],
   templateUrl: './user-profile.html',
   styleUrl: './user-profile.css',
 })

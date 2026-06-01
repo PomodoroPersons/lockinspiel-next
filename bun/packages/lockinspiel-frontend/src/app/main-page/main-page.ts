@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { Timer } from '../timer/timer';
 import { SetTimer } from '../set-timer/set-timer';
-import { UserProfile, UserData } from '../user-profile/user-profile';
+import { UserProfile, UserData, FirstLetterPipe } from '../user-profile/user-profile';
 import { SavedList } from '../saved-list/saved-list';
 import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
@@ -11,7 +11,7 @@ import { UserProfileService } from '../user-profile/user-profile.service';
 
 @Component({
   selector: 'app-main-page',
-  imports: [Timer, SetTimer, UserProfile, SavedList, FriendList, CommonModule, RouterModule],
+  imports: [Timer, SetTimer, UserProfile, SavedList, FriendList, CommonModule, RouterModule, FirstLetterPipe],
   templateUrl: './main-page.html',
   styleUrl: './main-page.css',
 })

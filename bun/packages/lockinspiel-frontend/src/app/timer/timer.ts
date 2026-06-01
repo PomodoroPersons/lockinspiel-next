@@ -1,7 +1,6 @@
 import { Component, OnDestroy, output, input, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TimekeeperTimeSplit } from '../../api-client';
-import { TimekeeperService } from '../services/timekeeper/timekeeper';
 
 @Component({
   selector: 'app-timer',
@@ -10,8 +9,6 @@ import { TimekeeperService } from '../services/timekeeper/timekeeper';
   styleUrl: './timer.css',
 })
 export class Timer implements OnDestroy {
-  private timekeeper = inject(TimekeeperService);
-
   timerStopped = output<void>();
 
   timers = input<TimekeeperTimeSplit['timers']>([]);
