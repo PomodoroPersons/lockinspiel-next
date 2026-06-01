@@ -1,12 +1,12 @@
 import { Component, input, output, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { UserUserProfile } from '../../api-client';
 
 export interface UserData {
-  username: string;
-  bio: string;
-  status: 'free' | 'busy' | 'dnd' | 'offline';
+  user: UserUserProfile | null;
   isOwn: boolean;
+  status: 'free' | 'busy' | 'dnd' | 'offline';
 }
 
 @Component({
@@ -27,9 +27,12 @@ export class UserProfile {
   statuses: UserData['status'][] = ['free', 'busy', 'dnd', 'offline'];
 
   ngOnInit() {
-    this.editUsername.set(this.user().username);
-    this.editBio.set(this.user().bio);
-    this.editStatus.set(this.user().status);
+    const user = this.user()
+    if (user.user) {
+      this.editUsername.set(user.user.display_name);
+      this.editBio.set(user.user.bio);
+      this.editStatus.set(user.status);
+    }
   }
 
   statusColor(status: UserData['status']): string {
@@ -51,8 +54,10 @@ export class UserProfile {
 
   apply() {
     this.applied.emit({
-      username: this.editUsername(),
-      bio: this.editBio(),
+      user: {
+        display_name: this.editUsername(),
+        bio: this.editBio(),
+      },
       status: this.editStatus(),
       isOwn: true,
     });

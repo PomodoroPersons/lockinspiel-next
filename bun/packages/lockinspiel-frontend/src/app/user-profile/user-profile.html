@@ -3,11 +3,11 @@
   <!-- ── Header row ── -->
   <div class="profile-header">
     <div class="avatar-large">
-      {{ user().username[0] }}
+      {{ user().user?.display_name }}
     </div>
     <div class="profile-info">
       @if (!user().isOwn) {
-        <div class="username">{{ user().username }}</div>
+        <div class="username">{{ user().user?.display_name }}</div>
         <div class="status-row">
           <span class="status-dot"
                 [style.background]="statusColor(user().status)">
@@ -41,7 +41,7 @@
 
   <!-- ── Bio ── -->
   @if (!user().isOwn) {
-    <p class="bio">{{ user().bio }}</p>
+    <p class="bio">{{ user().user?.bio }}</p>
   }
   @if (user().isOwn) {
     <textarea

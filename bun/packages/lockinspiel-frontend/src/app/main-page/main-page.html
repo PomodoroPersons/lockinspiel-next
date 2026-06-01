@@ -1,14 +1,18 @@
 <div class="page-wrapper">
+
   <header class="header">
     <span class="logo">Lockinspiel</span>
     @if (userProfile.userProfile()) {
-      <button class="profile-btn" (click)="openOwnProfile()">{{ userProfile.userProfile()?.display_name }}</button>
+      <button class="profile-btn" (click)="openOwnProfile()">
+        {{ userProfile.userProfile()?.display_name }}
+      </button>
     } @else {
       <button class="profile-btn" (click)="openOwnProfile()">User Profile</button>
     }
   </header>
 
   <div class="content">
+
     <div class="sidebar sidebar-left">
       <div class="sidebar-panel" [class.closed]="!savedOpen()">
         <app-saved-list />
@@ -36,6 +40,7 @@
         <app-friend-list (profileClicked)="openFriendProfile($event)" />
       </div>
     </div>
+
   </div>
 
   <footer class="footer">

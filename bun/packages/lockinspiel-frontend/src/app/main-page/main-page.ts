@@ -7,6 +7,7 @@ import { FriendList } from '../friend-list/friend-list';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TimekeeperTimeSplit } from '../../api-client';
+import { UserProfileService } from '../user-profile/user-profile.service';
 
 @Component({
   selector: 'app-main-page',
@@ -16,6 +17,7 @@ import { TimekeeperTimeSplit } from '../../api-client';
 })
 export class MainPage {
   router = inject(Router);
+  userProfile = inject(UserProfileService);
 
   friendsOpen = signal(false);
   savedOpen = signal(false);
@@ -25,10 +27,9 @@ export class MainPage {
 
   modalOpen = signal(false);
   modalUser = signal<UserData>({
-    username: 'Username',
-    bio: 'Bio',
-    status: 'offline',
+    user: this.userProfile.userProfile(),
     isOwn: true,
+    status: "free"
   });
 
   toggleFriends() {
@@ -41,10 +42,9 @@ export class MainPage {
 
   openOwnProfile() {
     this.modalUser.set({
-      username: 'Rollin',
-      bio: 'CEO of Frontend',
-      status: 'free',
+      user: this.userProfile.userProfile(),
       isOwn: true,
+      status: "free"
     });
     this.modalOpen.set(true);
   }

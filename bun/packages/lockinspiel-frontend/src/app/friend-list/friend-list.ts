@@ -32,8 +32,10 @@ export class FriendList {
 
   openProfile(friend: (typeof this.friends)[0]) {
     this.profileClicked.emit({
-      username: friend.username,
-      bio: friend.bio,
+      user: {
+        display_name: friend.username,
+        bio: friend.bio,
+      },
       status: friend.status,
       isOwn: false,
     });
