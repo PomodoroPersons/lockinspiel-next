@@ -27,6 +27,7 @@ WORKDIR /app
 # We do not need the Rust toolchain to run the binary!
 FROM runtime-base AS runtime
 COPY ./docker-entrypoint.sh /usr/local/bin
+RUN sed -i 's/\r$//' /usr/local/bin/docker-entrypoint.sh && chmod +x /usr/local/bin/docker-entrypoint.sh
 ARG SERVICE
 COPY --from=builder-rs "/app/target/release/$SERVICE" /usr/local/bin/app
 

@@ -1,7 +1,10 @@
 <div class="page-wrapper">
   <header class="header">
     <span class="logo">Lockinspiel</span>
-    <button class="profile-btn" (click)="openOwnProfile()">R</button>
+    <div>
+      <button class="profile-btn" (click)="router.navigate(['/login'])">Auth</button>
+      <button class="profile-btn" (click)="router.navigate(['/profile'])">User Profile</button>
+    </div>
   </header>
 
   <div class="content">
