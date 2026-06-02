@@ -128,7 +128,7 @@ fn handle_readable(
                         .duration_since(UNIX_EPOCH)
                         .unwrap()
                         .as_micros();
-                    match response_buffer.response_keep_alive(t1, &mut conn.socket) {
+                    match response_buffer.response(t1, &mut conn.socket) {
                         Ok(_) => {}
                         Err(ref err) if err.kind() == io::ErrorKind::WouldBlock => {}
                         Err(e) => return Err(e),

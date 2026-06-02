@@ -53,16 +53,16 @@ export type UserUserProfileChangeset = {
   display_name: string;
 };
 
-export type TimekeeperTimer = {
-  time_split: string | number;
-  work: boolean;
+export type TimekeeperInsertableTimer = {
   time_split_timer: string | number;
   start_time: Date | string | number;
   end_time: Date | string | number;
   tags: Array<string | number>;
 };
 
-export type TimekeeperInsertableTimer = {
+export type TimekeeperTimer = {
+  time_split: string | number;
+  work: boolean;
   time_split_timer: string | number;
   start_time: Date | string | number;
   end_time: Date | string | number;
@@ -115,7 +115,6 @@ export type TimekeeperTimeSplit = {
 };
 
 export type TimekeeperTimeSplitWid = {
-  id: string | number;
   timers: Array<{
     id: string | number;
     order_idx: string | number;
@@ -125,6 +124,7 @@ export type TimekeeperTimeSplitWid = {
   }>;
   name: string;
   description: string | null;
+  id: string | number;
 };
 
 export type AuthLogoutData = {

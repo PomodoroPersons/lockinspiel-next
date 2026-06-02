@@ -1,7 +1,7 @@
 import { Elysia, Static, t } from "elysia";
 
 import { jwtUse, openapiUse, otelTracer } from "lockinspiel-backend-common";
-import { TimeSplitWID, Timer, model } from "./model";
+import { model } from "./model";
 
 import "dotenv/config";
 import { BunSQLQueryResultHKT, drizzle } from "drizzle-orm/bun-sql";
@@ -26,6 +26,7 @@ import {
   sql,
 } from "drizzle-orm";
 import { PgTransaction } from "drizzle-orm/pg-core";
+import { TImport } from "@sinclair/typebox";
 
 const ANON_USER = "00000000-0000-0000-0000-000000000000";
 
@@ -114,7 +115,7 @@ const app = new Elysia()
           // to be returned
           .limit(1);
 
-        const timers: Static<typeof Timer>[] = timerRows.map((row) => {
+        const timers: Static<TImport<typeof model, "Timer">>[] = timerRows.map((row) => {
           return {
             start_time: row.start_time,
             end_time: row.end_time,
@@ -552,7 +553,7 @@ const app = new Elysia()
           )
           .orderBy(asc(timeSplitTable.id), asc(timeSplitTimerTable.order_idx));
 
-        const timeSplitMap = new Map<number, Static<typeof TimeSplitWID>>();
+        const timeSplitMap = new Map<number, Static<TImport<typeof model, "TimeSplitWID">>>();
         timeSplitRows.forEach((row) => {
           let timeSplitEntry = timeSplitMap.get(row.time_split.id);
 
@@ -576,7 +577,7 @@ const app = new Elysia()
           }
         });
 
-        const timeSplits: Static<typeof TimeSplitWID>[] = [];
+        const timeSplits: Static<TImport<typeof model, "TimeSplitWID">>[] = [];
         timeSplitMap.forEach((split) => timeSplits.push(split));
 
         return status(200, timeSplits);

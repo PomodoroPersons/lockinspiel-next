@@ -3,8 +3,7 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-const RESPONSE_CLOSE: &str = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Length: ";
-const RESPONSE_KEEP_ALIVE: &str = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Length: ";
+const HTTP_HEADER: &str = "HTTP/1.1 200 OK\r\nConnection: keep-alive\r\nContent-Length: ";
 
 pub struct ResponseBuffer {
     t1_buffer: itoa::Buffer,
@@ -26,19 +25,6 @@ impl ResponseBuffer {
     }
 
     pub fn response<W: Write>(&mut self, t1: u128, writer: &mut W) -> io::Result<()> {
-        self.response_inner(t1, writer, RESPONSE_CLOSE)
-    }
-
-    pub fn response_keep_alive<W: Write>(&mut self, t1: u128, writer: &mut W) -> io::Result<()> {
-        self.response_inner(t1, writer, RESPONSE_KEEP_ALIVE)
-    }
-
-    fn response_inner<W: Write>(
-        &mut self,
-        t1: u128,
-        writer: &mut W,
-        header: &str,
-    ) -> io::Result<()> {
         let json_header = r#"{"n2":"#;
         let json_separator = r#","n3":"#;
         let json_footer = r#"}"#;
@@ -57,7 +43,7 @@ impl ResponseBuffer {
         );
 
         let mut slices = [
-            IoSlice::new(header.as_bytes()),
+            IoSlice::new(HTTP_HEADER.as_bytes()),
             IoSlice::new(content_length.as_bytes()),
             IoSlice::new(b"\r\n\r\n"),
             IoSlice::new(json_header.as_bytes()),

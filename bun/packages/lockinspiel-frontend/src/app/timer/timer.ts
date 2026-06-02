@@ -27,11 +27,12 @@ async function getClockOffset(client: TimeSyncService, httpClient: HttpClient) {
     });
     const n4 = Date.now() * 1000;
 
+    if (error)
+      console.error(error)
+
     if (data) {
       const { n2, n3 } = data;
       results.push(((n2 - n1) + (n3 - n4)) / 2);
-    } else {
-      console.error(error)
     }
   }
   results.sort((a, b) => a - b);
@@ -128,12 +129,34 @@ export class Timer implements OnDestroy {
     if (this.timerRunning() == null) {
       const pomodoroTimeSplit = this.timers()[0];
       this.startTimeSplit(pomodoroTimeSplit);
-    } else {
-
     }
   }
 
-  stop() {}
+  async stop() {
+    const end_time = this.now();
+    const timerRunning = this.timerRunning();
+
+    if (timerRunning) {
+      const { data, error } = await this.#timerService.timekeeperModifyTimer({
+        body: {
+          start_time: timerRunning.start_time,
+          end_time,
+          tags: timerRunning.tags,
+          time_split_timer: timerRunning.time_split_timer
+        }
+      });
+
+      if (data)
+        this.timerRunning.update(timer => {
+          if(timer)
+            timer.end_time = end_time;
+          return timer
+        })
+
+      if (error)
+        console.error(error)
+    }
+  }
 
   timerType(): 'work' | 'rest' | 'unknown' {
     const timerRunning = this.timerRunning();

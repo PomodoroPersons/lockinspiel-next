@@ -7,20 +7,24 @@ export const InsertableTimer = t.Object({
   tags: t.Array(t.Integer()),
 });
 
-export const Timer = t.Object({
-  time_split: t.Integer(),
-  work: t.Boolean(),
-  ...InsertableTimer.properties,
-});
+export const Timer = t.Composite([
+  t.Object({
+    time_split: t.Integer(),
+    work: t.Boolean(),
+  }),
+  InsertableTimer
+]);
 
 export const Tag = t.Object({
   name: t.String(),
 });
 
-export const TagWID = t.Object({
-  id: t.Integer(),
-  ...Tag.properties,
-});
+export const TagWID = t.Composite([
+  t.Object({
+    id: t.Integer(),
+  }),
+  Tag,
+]);
 
 export const TimeSplitTimer = t.Object({
   len: t.Integer(),
@@ -28,35 +32,37 @@ export const TimeSplitTimer = t.Object({
   work: t.Boolean(),
 });
 
-export const TimeSplitTimerWOrder = t.Object({
-  order_idx: t.Integer(),
-  ...TimeSplitTimer.properties,
-});
+export const TimeSplitTimerWOrder = t.Composite([
+  t.Object({
+    order_idx: t.Integer(),
+  }),
+  TimeSplitTimer
+]);
 
-export const TimeSplitTimerWID = t.Object({
-  id: t.Integer(),
-  ...TimeSplitTimerWOrder.properties,
-});
+export const TimeSplitTimerWID = t.Composite([
+  t.Object({
+    id: t.Integer(),
+  }),
+  TimeSplitTimerWOrder
+]);
 
 export const TimeSplitNoTimers = t.Object({
   name: t.String(),
   description: t.Nullable(t.String()),
 });
 
-export const TimeSplit = <Type extends TSchema>(timers: Type) =>
-  t.Object({
-    timers: t.Array(timers),
-    ...TimeSplitNoTimers.properties,
-  });
-
-export const TimeSplitWID = t.Object({
-  id: t.Integer(),
-  ...TimeSplit(TimeSplitTimerWID).properties,
-});
+export const TimeSplit = <Type extends TSchema, Types extends TSchema[]>(timers: Type, ...otherTypes: Types) =>
+  t.Composite([
+    t.Object({
+      timers: t.Array(timers),
+    }),
+    TimeSplitNoTimers,
+    ...otherTypes
+  ]);
 
 export const model = {
-  Timer: Timer,
   InsertableTimer: InsertableTimer,
+  Timer: Timer,
   Tag: Tag,
   TagWID: TagWID,
   TimeSplitTimer: TimeSplitTimer,
@@ -64,5 +70,9 @@ export const model = {
   TimeSplitTimerWID: TimeSplitTimerWID,
   TimeSplitNoTimers: TimeSplitNoTimers,
   TimeSplit: TimeSplit(TimeSplitTimer),
-  TimeSplitWID: TimeSplitWID,
+  TimeSplitWID: TimeSplit(TimeSplitTimerWID, t.Object({
+    id: t.Integer(),
+  })),
 };
+
+console.dir(model, { depth: null })

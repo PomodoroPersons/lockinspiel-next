@@ -128,6 +128,77 @@ export const user_UserProfileChangesetSchema = {
   },
 } as const;
 
+export const timekeeper_InsertableTimerSchema = {
+  type: 'object',
+  required: ['time_split_timer', 'start_time', 'end_time', 'tags'],
+  properties: {
+    time_split_timer: {
+      anyOf: [
+        {
+          format: 'integer',
+          default: 0,
+          type: 'string',
+        },
+        {
+          type: 'integer',
+        },
+      ],
+    },
+    start_time: {
+      anyOf: [
+        {
+          type: 'Date',
+        },
+        {
+          format: 'date-time',
+          type: 'string',
+        },
+        {
+          format: 'date',
+          type: 'string',
+        },
+        {
+          type: 'number',
+        },
+      ],
+    },
+    end_time: {
+      anyOf: [
+        {
+          type: 'Date',
+        },
+        {
+          format: 'date-time',
+          type: 'string',
+        },
+        {
+          format: 'date',
+          type: 'string',
+        },
+        {
+          type: 'number',
+        },
+      ],
+    },
+    tags: {
+      type: 'array',
+      items: {
+        anyOf: [
+          {
+            format: 'integer',
+            default: 0,
+            type: 'string',
+          },
+          {
+            type: 'integer',
+          },
+        ],
+      },
+    },
+  },
+  $id: '#/components/schemas/InsertableTimer',
+} as const;
+
 export const timekeeper_TimerSchema = {
   type: 'object',
   required: ['time_split', 'work', 'time_split_timer', 'start_time', 'end_time', 'tags'],
@@ -212,77 +283,6 @@ export const timekeeper_TimerSchema = {
     },
   },
   $id: '#/components/schemas/Timer',
-} as const;
-
-export const timekeeper_InsertableTimerSchema = {
-  type: 'object',
-  required: ['time_split_timer', 'start_time', 'end_time', 'tags'],
-  properties: {
-    time_split_timer: {
-      anyOf: [
-        {
-          format: 'integer',
-          default: 0,
-          type: 'string',
-        },
-        {
-          type: 'integer',
-        },
-      ],
-    },
-    start_time: {
-      anyOf: [
-        {
-          type: 'Date',
-        },
-        {
-          format: 'date-time',
-          type: 'string',
-        },
-        {
-          format: 'date',
-          type: 'string',
-        },
-        {
-          type: 'number',
-        },
-      ],
-    },
-    end_time: {
-      anyOf: [
-        {
-          type: 'Date',
-        },
-        {
-          format: 'date-time',
-          type: 'string',
-        },
-        {
-          format: 'date',
-          type: 'string',
-        },
-        {
-          type: 'number',
-        },
-      ],
-    },
-    tags: {
-      type: 'array',
-      items: {
-        anyOf: [
-          {
-            format: 'integer',
-            default: 0,
-            type: 'string',
-          },
-          {
-            type: 'integer',
-          },
-        ],
-      },
-    },
-  },
-  $id: '#/components/schemas/InsertableTimer',
 } as const;
 
 export const timekeeper_TagSchema = {
@@ -507,20 +507,8 @@ export const timekeeper_TimeSplitSchema = {
 
 export const timekeeper_TimeSplitWIDSchema = {
   type: 'object',
-  required: ['id', 'timers', 'name', 'description'],
+  required: ['timers', 'name', 'description', 'id'],
   properties: {
-    id: {
-      anyOf: [
-        {
-          format: 'integer',
-          default: 0,
-          type: 'string',
-        },
-        {
-          type: 'integer',
-        },
-      ],
-    },
     timers: {
       type: 'array',
       items: {
@@ -584,6 +572,18 @@ export const timekeeper_TimeSplitWIDSchema = {
         },
         {
           type: 'null',
+        },
+      ],
+    },
+    id: {
+      anyOf: [
+        {
+          format: 'integer',
+          default: 0,
+          type: 'string',
+        },
+        {
+          type: 'integer',
         },
       ],
     },
