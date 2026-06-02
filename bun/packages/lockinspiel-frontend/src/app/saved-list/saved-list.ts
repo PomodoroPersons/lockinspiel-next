@@ -1,34 +1,49 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, Pipe, PipeTransform, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { TimekeeperTimeSplitWid, TimeSplitService } from '../../api-client';
+import { HttpClient } from '@angular/common/http';
 
 type View = 'main' | 'delete';
 
-interface SavedTimer {
-  id: number;
-  workMinutes: number;
-  restMinutes: number;
+@Pipe({
+  name: 'asInterval'
+})
+export class AsInterval implements PipeTransform {
+  transform(value: string | number): string {
+    return `${Number(value) / 60}:${(Number(value) % 60).toString().padStart(2, '0')}`;
+  }
 }
 
 @Component({
   selector: 'app-saved-list',
-  imports: [CommonModule],
+  imports: [CommonModule, AsInterval],
   templateUrl: './saved-list.html',
   styleUrl: './saved-list.css',
 })
 export class SavedList {
   view = signal<View>('main');
+  timers = signal<TimekeeperTimeSplitWid[]>([]);
 
-  timers = signal<SavedTimer[]>([
-    { id: 1, workMinutes: 25, restMinutes: 5 },
-    { id: 2, workMinutes: 50, restMinutes: 10 },
-    { id: 3, workMinutes: 90, restMinutes: 20 },
-  ]);
+  #http = inject(HttpClient);
+  #timeSplitService = inject(TimeSplitService);
 
   setView(v: View) {
     this.view.set(v);
   }
 
-  deleteTimer(id: number) {
+  deleteTimer(id: string | number) {
     this.timers.update((list) => list.filter((t) => t.id !== id));
+  }
+
+  async ngOnInit() {
+    const { data, error } = await this.#timeSplitService.timekeeperGetTimeSplits({
+      httpClient: this.#http
+    });
+
+    if (error)
+      console.error(error)
+
+    if (data)
+      this.timers.set(data)
   }
 }

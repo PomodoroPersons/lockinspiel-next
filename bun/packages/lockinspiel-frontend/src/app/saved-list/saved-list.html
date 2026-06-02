@@ -3,21 +3,22 @@
   <!-- ── Main view ── -->
   @if (view() === 'main') {
     <div class="top-bar">
-      <span class="list-title">Saved Timers</span>
-      <button class="delete-mode-btn" (click)="setView('delete')">🗑</button>
+      <span class="list-title section-label">Saved Timers</span>
+      <button class="delete-mode-btn btn-ghost" (click)="setView('delete')">🗑</button>
     </div>
-    <div class="list">
+    <div class="list list-container">
       @for (timer of timers(); track timer.id) {
-        <div class="timer-row">
-          <div class="timer-info">
-            <span class="timer-work">{{ timer.workMinutes }}m work</span>
-            <span class="timer-rest">{{ timer.restMinutes }}m rest</span>
+        @for (timer of timer.timers; track timer.id) {
+          <div class="timer-row">
+            <div class="timer-info">
+              <span class="timer-work">{{ timer.len | asInterval }}</span>
+            </div>
+            <button class="play-btn play-button">▶</button>
           </div>
-          <button class="play-btn">▶</button>
-        </div>
+        }
       }
       @if (timers().length === 0) {
-        <p class="empty">No saved timers</p>
+        <p class="empty empty-state">No saved timers</p>
       }
     </div>
   }
@@ -25,21 +26,22 @@
   <!-- ── Delete view ── -->
   @if (view() === 'delete') {
     <div class="top-bar">
-      <button class="back-btn" (click)="setView('main')">✕</button>
-      <span class="list-title">Delete Timers</span>
+      <button class="back-btn btn-back" (click)="setView('main')">✕</button>
+      <span class="list-title section-label">Delete Timers</span>
     </div>
-    <div class="list">
+    <div class="list list-container">
       @for (timer of timers(); track timer.id) {
-        <div class="timer-row">
-          <div class="timer-info">
-            <span class="timer-work">{{ timer.workMinutes }}m work</span>
-            <span class="timer-rest">{{ timer.restMinutes }}m rest</span>
+        @for (timer of timer.timers; track timer.id) {
+          <div class="timer-row">
+            <div class="timer-info">
+              <span class="timer-work">{{ timer.len | asInterval }}</span>
+            </div>
+            <button class="delete-btn" (click)="deleteTimer(timer.id)">🗑</button>
           </div>
-          <button class="delete-btn" (click)="deleteTimer(timer.id)">🗑</button>
-        </div>
+        }
       }
       @if (timers().length === 0) {
-        <p class="empty">No saved timers</p>
+        <p class="empty empty-state">No saved timers</p>
       }
     </div>
   }

@@ -1,12 +1,13 @@
 <div class="login-wrapper">
 
-  <div class="login-box">
+  <div class="login-box glass-card">
 
     <div class="login-logo">Lockinspiel</div>
 
     <div class="input-group">
-      <label>Username</label>
+      <label class="section-label">Username</label>
       <input
+        class="input-field"
         type="text"
         placeholder="Enter username"
         [value]="username()"
@@ -14,8 +15,9 @@
     </div>
 
     <div class="input-group">
-      <label>Password</label>
+      <label class="section-label">Password</label>
       <input
+        class="input-field"
         type="password"
         placeholder="Enter password"
         [value]="password()"
@@ -26,7 +28,7 @@
       <div class="error-msg">{{ error() }}</div>
     }
 
-    <button class="login-btn" (click)="login()">Enter</button>
+    <button class="login-btn btn-primary" (click)="login()">Enter</button>
 
   </div>
 

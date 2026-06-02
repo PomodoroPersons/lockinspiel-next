@@ -2,7 +2,7 @@
 
   <!-- ── Header row ── -->
   <div class="profile-header">
-    <div class="avatar-large">
+    <div class="avatar-large avatar-circle">
       {{ user().user?.display_name | firstLetter }}
     </div>
     <div class="profile-info">
@@ -17,7 +17,7 @@
       }
       @if (user().isOwn) {
         <input
-          class="edit-input"
+          class="edit-input input-field"
           type="text"
           placeholder="Username"
           [ngModel]="editUsername()"
@@ -45,14 +45,14 @@
   }
   @if (user().isOwn) {
     <textarea
-      class="edit-input bio-input"
+      class="edit-input bio-input input-field"
       placeholder="Write a bio..."
       [ngModel]="editBio()"
       (ngModelChange)="editBio.set($event)">
     </textarea>
     <div class="modal-actions">
       <button class="cancel-btn" (click)="cancel()">Cancel</button>
-      <button class="apply-btn" (click)="apply()">Apply</button>
+      <button class="apply-btn btn-primary" (click)="apply()">Apply</button>
     </div>
   }
   @if (!user().isOwn) {

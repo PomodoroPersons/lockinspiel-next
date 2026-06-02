@@ -12,13 +12,13 @@
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: #a78bfa;
+  color: var(--color-accent-purple);
   font-weight: 600;
   transition: color 0.4s ease;
 }
 
 .mode-label.rest {
-  color: #60a5fa;
+  color: var(--color-accent-blue);
 }
 
 /* ── Countdown ────────────────────────────────────────────── */
@@ -26,7 +26,7 @@
   font-size: 5rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: white;
+  color: var(--color-white);
   font-variant-numeric: tabular-nums;
 }
 
@@ -40,18 +40,18 @@
 .ctrl-btn {
   width: 3.5rem;
   height: 3.5rem;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.3);
+  background: var(--glass-bg-subtle);
+  color: var(--color-text-dim);
   font-size: 1.1rem;
   cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .ctrl-btn.active {
-  background: linear-gradient(135deg, #a78bfa, #60a5fa);
-  color: white;
+  background: var(--gradient-primary);
+  color: var(--color-white);
   border: none;
 }
 
@@ -60,13 +60,13 @@
 }
 
 .ctrl-btn.stop {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg-subtle);
+  color: var(--color-text-muted);
   border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .ctrl-btn.stop:hover {
   background: rgba(239, 68, 68, 0.3);
-  color: white;
-  border-color: rgb(239, 68, 68);
+  color: var(--color-white);
+  border-color: var(--color-error);
 }

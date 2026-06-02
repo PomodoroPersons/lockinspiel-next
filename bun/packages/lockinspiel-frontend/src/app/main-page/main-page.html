@@ -3,40 +3,38 @@
   <header class="header">
     <span class="logo">Lockinspiel</span>
     @if (userProfile.userProfile()) {
-      <button class="profile-btn" (click)="openOwnProfile()">
+      <button class="profile-btn avatar-circle" (click)="openOwnProfile()">
         {{ userProfile.userProfile()?.display_name | firstLetter }}
       </button>
     } @else {
-      <button class="profile-btn" (click)="openOwnProfile()">User Profile</button>
+      <button class="profile-btn avatar-circle" (click)="openOwnProfile()">User Profile</button>
     }
   </header>
 
   <div class="content">
 
     <div class="sidebar sidebar-left">
-      <div class="sidebar-panel" [class.closed]="!savedOpen()">
+      <div class="sidebar-panel glass-card" [class.closed]="!savedOpen()">
         <app-saved-list />
       </div>
       <button class="sidebar-tab tab-right" (click)="toggleSaved()">Saved</button>
     </div>
 
     <main class="center">
-      <div class="center-box">
+      <div class="center-box glass-card">
         @if (timerRunning()) {
-          <app-timer
-            [timers]="timeSplit()?.timers ?? []"
-            [timerRunning]="timerRunning()"
-            (timerStopped)="onTimerStopped()"
-          />
+          <app-timer [timers]="timeSplit()?.timers ?? []" [timerRunning]="timerRunning()"
+            (timerStopped)="onTimerStopped()" />
         } @else {
-          <app-set-timer (timerStarted)="onTimerStarted($event)" />
+          <app-saved-list />
+          <!-- <app-set-timer (timerStarted)="onTimerStarted($event)" /> -->
         }
       </div>
     </main>
 
     <div class="sidebar sidebar-right">
       <button class="sidebar-tab tab-left" (click)="toggleFriends()">Friends</button>
-      <div class="sidebar-panel" [class.closed]="!friendsOpen()">
+      <div class="sidebar-panel glass-card" [class.closed]="!friendsOpen()">
         <app-friend-list (profileClicked)="openFriendProfile($event)" />
       </div>
     </div>
@@ -44,12 +42,12 @@
   </div>
 
   <footer class="footer">
-    <button class="settings-btn">⚙ Settings</button>
+    <button class="settings-btn btn-ghost">⚙ Settings</button>
   </footer>
 
   @if (modalOpen()) {
     <div class="modal-overlay" (click)="closeModal()">
-      <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal glass-card" (click)="$event.stopPropagation()">
         <app-user-profile [user]="modalUser()" (closed)="closeModal()" />
       </div>
     </div>

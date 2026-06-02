@@ -1,33 +1,33 @@
 <div class="set-timer">
   <form class="times" [formGroup]="timeSplitGroup" (ngSubmit)="startTimer()">
     <div class="time-input-group">
-      <h3>Name</h3>
-      <input type="text" [formControl]="timeSplitGroup.controls.name" />
+      <h3 class="section-label">Name</h3>
+      <input class="input-field" type="text" [formControl]="timeSplitGroup.controls.name" />
     </div>
     <div class="time-input-group">
-      <h3>Description</h3>
-      <input type="text" [formControl]="timeSplitGroup.controls.description" />
+      <h3 class="section-label">Description</h3>
+      <input class="input-field" type="text" [formControl]="timeSplitGroup.controls.description" />
     </div>
     <div class="time-input-group">
-      <h3>Work Time (min)</h3>
-      <input type="number" [formControl]="timeSplitGroup.controls.workTime" />
+      <h3 class="section-label">Work Time (min)</h3>
+      <input class="input-field" type="number" [formControl]="timeSplitGroup.controls.workTime" />
     </div>
     <div class="time-input-group">
-      <h3>Rest Time (min)</h3>
-      <input type="number" [formControl]="timeSplitGroup.controls.restTime" />
+      <h3 class="section-label">Rest Time (min)</h3>
+      <input class="input-field" type="number" [formControl]="timeSplitGroup.controls.restTime" />
     </div>
   </form>
 
   <div class="actions">
-    <button class="play-btn" (click)="startTimer()">▶</button>
+    <button class="play-btn play-button" (click)="startTimer()">▶</button>
     <button class="friends-btn" [class.active]="friendsPanelOpen()" (click)="toggleFriendsPanel()">
       👤
     </button>
   </div>
 
-  <div class="friends-panel" [class.open]="friendsPanelOpen()">
+  <div class="friends-panel glass-card" [class.open]="friendsPanelOpen()">
     <div class="friends-panel-inner">
-      <p class="friends-title">Friends</p>
+      <p class="friends-title section-label">Friends</p>
       <div class="friend-row">
         <span>Isaac Mills</span>
         <button class="add-btn">+</button>

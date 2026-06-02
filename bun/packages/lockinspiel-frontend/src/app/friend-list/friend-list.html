@@ -6,10 +6,10 @@
       <button class="top-btn" (click)="setView('add')">+ Add</button>
       <button class="top-btn" (click)="setView('mail')">✉ Mail</button>
     </div>
-    <div class="list">
+    <div class="list list-container">
       @for (friend of friends; track friend.id) {
         <div class="friend-row">
-          <div class="avatar" (click)="openProfile(friend)">
+          <div class="avatar avatar-circle" (click)="openProfile(friend)">
             {{ friend.username[0] }}
           </div>
           <span class="username clickable" (click)="openProfile(friend)">
@@ -24,28 +24,28 @@
   <!-- ── Add Friend view ── -->
   @if (view() === 'add') {
     <div class="top-bar">
-      <button class="back-btn" (click)="setView('main')">✕</button>
-      <span class="view-title">Add Friend</span>
+      <button class="back-btn btn-back" (click)="setView('main')">✕</button>
+      <span class="view-title section-label">Add Friend</span>
     </div>
     <div class="add-form">
       <input
-        class="username-input"
+        class="username-input input-field"
         type="text"
         placeholder="Enter username..." />
-      <button class="enter-btn" (click)="setView('main')">Enter</button>
+      <button class="enter-btn btn-primary" (click)="setView('main')">Enter</button>
     </div>
   }
 
   <!-- ── Mail view ── -->
   @if (view() === 'mail') {
     <div class="top-bar">
-      <button class="back-btn" (click)="setView('main')">✕</button>
-      <span class="view-title">Invites</span>
+      <button class="back-btn btn-back" (click)="setView('main')">✕</button>
+      <span class="view-title section-label">Invites</span>
     </div>
-    <div class="list">
+    <div class="list list-container">
       @for (invite of invites; track invite.id) {
         <div class="invite-row">
-          <div class="avatar">{{ invite.username[0] }}</div>
+          <div class="avatar avatar-circle">{{ invite.username[0] }}</div>
           <span class="username">{{ invite.username }}</span>
           <div class="invite-btns">
             <button class="accept-btn">✓</button>
@@ -54,7 +54,7 @@
         </div>
       }
       @if (invites.length === 0) {
-        <p class="empty">No pending invites</p>
+        <p class="empty empty-state">No pending invites</p>
       }
     </div>
   }

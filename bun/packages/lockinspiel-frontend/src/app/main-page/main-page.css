@@ -1,17 +1,11 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
 /* ── Page wrapper ─────────────────────────────────────────── */
 .page-wrapper {
   display: flex;
   flex-direction: column;
   height: 100dvh;
   width: 100%;
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  color: white;
+  background: var(--gradient-page-bg);
+  color: var(--color-white);
   font-family: 'Inter', sans-serif;
   overflow: hidden;
   box-sizing: border-box;
@@ -23,15 +17,15 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem 2rem;
-  backdrop-filter: blur(10px);
-  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: var(--glass-blur);
+  background: var(--glass-bg-subtle);
 }
 
 .logo {
   font-size: 1.5rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  background: linear-gradient(90deg, #a78bfa, #60a5fa);
+  background: linear-gradient(90deg, var(--color-accent-purple), var(--color-accent-blue));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -39,14 +33,14 @@
 .profile-btn {
   width: 2.5rem;
   height: 2.5rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #a78bfa, #60a5fa);
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
   border: none;
-  color: white;
+  color: var(--color-white);
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
 }
 
 .profile-btn:hover {
@@ -74,9 +68,6 @@
 .center-box {
   width: 680px;
   min-height: 520px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-radius: 1.5rem;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -100,19 +91,17 @@
 .sidebar-panel {
   width: 260px;
   height: 80%;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
   padding: 1rem;
   overflow-y: auto;
   transition: width 0.3s ease, opacity 0.3s ease, padding 0.3s ease;
 }
 
 .sidebar-left .sidebar-panel {
-  border-radius: 0 1.5rem 1.5rem 0;
+  border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
 }
 
 .sidebar-right .sidebar-panel {
-  border-radius: 1.5rem 0 0 1.5rem;
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
 }
 
 .sidebar-panel.closed {
@@ -135,23 +124,23 @@
   cursor: pointer;
   font-size: 0.75rem;
   letter-spacing: 0.08em;
-  transition: background 0.2s ease, color 0.2s ease;
+  transition: background var(--transition-fast), color var(--transition-fast);
   z-index: 10;
 }
 
 .tab-right {
   right: -1.85rem;
-  border-radius: 0 0.5rem 0.5rem 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
 }
 
 .tab-left {
   left: -1.9rem;
-  border-radius: 0.5rem 0 0 0.5rem;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
 }
 
 .sidebar-tab:hover {
   background: rgba(255, 255, 255, 0.18);
-  color: white;
+  color: var(--color-white);
 }
 
 /* ── Footer ───────────────────────────────────────────────── */
@@ -160,23 +149,19 @@
   justify-content: flex-end;
   align-items: center;
   padding: 0.75rem 1.5rem;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--glass-bg-subtle);
 }
 
 .settings-btn {
-  background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  border: none;
-  cursor: pointer;
+  color: var(--color-text-muted);
   font-size: 0.875rem;
   letter-spacing: 0.05em;
-  transition: color 0.2s ease;
   padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
 }
 
 .settings-btn:hover {
-  color: white;
+  color: var(--color-white);
   background: rgba(255, 255, 255, 0.08);
 }
 
@@ -193,10 +178,8 @@
 }
 
 .modal {
-  background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(30px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 1.5rem;
   padding: 2.5rem;
   width: 480px;
   max-width: 90vw;
