@@ -39,23 +39,32 @@ impl ResponseBuffer {
         writer: &mut W,
         header: &str,
     ) -> io::Result<()> {
+        let json_header = r#"{"n2":"#;
+        let json_separator = r#","n3":"#;
+        let json_footer = r#"}"#;
         let t1_str = self.t1_buffer.format(t1);
         let t2 = SystemTime::now()
             .duration_since(UNIX_EPOCH)
             .unwrap()
             .as_micros();
         let t2_str = self.t2_buffer.format(t2);
-        let content_length = self
-            .content_length_buffer
-            .format(t1_str.len() + t2_str.len() + 1);
+        let content_length = self.content_length_buffer.format(
+            json_header.len()
+                + t1_str.len()
+                + json_separator.len()
+                + t2_str.len()
+                + json_footer.len(),
+        );
 
         let mut slices = [
             IoSlice::new(header.as_bytes()),
             IoSlice::new(content_length.as_bytes()),
             IoSlice::new(b"\r\n\r\n"),
+            IoSlice::new(json_header.as_bytes()),
             IoSlice::new(t1_str.as_bytes()),
-            IoSlice::new(b"\n"),
+            IoSlice::new(json_separator.as_bytes()),
             IoSlice::new(t2_str.as_bytes()),
+            IoSlice::new(json_footer.as_bytes()),
         ];
         let mut slices = slices.as_mut_slice();
         // From https://doc.rust-lang.org/src/std/io/mod.rs.html#1937-1952

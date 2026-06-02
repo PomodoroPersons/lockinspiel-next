@@ -59,6 +59,8 @@ import type {
   TimekeeperPostTimeSplitTimerData,
   TimekeeperPostTimeSplitTimerErrors,
   TimekeeperPostTimeSplitTimerResponses,
+  TimesyncGetN2N3Data,
+  TimesyncGetN2N3Responses,
   UserCreateProfileData,
   UserCreateProfileErrors,
   UserCreateProfileResponses,
@@ -184,6 +186,23 @@ export class UserService {
         'Content-Type': 'application/json',
         ...options.headers,
       },
+    });
+  }
+}
+
+@Injectable({ providedIn: 'root' })
+export class TimeSyncService {
+  /**
+   * Get N2 and N3
+   *
+   * To sync your clock and the server's clock, take timestamp N1, make the request to this endpoint, then take N4. Then do an NTP style calculation to find your clock's offset from the server's clock.
+   */
+  public timesyncGetN2N3<ThrowOnError extends boolean = false>(
+    options?: Options<TimesyncGetN2N3Data, ThrowOnError>,
+  ) {
+    return (options?.client ?? client).get<TimesyncGetN2N3Responses, unknown, ThrowOnError>({
+      url: '/timesync',
+      ...options,
     });
   }
 }

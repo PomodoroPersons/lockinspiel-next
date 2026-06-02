@@ -121,7 +121,7 @@ const app = new Elysia()
             time_split_timer: row.time_split_timer,
             time_split: row.time_split!,
             work: row.work!,
-            tags: row.tags,
+            tags: Array.isArray(row.tags) ? row.tags : [],
           };
         });
         return status(200, timers);
@@ -191,6 +191,7 @@ const app = new Elysia()
 
         return status(201, {
           ...inserted[0],
+          tags: Array.isArray(inserted[0].tags) ? inserted[0].tags : [],
           work: timeSplitTimer[0].work,
           time_split: timeSplitTimer[0].time_split,
         });
@@ -261,6 +262,7 @@ const app = new Elysia()
 
         return status(200, {
           ...updated[0],
+          tags: Array.isArray(updated[0].tags) ? updated[0].tags : [],
           work: timeSplitTimer[0].work,
           time_split: timeSplitTimer[0].time_split,
         });

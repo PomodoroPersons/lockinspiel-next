@@ -57,15 +57,15 @@ export type TimekeeperTimer = {
   time_split: string | number;
   work: boolean;
   time_split_timer: string | number;
-  start_time: unknown | string | string | number;
-  end_time: unknown | string | string | number;
+  start_time: Date | string | number;
+  end_time: Date | string | number;
   tags: Array<string | number>;
 };
 
 export type TimekeeperInsertableTimer = {
   time_split_timer: string | number;
-  start_time: unknown | string | string | number;
-  end_time: unknown | string | string | number;
+  start_time: Date | string | number;
+  end_time: Date | string | number;
   tags: Array<string | number>;
 };
 
@@ -240,6 +240,25 @@ export type AuthSignupResponses = {
 };
 
 export type AuthSignupResponse = AuthSignupResponses[keyof AuthSignupResponses];
+
+export type TimesyncGetN2N3Data = {
+  body?: never;
+  path?: never;
+  query?: never;
+  url: '/timesync';
+};
+
+export type TimesyncGetN2N3Responses = {
+  /**
+   * successful operation
+   */
+  200: {
+    n2: number;
+    n3: number;
+  };
+};
+
+export type TimesyncGetN2N3Response = TimesyncGetN2N3Responses[keyof TimesyncGetN2N3Responses];
 
 export type UserGetProfileData = {
   body?: never;

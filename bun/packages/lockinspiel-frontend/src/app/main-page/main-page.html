@@ -22,13 +22,12 @@
 
     <main class="center">
       <div class="center-box glass-card">
-        @if (timerRunning()) {
-          <app-timer [timers]="timeSplit()?.timers ?? []" [timerRunning]="timerRunning()"
-            (timerStopped)="onTimerStopped()" />
-        } @else {
-          <app-saved-list />
+        <!-- @if (timerRunning()) { -->
+          <app-timer />
+        <!-- } @else { -->
+          <!-- <app-saved-list /> -->
           <!-- <app-set-timer (timerStarted)="onTimerStarted($event)" /> -->
-        }
+        <!-- } -->
       </div>
     </main>
 

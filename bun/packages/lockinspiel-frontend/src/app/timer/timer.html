@@ -12,11 +12,13 @@
   <div class="controls">
     <button class="ctrl-btn" [class.active]="timerRunning() == null" (click)="toggleTimerState()">
       @if (timerPaused()) {
-        ▶
+        <ng-icon name="phosphorPlayFill" />
       } @else {
-        ⏸
+        <ng-icon name="phosphorPauseFill" />
       }
     </button>
-    <button class="ctrl-btn stop" (click)="stop()">⏹</button>
+    <button class="ctrl-btn stop" (click)="stop()">
+      <ng-icon name="phosphorStopFill" />
+    </button>
   </div>
 </div>

@@ -8,6 +8,7 @@ export {
   TagService,
   TimerService,
   TimeSplitService,
+  TimeSyncService,
   UserService,
 } from './sdk.gen';
 export type {
@@ -114,6 +115,9 @@ export type {
   TimekeeperTimeSplitTimerWid,
   TimekeeperTimeSplitTimerWOrder,
   TimekeeperTimeSplitWid,
+  TimesyncGetN2N3Data,
+  TimesyncGetN2N3Response,
+  TimesyncGetN2N3Responses,
   UserCreateProfileData,
   UserCreateProfileError,
   UserCreateProfileErrors,

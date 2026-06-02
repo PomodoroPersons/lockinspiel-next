@@ -38,6 +38,8 @@
         "@angular/platform-server": "^21.2.12",
         "@angular/router": "^21.2.12",
         "@angular/ssr": "^21.2.10",
+        "@ng-icons/core": "^33.2.3",
+        "@ng-icons/phosphor-icons": "^33.2.3",
         "hono": "^4.12.18",
         "rxjs": "~7.8.2",
         "tslib": "^2.8.1",
@@ -408,6 +410,10 @@
     "@napi-rs/nice-win32-x64-msvc": ["@napi-rs/nice-win32-x64-msvc@1.1.1", "", { "os": "win32", "cpu": "x64" }, "sha512-vB+4G/jBQCAh0jelMTY3+kgFy00Hlx2f2/1zjMoH821IbplbWZOkLiTYXQkygNTzQJTq5cvwBDgn2ppHD+bglQ=="],
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.4", "", { "dependencies": { "@tybys/wasm-util": "^0.10.1" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-3NQNNgA1YSlJb/kMH1ildASP9HW7/7kYnRI2szWJaofaS1hWmbGI4H+d3+22aGzXXN9IJ+n+GiFVcGipJP18ow=="],
+
+    "@ng-icons/core": ["@ng-icons/core@33.2.3", "", { "dependencies": { "tslib": "^2.3.0" }, "peerDependencies": { "@angular-devkit/schematics": ">=21.0.0", "@angular/common": ">=21.0.0", "@angular/core": ">=21.0.0", "@schematics/angular": ">=21.0.0", "rxjs": "^6.5.3 || ^7.4.0" } }, "sha512-W7QesmRRlLbjsJfb0DRzyZPxdXjo/m4drCk48vysir1KRDNhfN+6f43T5GW1y3vAmrOIF7kuXzad6Vr1c0LqHA=="],
+
+    "@ng-icons/phosphor-icons": ["@ng-icons/phosphor-icons@33.2.3", "", { "dependencies": { "tslib": "^2.3.0" } }, "sha512-kbY03s3APcCLnyHUWmS7ipkYaj3FQxDfr2k+dvbLjSr8cjMvg8GYLUjfH1rCRWM8Y+RjBRt5i6AFL3wRXpOtCg=="],
 
     "@npmcli/agent": ["@npmcli/agent@4.0.0", "", { "dependencies": { "agent-base": "^7.1.0", "http-proxy-agent": "^7.0.0", "https-proxy-agent": "^7.0.1", "lru-cache": "^11.2.1", "socks-proxy-agent": "^8.0.3" } }, "sha512-kAQTcEN9E8ERLVg5AsGwLNoFb+oEG6engbqAU2P43gD4JEIkNGMHdVQ096FsOAAYpZPB0RSt0zgInKIAS1l5QA=="],
 

@@ -5,11 +5,8 @@ import {
   boolean,
   interval,
   uuid,
-  unique,
   timestamp,
   pgSchema,
-  jsonb,
-  bigint,
 } from "drizzle-orm/pg-core";
 
 export const timekeeperSchema = pgSchema("timekeeper");

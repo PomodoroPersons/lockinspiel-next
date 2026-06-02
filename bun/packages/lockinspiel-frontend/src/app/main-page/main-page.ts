@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ViewChild } from '@angular/core';
 import { Timer } from '../timer/timer';
 import { SetTimer } from '../set-timer/set-timer';
 import { UserProfile, UserData, FirstLetterPipe } from '../user-profile/user-profile';
@@ -19,11 +19,10 @@ export class MainPage {
   router = inject(Router);
   userProfile = inject(UserProfileService);
 
+  @ViewChild(Timer) timerComponent!: Timer;
+
   friendsOpen = signal(false);
   savedOpen = signal(false);
-
-  timerRunning = signal<number | null>(0);
-  timeSplit = signal<TimekeeperTimeSplit | null>(null);
 
   modalOpen = signal(false);
   modalUser = signal<UserData>({
@@ -59,8 +58,4 @@ export class MainPage {
   }
 
   onTimerStarted(config: TimekeeperTimeSplit) {}
-
-  onTimerStopped() {
-    this.timerRunning.set(null);
-  }
 }

@@ -36,14 +36,14 @@ export class SavedList {
   }
 
   async ngOnInit() {
-    const { data, error } = await this.#timeSplitService.timekeeperGetTimeSplits({
-      httpClient: this.#http
-    });
+    // const { data, error } = await this.#timeSplitService.timekeeperGetTimeSplits({
+    //   httpClient: this.#http
+    // });
 
-    if (error)
-      console.error(error)
+    // if (error)
+    //   console.error(error)
 
-    if (data)
-      this.timers.set(data)
+    // if (data)
+    //   this.timers.set(data)
   }
 }
