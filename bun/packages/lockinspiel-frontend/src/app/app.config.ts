@@ -15,6 +15,7 @@ import { UserProfileService } from './user-profile/user-profile.service';
 import { isPlatformBrowser } from '@angular/common';
 import { HttpClient, provideHttpClient, withFetch } from '@angular/common/http';
 import { SessionService } from '../api-client';
+import { Auth, AuthToken } from '../api-client/core/auth.gen';
 
 client.setConfig({
   baseUrl:
@@ -24,6 +25,38 @@ client.setConfig({
         ? Bun.env['BASE_URL']
         : 'https://lockinspiel.live',
 });
+
+function extractPayload(payload: string): any {
+  return JSON.parse(atob(payload.split('.')[1]))
+}
+
+export const authFn = (httpClient: HttpClient, sessionService: SessionService, accessToken: string) => {
+  let jwtToken = extractPayload(accessToken);
+
+  return async (auth: Auth): Promise<AuthToken> => {
+    if (auth.type === "http" && auth.scheme === "bearer") {
+      const now = Date.now() / 1000;
+
+      if (now > jwtToken.exp) {
+        let { data: newAccessToken } = await sessionService.authNewSession({
+          httpClient,
+          body: {
+            refresh_token: {},
+          },
+        });
+
+        if (newAccessToken) {
+          accessToken = newAccessToken.access_token;
+          jwtToken = extractPayload(newAccessToken.access_token)
+        }
+      }
+
+      return accessToken
+    } else {
+      return undefined;
+    }
+  };
+};
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -45,9 +78,10 @@ export const appConfig: ApplicationConfig = {
           },
         });
 
-        client.setConfig({
-          auth: accessToken?.access_token,
-        });
+        if (accessToken)
+          client.setConfig({
+            auth: authFn(httpClient, sessionService, accessToken.access_token),
+          });
       }
       await userProfileService.initialize(httpClient);
     }),

@@ -5,6 +5,7 @@ import { client } from '../../api-client/client.gen';
 import { HttpClient } from '@angular/common/http';
 import { SessionService } from '../../api-client';
 import { UserProfileService } from '../user-profile/user-profile.service';
+import { authFn } from '../app.config';
 
 @Component({
   selector: 'app-login',
@@ -64,9 +65,10 @@ export class Login {
       return;
     }
 
-    client.setConfig({
-      auth: data?.access_token,
-    });
+    if (data)
+      client.setConfig({
+        auth: authFn(this.#http, this.#sessionService, data.access_token),
+      });
 
     await this.#userProfileService.initialize(this.#http);
 
