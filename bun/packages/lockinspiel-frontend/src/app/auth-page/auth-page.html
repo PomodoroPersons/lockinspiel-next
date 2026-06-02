@@ -1,0 +1,52 @@
+<main class="auth-page">
+  <section class="auth-card">
+    <h1>Auth Service Testing</h1>
+    <p class="hint">Use this page to test account creation, login, refresh, and logout against your running auth container.</p>
+
+    <div class="status-row">
+      <strong>Status:</strong>
+      <span [class.ok]="auth.isAuthenticated()" [class.bad]="!auth.isAuthenticated()">
+        {{ auth.status() }}
+      </span>
+    </div>
+
+    <label>
+      Username
+      <input
+        type="text"
+        [ngModel]="username()"
+        (ngModelChange)="username.set($event)"
+        [disabled]="busy()"
+        autocomplete="username"
+      />
+    </label>
+
+    <label>
+      Password
+      <input
+        type="password"
+        [ngModel]="password()"
+        (ngModelChange)="password.set($event)"
+        [disabled]="busy()"
+        autocomplete="current-password"
+      />
+    </label>
+
+    <div class="buttons">
+      <button (click)="login()" [disabled]="busy() || !username().trim() || !password()">Login</button>
+      <button (click)="signup()" [disabled]="busy() || !username().trim() || !password()">Sign Up</button>
+      <button (click)="refreshSession()" [disabled]="busy()">Refresh Session</button>
+      <button (click)="logout()" [disabled]="busy()">Logout</button>
+    </div>
+
+    @if (message()) {
+      <p class="message">{{ message() }}</p>
+    }
+
+    @if (auth.lastError()) {
+      <p class="error">{{ auth.lastError() }}</p>
+    }
+
+    <a routerLink="/">Back to timer</a>
+  </section>
+</main>

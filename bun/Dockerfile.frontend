@@ -4,6 +4,8 @@ WORKDIR /app
 
 FROM base AS build
 
+ENV NODE_ENV=development
+
 # Cache packages installation
 COPY package.json package.json
 COPY ./packages/lockinspiel-backend-common/package.json ./packages/lockinspiel-backend-common/package.json
@@ -16,11 +18,11 @@ COPY ./packages/lockinspiel-frontend ./packages/lockinspiel-frontend
 COPY ./packages/lockinspiel-backend-common/src ./packages/lockinspiel-backend-common/src
 COPY ./packages/lockinspiel-backend-common/tsconfig.json ./packages/lockinspiel-backend-common/tsconfig.json
 
-ENV NODE_ENV=production
 WORKDIR /app/packages/lockinspiel-frontend
 
+RUN bun install
 RUN apk add nodejs
-RUN bunx ng build
+RUN bunx @angular/cli build
 
 FROM base AS runner
 
