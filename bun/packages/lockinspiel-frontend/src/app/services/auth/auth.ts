@@ -22,7 +22,7 @@ export class AuthService {
   private sessionService = inject(SessionService);
   private userService = inject(UserService);
 
-  public authSession?: AuthLoginToken = undefined;
+  private static _authSession?: AuthLoginToken = undefined;
 
   // Account or User endpoints
   public async createAccount(body: AuthInsertableDatabaseUser) {
@@ -37,7 +37,9 @@ export class AuthService {
     'fields'
   > {
     if (!this.authSession) return { data: undefined, error: 'unauthorized' };
-    const result = await this.userService.authDeleteUser({ auth: this.authSession.access_token });
+    const result = await this.userService.authDeleteUser({
+      auth: this.authSession.access_token,
+    });
     this.authSession = undefined;
     return result;
   }
@@ -45,11 +47,16 @@ export class AuthService {
   // Session endpoints
   public async createSession(
     body: AuthLogin,
-    auth: AuthLoginToken,
   ): RequestResult<AuthNewSessionResponses, AuthNewSessionErrors, false, 'fields'> {
-    if (!this.authSession) return { data: undefined, error: 'unauthorized' };
-    this.authSession.access_token = auth.access_token;
-    return await this.sessionService.authNewSession({ body, auth: auth.access_token });
+    const newSession = await this.sessionService.authNewSession({ body });
+
+    if (newSession.error) {
+      console.error('could not create a new session', newSession.error);
+      return newSession;
+    }
+
+    this.authSession = newSession.data;
+    return newSession;
   }
 
   public async logoutAccount(): RequestResult<
@@ -59,9 +66,19 @@ export class AuthService {
     'fields'
   > {
     if (!this.authSession) return { data: undefined, error: 'unauthorized' };
-    const result = await this.sessionService.authLogout({ auth: this.authSession.access_token });
+    const result = await this.sessionService.authLogout({
+      auth: this.authSession.access_token,
+    });
     this.authSession = undefined;
     return result;
+  }
+
+  public get authSession() {
+    return AuthService._authSession;
+  }
+
+  private set authSession(session: AuthLoginToken | undefined) {
+    AuthService._authSession = session;
   }
 
   public canActivate(): boolean {

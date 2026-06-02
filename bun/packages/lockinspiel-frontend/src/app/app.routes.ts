@@ -2,8 +2,7 @@ import { Routes } from '@angular/router';
 import { MainPage } from './main-page/main-page';
 import { Login } from './login/login';
 import { canActivate } from './services/auth/auth';
-import { AuthPage } from './auth-page/auth-page';
-import { Setting } from './setting/setting';
+// import { AuthPage } from './auth-page/auth-page';
 
 export const routes: Routes = [
   {
@@ -17,14 +16,9 @@ export const routes: Routes = [
     pathMatch: 'full',
     canActivate: [canActivate],
   },
-  {
-    component: Setting,
-    path: 'settings',
-    pathMatch: 'full',
-  },
-  {
-    component: AuthPage,
-    path: 'login',
-    pathMatch: 'full',
-  },
+  // {
+  //   component: AuthPage,
+  //   path: 'login',
+  //   pathMatch: 'full',
+  // },
 ];

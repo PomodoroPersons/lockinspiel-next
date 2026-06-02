@@ -1,7 +1,5 @@
 <div class="login-wrapper">
-
-  <div class="login-box">
-
+  <form class="login-box" [formGroup]="loginGroup">
     <div class="login-logo">Lockinspiel</div>
 
     <div class="input-group">
@@ -9,8 +7,8 @@
       <input
         type="text"
         placeholder="Enter username"
-        [value]="username()"
-        (input)="updateUsername($event)" />
+        [formControl]="loginGroup.controls.username"
+      />
     </div>
 
     <div class="input-group">
@@ -18,16 +16,17 @@
       <input
         type="password"
         placeholder="Enter password"
-        [value]="password()"
-        (input)="updatePassword($event)" />
+        [formControl]="loginGroup.controls.password"
+      />
     </div>
 
-    @if (error()) {
+    @if (error() !== null) {
       <div class="error-msg">{{ error() }}</div>
     }
 
-    <button class="login-btn" (click)="login()">Enter</button>
-
-  </div>
-
+    <div class="login-btn-flex">
+      <button class="login-btn" (click)="login()">Enter</button>
+      <button class="login-btn" (click)="signUp()">Sign-Up</button>
+    </div>
+  </form>
 </div>
