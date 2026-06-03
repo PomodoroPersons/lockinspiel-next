@@ -4,7 +4,13 @@
     <span class="logo">Lockinspiel</span>
     @if (userProfile.userProfile()) {
       <button class="profile-btn avatar-circle" (click)="openOwnProfile()">
-        {{ userProfile.userProfile()?.display_name | firstLetter }}
+        @if (userProfile.userProfile()?.avatar_location) {
+          <img class="profile-btn avatar-circle" src="{{ userProfile.userProfile()?.avatar_location }}" />
+        } @else {
+          <div class="profile-btn avatar-circle">
+            {{ userProfile.userProfile()?.display_name | firstLetter }}
+          </div>
+        }
       </button>
     } @else {
       <button class="profile-btn avatar-circle" (click)="openOwnProfile()"></button>

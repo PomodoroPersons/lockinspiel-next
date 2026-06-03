@@ -195,7 +195,7 @@ export class Timer implements OnDestroy {
     if (timerError)
       console.error(timerError);
 
-    if (timerData && getTime(timerData[0].end_time) > this.now())
+    if (timerData && timerData[0] && getTime(timerData[0].end_time) > this.now())
       this.timerRunning.set(timerData[0])
   }
 

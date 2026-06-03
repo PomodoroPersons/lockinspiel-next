@@ -2,9 +2,13 @@
 
   <!-- ── Header row ── -->
   <div class="profile-header">
-    <div class="avatar-large avatar-circle">
-      {{ user().user?.display_name | firstLetter }}
-    </div>
+    @if (user().user?.avatar_location) {
+      <img class="avatar-large avatar-circle" src="{{ user().user?.avatar_location }}" />
+    } @else {
+      <div class="avatar-large avatar-circle">
+        {{ user().user?.display_name | firstLetter }}
+      </div>
+    }
     <div class="profile-info">
       @if (!user().isOwn) {
         <div class="username">{{ user().user?.display_name }}</div>

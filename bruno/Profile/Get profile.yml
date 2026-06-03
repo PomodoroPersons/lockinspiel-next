@@ -36,7 +36,8 @@ examples:
           {
             "avatar_location": "/user/profile",
             "bio": "I wonder how Alice and Bob are doing",
-            "display_name": "John Doe"
+            "display_name": "John Doe",
+            "user_id": "00000000-0000-0000-0000-000000000000"
           }
   - name: 4XX Response
     description: It's your fault

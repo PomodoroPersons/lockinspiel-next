@@ -8,6 +8,15 @@ info:
 http:
   method: GET
   url: "{{baseUrl}}/timekeeper/timer"
+  params:
+    - name: user_id
+      value: ""
+      type: query
+      disabled: true
+    - name: timer_start_time
+      value: ""
+      type: query
+      disabled: true
   auth:
     type: bearer
     token: "{{token}}"
@@ -24,6 +33,15 @@ examples:
     request:
       url: "{{baseUrl}}/timekeeper/timer"
       method: GET
+      params:
+        - name: user_id
+          value: ""
+          type: query
+          disabled: true
+        - name: timer_start_time
+          value: ""
+          type: query
+          disabled: true
     response:
       status: 200
       statusText: OK
@@ -48,6 +66,15 @@ examples:
     request:
       url: "{{baseUrl}}/timekeeper/timer"
       method: GET
+      params:
+        - name: user_id
+          value: ""
+          type: query
+          disabled: true
+        - name: timer_start_time
+          value: ""
+          type: query
+          disabled: true
     response:
       status: 401
       statusText: Unauthorized
@@ -62,6 +89,15 @@ examples:
     request:
       url: "{{baseUrl}}/timekeeper/timer"
       method: GET
+      params:
+        - name: user_id
+          value: ""
+          type: query
+          disabled: true
+        - name: timer_start_time
+          value: ""
+          type: query
+          disabled: true
     response:
       status: 404
       statusText: Not Found
