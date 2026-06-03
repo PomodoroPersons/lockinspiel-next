@@ -24,6 +24,7 @@ use crate::url_resolver::{UrlLocation, UrlOrigin, UrlResolver};
 #[diesel(table_name = profiles)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct DbUserProfile {
+    user_id: Uuid,
     display_name: String,
     bio: String,
     avatar_location: Option<sql_types::Json<UrlLocation<'static>>>
@@ -31,6 +32,7 @@ pub struct DbUserProfile {
 
 #[derive(Deserialize, Serialize, ToSchema, Debug)]
 pub struct UserProfile {
+    user_id: Uuid,
     display_name: String,
     bio: String,
     avatar_location: Option<String>
@@ -39,6 +41,7 @@ pub struct UserProfile {
 impl Placeholder for UserProfile {
     fn placeholder() -> Self {
         Self {
+            user_id: Uuid::nil(),
             display_name: "John Doe".to_owned(),
             bio: "I wonder how Alice and Bob are doing".to_owned(),
             avatar_location: Some(String::from("/user/profile"))
@@ -53,6 +56,7 @@ impl DbUserProfile {
             avatar_location = Some(resolver.resolve_get_url(location.0).await);
         }
         UserProfile{
+            user_id: self.user_id,
             display_name: self.display_name,
             bio: self.bio,
             avatar_location
@@ -66,7 +70,7 @@ impl DbUserProfile {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct InsertableUserProfile {
     #[serde(skip)]
-    user_id: uuid::Uuid,
+    user_id: Uuid,
     display_name: String,
     bio: String,
 }

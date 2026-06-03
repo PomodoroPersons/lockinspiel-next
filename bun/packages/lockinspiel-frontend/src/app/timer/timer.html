@@ -17,6 +17,9 @@
         <ng-icon name="phosphorPauseFill" />
       }
     </button>
+    <button class="ctrl-btn" [class.active]="timerRunning() != null" cdkCopyToClipboard="{{ sharableLink() }}">
+      <ng-icon name="phosphorShareFill" />
+    </button>
     <button class="ctrl-btn stop" (click)="stop()">
       <ng-icon name="phosphorStopFill" />
     </button>

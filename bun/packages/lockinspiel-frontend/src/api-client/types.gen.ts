@@ -46,6 +46,7 @@ export type UserUserProfile = {
   avatar_location?: string | null;
   bio: string;
   display_name: string;
+  user_id: string;
 };
 
 export type UserUserProfileChangeset = {
@@ -421,7 +422,10 @@ export type TimekeeperGetIndexResponse =
 export type TimekeeperGetTimersData = {
   body?: never;
   path?: never;
-  query?: never;
+  query?: {
+    user_id?: string;
+    timer_start_time?: unknown | string | number;
+  };
   url: '/timekeeper/timer';
 };
 

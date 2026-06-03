@@ -101,7 +101,7 @@ export const user_PutAvatarQuerySchema = {
 
 export const user_UserProfileSchema = {
   type: 'object',
-  required: ['display_name', 'bio'],
+  required: ['user_id', 'display_name', 'bio'],
   properties: {
     avatar_location: {
       type: ['string', 'null'],
@@ -111,6 +111,10 @@ export const user_UserProfileSchema = {
     },
     display_name: {
       type: 'string',
+    },
+    user_id: {
+      type: 'string',
+      format: 'uuid',
     },
   },
 } as const;

@@ -113,8 +113,6 @@ CREATE TABLE timekeeper.timesheet(
     tsdb.chunk_interval='7 days'
 );
 
-ALTER TABLE timekeeper.timesheet ADD CONSTRAINT timesheet_pk PRIMARY KEY (start_time);
-
 CREATE INDEX ON timekeeper.timesheet (user_id, start_time DESC);
 
 GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.timesheet TO authenticated;

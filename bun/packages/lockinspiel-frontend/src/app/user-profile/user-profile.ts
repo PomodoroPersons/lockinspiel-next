@@ -30,6 +30,7 @@ export class UserProfile {
   closed = output<void>();
   applied = output<UserData>();
 
+  userId = signal('');
   editUsername = signal('');
   editBio = signal('');
   editStatus = signal<UserData['status']>('free');
@@ -39,6 +40,7 @@ export class UserProfile {
   ngOnInit() {
     const user = this.user();
     if (user.user) {
+      this.userId.set(user.user.user_id);
       this.editUsername.set(user.user.display_name);
       this.editBio.set(user.user.bio);
       this.editStatus.set(user.status);
@@ -65,6 +67,7 @@ export class UserProfile {
   apply() {
     this.applied.emit({
       user: {
+        user_id: this.userId(),
         display_name: this.editUsername(),
         bio: this.editBio(),
       },

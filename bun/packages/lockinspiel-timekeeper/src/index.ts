@@ -88,14 +88,15 @@ const app = new Elysia()
   )
   .get(
     "/timekeeper/timer",
-    async ({ db, jwt, status, headers: { authorization } }) => {
-      if (!authorization) return status(401, "Unauthorized");
+    async ({ db, jwt, status, query: { user_id, timer_start_time }, headers: { authorization } }) => {
+      const profile = await jwt.verify(authorization?.split(" ")[1]);
 
-      const profile = await jwt.verify(authorization.split(" ")[1]);
+      const authenticatedUserId = profile ? profile.user_id : ANON_USER;
 
-      if (!profile) return status(401, "Unauthorized");
+      return await db(authenticatedUserId, async (tx) => {
+        const timerStartTimeWhere = timer_start_time ? eq(timesheetTable.start_time, timer_start_time) : undefined;
+        const userIdWhere = user_id ? eq(timesheetTable.user_id, user_id) : eq(timesheetTable.user_id, authenticatedUserId);
 
-      return await db(profile.user_id, async (tx) => {
         const timerRows = await tx
           .select({
             start_time: timesheetTable.start_time,
@@ -110,6 +111,7 @@ const app = new Elysia()
             timeSplitTimerTable,
             eq(timeSplitTimerTable.id, timesheetTable.time_split_timer),
           )
+          .where(timerStartTimeWhere ? and(userIdWhere, timerStartTimeWhere) : userIdWhere)
           .orderBy(desc(timesheetTable.start_time))
           // TODO: Add query parameters to allow multiple timers
           // to be returned
@@ -139,8 +141,13 @@ const app = new Elysia()
           {
             bearerAuth: [],
           },
+          {}
         ],
       },
+      query: t.Partial(t.Object({
+        user_id: t.String(),
+        timer_start_time: t.Date()
+      })),
       response: {
         401: t.Literal("Unauthorized"),
         404: t.Literal("Timer not found"),

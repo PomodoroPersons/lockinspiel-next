@@ -3,7 +3,7 @@ use axum_extra::extract::{CookieJar, cookie::Cookie};
 use color_eyre::eyre::{Context, OptionExt, eyre};
 use diesel::{
     ExpressionMethods, HasQuery, OptionalExtension, QueryDsl, SelectableHelper,
-    declare_sql_function, dsl::sql, prelude::Insertable, sql_types,
+    declare_sql_function, prelude::Insertable, sql_types,
 };
 use diesel_async::RunQueryDsl;
 use jsonwebtoken::EncodingKey;
@@ -267,7 +267,7 @@ pub async fn new_session(
     State(jwt_header): State<jsonwebtoken::Header>,
     Json(new_user): Json<Login>,
 ) -> Result<(CookieJar, Json<LoginToken>), error::EyreError> {
-    let refresh_token = match new_user {
+    match new_user {
         Login::Credentials { username, password } => {
             let user = DatabaseUser::query()
                 .filter(users::username.eq(username))
@@ -279,16 +279,7 @@ pub async fn new_session(
                 .ok_or_eyre("Couldn't find user in database")
                 .with_status_code(StatusCode::UNAUTHORIZED)?;
 
-            let user_id = user.user_id;
             db.login_user(user, &password).await?;
-
-            diesel::insert_into(refresh_tokens::table)
-                .values(InsertableRefreshToken { user_id })
-                .returning(RefreshToken::as_returning())
-                .get_result(&mut db.connection)
-                .await
-                .wrap_err("Failed to insert refresh token into database")
-                .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?
         }
         Login::RefreshToken { token } => {
             let Some(refresh_token) = token.as_ref().map(|s| s.as_str()).or_else(|| {
@@ -306,17 +297,12 @@ pub async fn new_session(
 
             db.login_user_with_refresh_token(refresh_token).await?;
 
-            diesel::update(refresh_tokens::table)
+            diesel::delete(refresh_tokens::table)
                 .filter(refresh_tokens::refresh_token.eq(refresh_token))
-                .set((
-                    refresh_tokens::refresh_token.eq(generate_uuidv7()),
-                    refresh_tokens::exp.eq(sql::<sql_types::Timestamptz>("now() + '30 days'")),
-                ))
-                .returning(RefreshToken::as_returning())
-                .get_result(&mut db.connection)
+                .execute(&mut db.connection)
                 .await
                 .wrap_err("Failed to update refresh token in database")
-                .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?
+                .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
         }
     };
 
@@ -326,6 +312,16 @@ pub async fn new_session(
         ))
         .with_status_code(StatusCode::INTERNAL_SERVER_ERROR);
     };
+
+    let refresh_token = diesel::insert_into(refresh_tokens::table)
+        .values(InsertableRefreshToken {
+            user_id: user.user_id,
+        })
+        .returning(RefreshToken::as_returning())
+        .get_result(&mut db.connection)
+        .await
+        .wrap_err("Failed to insert refresh token into database")
+        .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
 
     let (encoded_access, refresh_token_cookie) =
         encode_tokens(&jwt_header, &encoding_key, user.clone(), refresh_token)?;

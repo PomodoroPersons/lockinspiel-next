@@ -1,9 +1,11 @@
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { phosphorPlayFill, phosphorPauseFill, phosphorStopFill } from '@ng-icons/phosphor-icons/fill';
-import { Component, OnDestroy, output, signal, computed, inject } from '@angular/core';
+import { phosphorPlayFill, phosphorShareFill, phosphorPauseFill, phosphorStopFill } from '@ng-icons/phosphor-icons/fill';
+import { Component, OnDestroy, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ClipboardModule } from '@angular/cdk/clipboard';
 import { TimekeeperTimer, TimekeeperTimeSplitWid, TimerService, TimeSplitService, TimeSyncService } from '../../api-client';
 import { HttpClient } from '@angular/common/http';
+import { UserProfileService } from '../user-profile/user-profile.service';
 
 function getTime(time: Date | string | number) {
   if (time instanceof Date)
@@ -43,45 +45,52 @@ async function getClockOffset(client: TimeSyncService, httpClient: HttpClient) {
 
 @Component({
   selector: 'app-timer',
-  imports: [CommonModule, NgIcon],
+  imports: [CommonModule, NgIcon, ClipboardModule],
   templateUrl: './timer.html',
   styleUrl: './timer.css',
-  viewProviders: [provideIcons({ phosphorPlayFill, phosphorPauseFill, phosphorStopFill })]
+  viewProviders: [provideIcons({ phosphorPlayFill, phosphorShareFill, phosphorPauseFill, phosphorStopFill })]
 })
 export class Timer implements OnDestroy {
   #http = inject(HttpClient);
   #timeSync = inject(TimeSyncService);
   #timerService = inject(TimerService);
   #timeSplitService = inject(TimeSplitService);
+  #userProfile = inject(UserProfileService);
   clockOffset = 0;
 
   timers = signal<TimekeeperTimeSplitWid[]>([]);
   timeSplit = signal<TimekeeperTimeSplitWid | null>(null);
   timerRunning = signal<TimekeeperTimer | null>(null);
 
-  displayTimeInterval: any = null;
-  displayTime = signal<string>("");
+  remainingMsInterval: any = null;
+  remainingMs = signal<number>(0);
+  displayTime = computed(() => {
+    const ms = this.remainingMs();
+    const totalSeconds = ms ? Math.max(0, Math.ceil(ms / 1000)) : 0;
+    const minutes = ms ? Math.floor(totalSeconds / 60) : 0;
+    const seconds = ms ? totalSeconds % 60 : 0;
+    return `${String(minutes)}:${String(seconds).padStart(2, '0')}`;
+  });
+  sharableLink = computed(() => {
+    const runningTimer = this.timerRunning();
+    const userProfile = this.#userProfile.userProfile();
+    if (runningTimer && userProfile)
+      return `${window.location.origin}/home?user_id=${userProfile.user_id}&timer_start_time=${runningTimer.start_time}`
+    return null
+  });
 
   constructor() {
-    this.displayTimeInterval = setInterval(() => {
-      const ms = this.remainingMs();
-      const totalSeconds = ms ? Math.max(0, Math.ceil(ms / 1000)) : 0;
-      const minutes = ms ? Math.floor(totalSeconds / 60) : 0;
-      const seconds = ms ? totalSeconds % 60 : 0;
-      this.displayTime.set(`${String(minutes)}:${String(seconds).padStart(2, '0')}`);
+    this.remainingMsInterval = setInterval(() => {
+      const timerRunning = this.timerRunning();
+      if (timerRunning)
+        this.remainingMs.set(getTime(timerRunning.end_time) - this.now());
+      else
+        this.remainingMs.set(0);
     }, 50);
   }
 
   now() {
     return Date.now() - this.clockOffset;
-  }
-
-  remainingMs() {
-    const timerRunning = this.timerRunning();
-    if (timerRunning)
-      return getTime(timerRunning.end_time) - this.now();
-    else
-      return null;
   }
 
   startTimeSplit(timeSplit: TimekeeperTimeSplitWid) {
@@ -100,12 +109,6 @@ export class Timer implements OnDestroy {
         tags: [],
         time_split_timer: timer.id
       },
-      async responseTransformer(data) {
-        const timer = data as TimekeeperTimer;
-        timer.start_time = getTime(timer.start_time);
-        timer.end_time = getTime(timer.end_time);
-        return timer as unknown;
-      }
     });
 
     if (data)
@@ -180,8 +183,13 @@ export class Timer implements OnDestroy {
     if (timeSplitData)
       this.timers.set(timeSplitData);
 
+    const parameters = typeof window === "undefined" ? null : new URLSearchParams(window.location.search);
     const { data: timerData, error: timerError } = await this.#timerService.timekeeperGetTimers({
-      httpClient: this.#http
+      httpClient: this.#http,
+      query: parameters ? {
+        timer_start_time: parameters.get("timer_start_time") ?? undefined,
+        user_id: parameters.get("user_id") ?? undefined
+      } : undefined
     });
 
     if (timerError)
@@ -192,6 +200,6 @@ export class Timer implements OnDestroy {
   }
 
   ngOnDestroy() {
-    clearInterval(this.displayTimeInterval);
+    clearInterval(this.remainingMsInterval);
   }
 }
