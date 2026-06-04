@@ -36,15 +36,6 @@ services:
         strip_path: false
         paths:
           - /timekeeper
-  - name: web-api-analyzer-service
-    host: web-analyzer
-    port: 3000
-    protocol: http
-    routes:
-      - name: web-api-analyzer-routes
-        strip_path: false
-        paths:
-          - /analyzer
   - name: web-api-user-service
     host: web-user
     port: 3000

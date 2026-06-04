@@ -138,41 +138,6 @@ services:
       start_period: 45s
     entrypoint: ["sleep", "infinity"]  
 
-  web-analyzer:
-    restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
-    #   interval: 5s
-    #   timeout: 5s
-    #   retries: 10
-    build:
-      args:
-        PACKAGE: lockinspiel-analyzer
-        SERVICE_TYPE: analyzer
-      context: ./java
-    environment:
-      DATABASE_URL: jdbc:postgresql://db/docker?password=example&user=analyzer_service
-      AUTH_SERVICE: http://web-auth:3000/auth
-      OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4318
-      LISTEN_PORT: 3000
-    deploy:
-      mode: replicated
-      replicas: 1
-
-  web-analyzer-health:
-    image: curlimages/curl
-    network_mode: "service:web-analyzer"  # Critical: shares api's network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000"]
-      interval: 5s
-      timeout: 5s
-      retries: 3
-      start_period: 45s
-    entrypoint: ["sleep", "infinity"]  
-
   web-frontend:
     restart: unless-stopped
     depends_on:
