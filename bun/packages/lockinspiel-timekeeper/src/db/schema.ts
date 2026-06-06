@@ -10,13 +10,6 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const timekeeperSchema = pgSchema("timekeeper");
-export const authSchema = pgSchema("auth");
-
-export const usersTable = authSchema.table("users", {
-  user_id: uuid("user_id").primaryKey().default("generate_uuidv7()"),
-  username: varchar("username").notNull().unique(),
-  role: varchar("role").notNull().default("user"),
-});
 
 export const timeSplitTable = timekeeperSchema.table("time_split", {
   id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -55,10 +48,6 @@ export const timesheetTable = timekeeperSchema.table("timesheet", {
 });
 
 export const timesheetRelations = relations(timesheetTable, ({ one }) => ({
-  user: one(usersTable, {
-    fields: [timesheetTable.user_id],
-    references: [usersTable.user_id],
-  }),
   time_split_timer: one(timeSplitTimerTable, {
     fields: [timesheetTable.time_split_timer],
     references: [timeSplitTimerTable.id],
@@ -71,10 +60,3 @@ export const tagTable = timekeeperSchema.table("tag", {
   user_id: uuid("user_id"),
   deleted: boolean("deleted").notNull().default(false),
 });
-
-export const tagRelations = relations(tagTable, ({ one }) => ({
-  user: one(usersTable, {
-    fields: [tagTable.user_id],
-    references: [usersTable.user_id],
-  }),
-}));

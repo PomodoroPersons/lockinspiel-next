@@ -18,15 +18,16 @@ plugins:
       #   X-Auth-Token: secret-token
 
 services:
-  - name: web-api-auth-service
-    host: web-auth
-    port: 3000
+  - name: kratos-service
+    host: kratos
+    port: 4433
     protocol: http
     routes:
-      - name: web-api-auth-routes
+      - name: kratos-routes
         strip_path: false
         paths:
-          - /auth
+          - /self-service
+          - /sessions
   - name: web-api-timekeeper-service
     host: web-timekeeper
     port: 3000

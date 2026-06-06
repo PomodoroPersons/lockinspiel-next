@@ -2,7 +2,7 @@ GRANT USAGE ON SCHEMA timekeeper TO PUBLIC;
 
 CREATE TABLE timekeeper.time_split(
     id SERIAL PRIMARY KEY,
-    user_id uuid REFERENCES auth.users(user_id) ON DELETE CASCADE,
+    user_id uuid,
     name VARCHAR NOT NULL,
     description VARCHAR,
     deleted BOOLEAN NOT NULL DEFAULT false
@@ -11,28 +11,28 @@ CREATE TABLE timekeeper.time_split(
 GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.time_split TO authenticated;
 GRANT SELECT ON timekeeper.time_split TO anon;
 
-ALTER TABLE timekeeper.time_split ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE timekeeper.time_split ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can create a time_split."
-ON timekeeper.time_split FOR INSERT
-TO authenticated
-WITH CHECK ( auth.uid() = user_id );
+-- CREATE POLICY "Users can create a time_split."
+-- ON timekeeper.time_split FOR INSERT
+-- TO authenticated
+-- WITH CHECK ( auth.uid() = user_id );
 
-CREATE POLICY "time_splits are viewable by anyone"
-ON timekeeper.time_split FOR SELECT
-TO anon
-USING ( true );
+-- CREATE POLICY "time_splits are viewable by anyone"
+-- ON timekeeper.time_split FOR SELECT
+-- TO anon
+-- USING ( true );
 
-CREATE POLICY "Users can update their own time_splits."
-ON timekeeper.time_split FOR UPDATE
-TO authenticated
-USING ( auth.uid() = user_id )
-WITH CHECK ( auth.uid() = user_id );
+-- CREATE POLICY "Users can update their own time_splits."
+-- ON timekeeper.time_split FOR UPDATE
+-- TO authenticated
+-- USING ( auth.uid() = user_id )
+-- WITH CHECK ( auth.uid() = user_id );
 
-CREATE POLICY "Users can delete their own time_splits."
-ON timekeeper.time_split FOR DELETE
-TO authenticated
-USING ( auth.uid() = user_id );
+-- CREATE POLICY "Users can delete their own time_splits."
+-- ON timekeeper.time_split FOR DELETE
+-- TO authenticated
+-- USING ( auth.uid() = user_id );
 
 CREATE TABLE timekeeper.time_split_timer(
     id SERIAL PRIMARY KEY,
@@ -47,61 +47,61 @@ CREATE TABLE timekeeper.time_split_timer(
 GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.time_split_timer TO authenticated;
 GRANT SELECT ON timekeeper.time_split_timer TO anon;
 
-ALTER TABLE timekeeper.time_split_timer ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE timekeeper.time_split_timer ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can create a time_split_timer."
-ON timekeeper.time_split_timer FOR INSERT
-TO authenticated
-WITH CHECK (
-    EXISTS (
-        SELECT 1
-        FROM timekeeper.time_split
-        WHERE timekeeper.time_split.id = time_split_id
-        AND timekeeper.time_split.user_id = auth.uid()
-    )
-);
+-- CREATE POLICY "Users can create a time_split_timer."
+-- ON timekeeper.time_split_timer FOR INSERT
+-- TO authenticated
+-- WITH CHECK (
+--     EXISTS (
+--         SELECT 1
+--         FROM timekeeper.time_split
+--         WHERE timekeeper.time_split.id = time_split_id
+--         AND timekeeper.time_split.user_id = auth.uid()
+--     )
+-- );
 
-CREATE POLICY "time_split_timers are viewable by anyone"
-ON timekeeper.time_split_timer FOR SELECT
-TO anon
-USING ( true );
+-- CREATE POLICY "time_split_timers are viewable by anyone"
+-- ON timekeeper.time_split_timer FOR SELECT
+-- TO anon
+-- USING ( true );
 
-CREATE POLICY "Users can update their own time_split_timers."
-ON timekeeper.time_split_timer FOR UPDATE
-TO authenticated
-USING (
-    EXISTS (
-        SELECT 1
-        FROM timekeeper.time_split
-        WHERE timekeeper.time_split.id = time_split_id
-        AND timekeeper.time_split.user_id = auth.uid()
-    )
-)
-WITH CHECK (
-    EXISTS (
-        SELECT 1
-        FROM timekeeper.time_split
-        WHERE timekeeper.time_split.id = time_split_id
-        AND timekeeper.time_split.user_id = auth.uid()
-    )
-);
+-- CREATE POLICY "Users can update their own time_split_timers."
+-- ON timekeeper.time_split_timer FOR UPDATE
+-- TO authenticated
+-- USING (
+--     EXISTS (
+--         SELECT 1
+--         FROM timekeeper.time_split
+--         WHERE timekeeper.time_split.id = time_split_id
+--         AND timekeeper.time_split.user_id = auth.uid()
+--     )
+-- )
+-- WITH CHECK (
+--     EXISTS (
+--         SELECT 1
+--         FROM timekeeper.time_split
+--         WHERE timekeeper.time_split.id = time_split_id
+--         AND timekeeper.time_split.user_id = auth.uid()
+--     )
+-- );
 
-CREATE POLICY "Users can delete their own time_split_timers."
-ON timekeeper.time_split_timer FOR DELETE
-TO authenticated
-USING (
-    EXISTS (
-        SELECT 1
-        FROM timekeeper.time_split
-        WHERE timekeeper.time_split.id = time_split_id
-        AND timekeeper.time_split.user_id = auth.uid()
-    )
-);
+-- CREATE POLICY "Users can delete their own time_split_timers."
+-- ON timekeeper.time_split_timer FOR DELETE
+-- TO authenticated
+-- USING (
+--     EXISTS (
+--         SELECT 1
+--         FROM timekeeper.time_split
+--         WHERE timekeeper.time_split.id = time_split_id
+--         AND timekeeper.time_split.user_id = auth.uid()
+--     )
+-- );
 
 CREATE TABLE timekeeper.timesheet(
     start_time TIMESTAMPTZ NOT NULL,
     end_time TIMESTAMPTZ NOT NULL,
-    user_id uuid NOT NULL REFERENCES auth.users(user_id) ON DELETE CASCADE,
+    user_id uuid NOT NULL,
     tags INTEGER[] NOT NULL DEFAULT '{}',
     time_split_timer INTEGER NOT NULL REFERENCES timekeeper.time_split_timer(id) ON DELETE CASCADE
 ) WITH (
@@ -153,34 +153,34 @@ CREATE SEQUENCE timekeeper.tag_pk;
 CREATE TABLE timekeeper.tag(
     id INTEGER PRIMARY KEY DEFAULT nextval('timekeeper.tag_pk'),
     name VARCHAR NOT NULL UNIQUE,
-    user_id uuid REFERENCES auth.users(user_id) ON DELETE CASCADE,
+    user_id uuid,
     deleted BOOLEAN NOT NULL DEFAULT false
 );
 
 GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.tag TO authenticated;
 
-ALTER TABLE timekeeper.tag ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE timekeeper.tag ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can create a tag."
-ON timekeeper.tag FOR INSERT
-TO authenticated
-WITH CHECK ( auth.uid() = user_id );
+-- CREATE POLICY "Users can create a tag."
+-- ON timekeeper.tag FOR INSERT
+-- TO authenticated
+-- WITH CHECK ( auth.uid() = user_id );
 
-CREATE POLICY "Tags are viewable by anyone"
-ON timekeeper.tag FOR SELECT
-TO anon
-USING ( true );
+-- CREATE POLICY "Tags are viewable by anyone"
+-- ON timekeeper.tag FOR SELECT
+-- TO anon
+-- USING ( true );
 
-CREATE POLICY "Users can update their own tags."
-ON timekeeper.tag FOR UPDATE
-TO authenticated
-USING ( auth.uid() = user_id )
-WITH CHECK ( auth.uid() = user_id );
+-- CREATE POLICY "Users can update their own tags."
+-- ON timekeeper.tag FOR UPDATE
+-- TO authenticated
+-- USING ( auth.uid() = user_id )
+-- WITH CHECK ( auth.uid() = user_id );
 
-CREATE POLICY "Users can delete their own tags."
-ON timekeeper.tag FOR DELETE
-TO authenticated
-USING ( auth.uid() = user_id );
+-- CREATE POLICY "Users can delete their own tags."
+-- ON timekeeper.tag FOR DELETE
+-- TO authenticated
+-- USING ( auth.uid() = user_id );
 
 INSERT INTO timekeeper.time_split (id, name) VALUES (0, '_paused_');
 INSERT INTO timekeeper.time_split (name, description) VALUES

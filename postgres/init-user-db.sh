@@ -9,7 +9,6 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE USER timekeeper_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER user_service WITH PASSWORD '$POSTGRES_PASSWORD';
 
-	GRANT diesel TO auth_service;
 	GRANT service TO timekeeper_service;
 	GRANT diesel TO user_service;
 
@@ -19,7 +18,8 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 
 	CREATE DATABASE docker;
 
-	GRANT CONNECT ON DATABASE docker TO auth_service;
+	-- RAAAAA ORYYYYYYYYYYY!!!!
+	GRANT ALL PRIVILEGES ON DATABASE docker TO auth_service;
 	-- RAAAAA DRIZZZLLLLEEE!!!!
 	GRANT ALL PRIVILEGES ON DATABASE docker TO timekeeper_service;
 	GRANT CONNECT ON DATABASE docker TO user_service;

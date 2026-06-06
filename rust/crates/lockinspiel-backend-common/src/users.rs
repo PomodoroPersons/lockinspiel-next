@@ -1,52 +1,44 @@
-use diesel::HasQuery;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
-use crate::{Placeholder, sql_types::Timestamp};
+use crate::Placeholder;
 
-use lockinspiel_auth_schema::schema::auth::{refresh_tokens, users};
-
-#[derive(HasQuery, Deserialize, Serialize, Debug, Default, Clone)]
-#[diesel(table_name = users)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct User {
-    pub user_id: Uuid,
-    pub username: String,
-    pub role: String,
+#[derive(Deserialize, Serialize, Debug, Default, Clone)]
+pub struct Name {
+    last: String,
+    first: String,
 }
 
-impl Placeholder for User {
-    fn placeholder() -> Self {
-        Self {
-            user_id: Uuid::nil(),
-            username: "johndoe".to_owned(),
-            role: String::from("user"),
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum Identity {
+    Default { name: Name, email: String },
+}
+
+impl Default for Identity {
+    fn default() -> Self {
+        Self::Default {
+            name: Name::default(),
+            email: String::default(),
         }
     }
 }
 
-#[derive(HasQuery, Deserialize, Serialize, Debug, Default, Clone)]
-#[diesel(table_name = refresh_tokens)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct RefreshToken {
-    pub refresh_token: Uuid,
-    pub user_id: Uuid,
-    pub exp: Timestamp,
-}
-
-impl Placeholder for RefreshToken {
+impl Placeholder for Identity {
     fn placeholder() -> Self {
-        Self {
-            refresh_token: Uuid::nil(),
-            user_id: Uuid::nil(),
-            exp: Timestamp(jiff::Timestamp::now()),
+        Self::Default {
+            name: Name {
+                first: "John".to_owned(),
+                last: "Doe".to_owned(),
+            },
+            email: "johndoe@example.com".to_owned(),
         }
     }
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UserClaims {
-    pub exp: u64,
-    #[serde(flatten)]
-    pub user: User,
+    pub identity: Identity,
+    pub sid: Uuid,
+    pub sub: Uuid,
 }

@@ -1,19 +1,9 @@
-target "docker-metadata-action-auth" {}
 target "docker-metadata-action-timekeeper" {}
-target "docker-metadata-action-frontend" {}
 target "docker-metadata-action-user" {}
 target "docker-metadata-action-timesync" {}
 
 group "default" {
-  targets = ["auth", "timekeeper", "frontend", "user", "timesync"]
-}
-
-target "auth" {
-  inherits = ["docker-metadata-action-auth"]
-  context = "./rust"
-  args = {
-    SERVICE = "lockinspiel-auth"
-  }
+  targets = ["timekeeper", "user", "timesync"]
 }
 
 target "timekeeper" {
@@ -23,12 +13,6 @@ target "timekeeper" {
     PACKAGE = "lockinspiel-timekeeper"
     SERVICE_TYPE = "timekeeper"
   }
-}
-
-target "frontend" {
-  inherits = ["docker-metadata-action-frontend"]
-  context = "./bun"
-  dockerfile = "Dockerfile.frontend"
 }
 
 target "user" {

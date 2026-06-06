@@ -73,14 +73,6 @@ jobs:
 
       # Extract metadata (tags, labels) for Docker
       # https://github.com/docker/metadata-action
-      - name: Extract Docker metadata for auth image
-        id: meta-auth
-        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
-        with:
-          bake-target: docker-metadata-action-auth
-          images: |
-            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/auth
-
       - name: Extract Docker metadata for timekeeper image
         id: meta-timekeeper
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
@@ -88,14 +80,6 @@ jobs:
           bake-target: docker-metadata-action-timekeeper
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/timekeeper
-
-      - name: Extract Docker metadata for frontend image
-        id: meta-frontend
-        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
-        with:
-          bake-target: docker-metadata-action-frontend
-          images: |
-            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend
 
       - name: Extract Docker metadata for user image
         id: meta-user
@@ -121,9 +105,7 @@ jobs:
         with:
           files: |
             ./docker-bake.hcl
-            cwd://${{ steps.meta-auth.outputs.bake-file }}
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
-            cwd://${{ steps.meta-frontend.outputs.bake-file }}
             cwd://${{ steps.meta-user.outputs.bake-file }}
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
@@ -153,20 +135,14 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
-          valueFile: "lockinspiel-auth/values.yaml"
+          valueFile: "lockinspiel-timekeeper/values.yaml"
           commitChange: true
           message: "Update all images to ${{ github.ref_name }}"
           token: ${{ secrets.GH_PAT }}
           workDir: infrastructure
           changes: |
             {
-              "lockinspiel-auth/values.yaml": {
-                "image.tag": "${{ github.ref_name }}"
-              },
               "lockinspiel-timekeeper/values.yaml": {
-                "image.tag": "${{ github.ref_name }}"
-              },
-              "lockinspiel-frontend/values.yaml": {
                 "image.tag": "${{ github.ref_name }}"
               },
               "lockinspiel-user/values.yaml": {
@@ -182,7 +158,7 @@ jobs:
         uses: fjogeleit/yaml-update-action@main
         with:
           repository: PomodoroPersons/lockinspiel-helm-charts
-          valueFile: "lockinspiel-auth/values.yaml"
+          valueFile: "lockinspiel-timekeeper/values.yaml"
           commitChange: true
           message: "Update all staging images to PomodoroPersons/lockinspiel-next@${{
             github.sha }}"
@@ -190,14 +166,8 @@ jobs:
           workDir: infrastructure
           changes: |
             {
-              "lockinspiel-auth/values-staging.yaml": {
-                "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).auth['containerimage.digest'] }}"
-              },
               "lockinspiel-timekeeper/values-staging.yaml": {
                 "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).timekeeper['containerimage.digest'] }}"
-              },
-              "lockinspiel-frontend/values-staging.yaml": {
-                "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).frontend['containerimage.digest'] }}"
               },
               "lockinspiel-user/values-staging.yaml": {
                 "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).user['containerimage.digest'] }}"

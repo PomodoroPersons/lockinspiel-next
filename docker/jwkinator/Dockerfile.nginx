@@ -1,0 +1,9 @@
+FROM nginx
+
+ARG STEPUID=1000
+ARG STEPGID=1000
+
+RUN groupmod -g ${STEPGID} nginx && \
+    usermod -u ${STEPUID} -g ${STEPGID} nginx && \
+    install -o ${STEPUID} -g ${STEPGID} -d /usr/share/nginx/html/.well-known
+VOLUME /usr/share/nginx/html/.well-known

@@ -19,6 +19,11 @@ http:
     type: bearer
     token: "{{token}}"
 
+runtime:
+  variables:
+    - name: token
+      value: eyJhbGciOiJFUzI1NiIsImtpZCI6ImhicFZDZGF1M2MtVjRBZGVMbnZrUWl3M0RxbVMxU0NURFpGZVdLTFZQQWMiLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE3ODA3MDc1MDksImlhdCI6MTc4MDcwNjkwOSwiaWRlbnRpdHkiOnsiZGVmYXVsdCI6eyJlbWFpbCI6InJvb3N0ZXIwMDU1QHByb3Rvbm1haWwuY29tIiwibmFtZSI6eyJmaXJzdCI6IklzYWFjIiwibGFzdCI6Ik1pbGxzIn19fSwiaXNzIjoiaHR0cDovLzEyNy4wLjAuMTo0NDMzLyIsImp0aSI6ImFiZTFmOWM4LTgxMjQtNGZmMy1hMjlmLTkyZWY2MjVhZTNmNyIsIm5iZiI6MTc4MDcwNjkwOSwic2lkIjoiNjVlZGFhZWQtMThjNS00ZGIwLTkxYmMtMzYzYjM1ZGM1OGRjIiwic3ViIjoiZjRlZDdhZjItMTA1My00NTY2LTk0NDUtNGI2YjA1ZGIwZGVjIn0.gwDyxrW4cssDB0kxETQeok2Q_xqsk7F1gwWiiG4SPFtMD9lHHWcVlrS_z_DvFgnqI9-fhGmI_uU_-p7gKbe49g
+
 settings:
   encodeUrl: true
   timeout: 0

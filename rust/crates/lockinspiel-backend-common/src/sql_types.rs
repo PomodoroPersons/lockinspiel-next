@@ -1,65 +1,14 @@
 use diesel::{
-    backend::Backend,
     data_types::PgTimestamp,
     deserialize::{self, FromSql, FromSqlRow},
     expression::AsExpression,
     pg::{Pg, PgValue},
-    serialize::{self, Output, ToSql},
+    serialize::ToSql,
     sql_types,
 };
 use jiff::{SignedDuration, civil};
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use utoipa::ToSchema;
-
-use crate::Placeholder;
-
-#[repr(transparent)]
-#[derive(Debug, PartialEq, AsExpression, FromSqlRow)]
-#[diesel(sql_type = sql_types::Binary)]
-pub struct DieselByteA<const N: usize>(pub [u8; N]);
-
-impl<ST, DB, const N: usize> FromSql<ST, DB> for DieselByteA<N>
-where
-    DB: Backend,
-    *const [u8]: FromSql<ST, DB>,
-{
-    #[allow(unsafe_code)] // ptr dereferencing
-    fn from_sql(bytes: DB::RawValue<'_>) -> deserialize::Result<Self> {
-        let slice_ptr = <*const [u8] as FromSql<ST, DB>>::from_sql(bytes)?;
-        // We know that the pointer impl will never return null
-        let bytes = unsafe { &*slice_ptr };
-        let result: [u8; N] = bytes.try_into()?;
-        Ok(DieselByteA(result))
-    }
-}
-
-impl<const N: usize> From<DieselByteA<N>> for [u8; N] {
-    fn from(value: DieselByteA<N>) -> Self {
-        value.0
-    }
-}
-
-impl<const N: usize> From<[u8; N]> for DieselByteA<N> {
-    fn from(value: [u8; N]) -> Self {
-        DieselByteA(value)
-    }
-}
-
-impl<DB, const N: usize> ToSql<sql_types::Binary, DB> for DieselByteA<N>
-where
-    DB: Backend,
-    [u8]: ToSql<sql_types::Binary, DB>,
-{
-    fn to_sql<'b>(&'b self, out: &mut Output<'b, '_, DB>) -> serialize::Result {
-        self.0.as_slice().to_sql(out)
-    }
-}
-
-impl<const N: usize> Placeholder for DieselByteA<N> {
-    fn placeholder() -> Self {
-        Self([0; N])
-    }
-}
 
 // A lot of this is pulled directly out of the diesel source code
 //

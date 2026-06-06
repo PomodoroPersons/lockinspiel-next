@@ -148,7 +148,7 @@ pub async fn create_profile(
     mut db: DatabaseConnection,
     Json(mut new_profile): Json<InsertableUserProfile>,
 ) -> Result<(), error::EyreError> {
-    let Some(user_id) = db.user.map(|u| u.user_id) else {
+    let Some(user_id) = db.user.map(|u| u.sub) else {
         return Err(eyre!("You need to be logged in to create a user profile"))
             .with_status_code(StatusCode::UNAUTHORIZED);
     };
@@ -197,7 +197,7 @@ pub async fn get_profile(
     State(url_resolver): State<Arc<UrlResolver>>,
     mut db: DatabaseConnection,
 ) -> Result<Json<UserProfile>, error::EyreError> {
-    let Some(user_id) = db.user.as_ref().map(|u| u.user_id) else {
+    let Some(user_id) = db.user.as_ref().map(|u| u.sub) else {
         return Err(eyre!("You need to be logged in to get your user profile"))
             .with_status_code(StatusCode::UNAUTHORIZED);
     };
@@ -254,7 +254,7 @@ pub async fn put_avatar(
     mut db: DatabaseConnection,
     Json(put_avatar_query): Json<PutAvatarQuery>,
 ) -> Result<String, error::EyreError> {
-    let Some(user_id) = db.user.as_ref().map(|u| u.user_id) else {
+    let Some(user_id) = db.user.as_ref().map(|u| u.sub) else {
         return Err(eyre!("You need to be logged in to create a user profile"))
             .with_status_code(StatusCode::UNAUTHORIZED);
     };
@@ -308,7 +308,7 @@ pub async fn delete_avatar(
     State(url_resolver): State<Arc<UrlResolver>>,
     mut db: DatabaseConnection,
 ) -> Result<(), error::EyreError> {
-    let Some(user_id) = db.user.as_ref().map(|u| u.user_id) else {
+    let Some(user_id) = db.user.as_ref().map(|u| u.sub) else {
         return Err(eyre!("You need to be logged in to create a user profile"))
             .with_status_code(StatusCode::UNAUTHORIZED);
     };
@@ -361,7 +361,7 @@ pub async fn update_profile(
     mut db: DatabaseConnection,
     Json(updated_profile): Json<UserProfileChangeset>,
 ) -> Result<(), error::EyreError> {
-    let Some(user_id) = db.user.map(|u| u.user_id) else {
+    let Some(user_id) = db.user.map(|u| u.sub) else {
         return Err(eyre!("You need to be logged in to create a user profile"))
             .with_status_code(StatusCode::UNAUTHORIZED);
     };
