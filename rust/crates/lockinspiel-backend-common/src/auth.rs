@@ -26,9 +26,9 @@ use crate::{
 
 #[declare_sql_function]
 extern "SQL" {
-    #[sql_name = "auth.uid"]
+    #[sql_name = "\"user\".uid"]
     fn uid() -> sql_types::Uuid;
-    #[sql_name = "auth.set_uid"]
+    #[sql_name = "\"user\".set_uid"]
     fn set_uid(uid: sql_types::Uuid) -> sql_types::Text;
 }
 

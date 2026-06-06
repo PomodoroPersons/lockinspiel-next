@@ -64,7 +64,7 @@ const app = new Elysia()
       ) => {
         return await DONT_USE_THIS_DIRECTLY_OR_I_WILL_PERSONALLY_NOTIFY_PROFESSOR_CANTERRA_OF_YOUR_WAR_CRIMES.transaction(
           async (tx) => {
-            await tx.execute(sql`SELECT auth.set_uid(${userId})`);
+            await tx.execute(sql`SELECT timekeeper.set_uid(${userId})`);
             return await callback(tx);
           },
         );

@@ -74,5 +74,3 @@ export const model = {
     id: t.Integer(),
   })),
 };
-
-console.dir(model, { depth: null })
