@@ -89,28 +89,6 @@ services:
         read_only: false
     restart: on-failure
 
-  jwk-nginx:
-    image: nginx:latest
-    depends_on:
-      jwkinator:
-        condition: service_completed_successfully
-    build:
-      args:
-        STEPUID: 10000
-        STEPGID: 10000
-      context: ./docker/jwkinator
-      dockerfile: Dockerfile.nginx
-    ports:
-      - 8080:80
-    volumes:
-      - type: volume
-        source: kratoskeys
-        target: /usr/share/nginx/html/.well-known
-        volume:
-          subpath: .well-known
-      
-    restart: unless-stopped
-  
   # From https://github.com/ory/kratos/blob/master/quickstart.yml
   kratos-migrate:
     image: oryd/kratos:v26.2.0
@@ -137,6 +115,8 @@ services:
     environment:
       - KRATOS_PUBLIC_URL=http://kratos:4433/
       - KRATOS_BROWSER_URL=http://localhost:4433/
+      # - KRATOS_PUBLIC_URL=https://staging.lockinspiel.live
+      # - KRATOS_BROWSER_URL=https://staging.lockinspiel.live
       - COOKIE_SECRET=changeme
       - CSRF_COOKIE_NAME=ory_csrf_ui
       - CSRF_COOKIE_SECRET=changeme
@@ -178,6 +158,8 @@ services:
     #   interval: 5s
     #   timeout: 5s
     #   retries: 10
+    volumes:
+      - ./docker/jwkinator/certificate.pem:/etc/config/keys/certificate.pem
     build:
       args:
         PACKAGE: lockinspiel-timekeeper
@@ -185,7 +167,8 @@ services:
       context: ./bun
     environment:
       DATABASE_URL: postgres://timekeeper_service:example@db/docker
-      AUTH_SERVICE: http://jwk-nginx
+      AUTH_SERVICE: http://kratos
+      AUTH_CERTIFICATE_PATH: /etc/config/keys/certificate.pem
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
       LISTEN_PORT: 3000
     deploy:
@@ -213,12 +196,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    volumes:
+      - ./docker/jwkinator/certificate.pem:/etc/config/keys/certificate.pem
     build:
       args:
         SERVICE: lockinspiel-user
       context: ./rust
     environment:
-      AUTH_SERVICE: http://jwk-nginx
+      AUTH_SERVICE: http://kratos
+      AUTH_CERTIFICATE_PATH: /etc/config/keys/certificate.pem
       DATABASE_URL: postgres://user_service:example@db/docker
       SERVICE_TYPE: user
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317

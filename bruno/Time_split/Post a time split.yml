@@ -14,7 +14,7 @@ http:
       {
         "timers": [
           {
-            "len": "",
+            "len": 0,
             "name": "",
             "work": false
           }

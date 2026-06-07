@@ -12,7 +12,7 @@ use diesel_async::{
     AsyncPgConnection, RunQueryDsl,
     pooled_connection::bb8::{self, RunError},
 };
-use jsonwebtoken::Validation;
+use jsonwebtoken::{DecodingKey, TokenData, Validation};
 use thiserror::Error;
 use tracing::instrument;
 use uuid::Uuid;
@@ -20,7 +20,6 @@ use uuid::Uuid;
 use crate::{
     ApiState,
     error::{AsStatusCode, Error, WithReason},
-    jwk_set::JwkSetManager,
     users::UserClaims,
 };
 
@@ -105,11 +104,13 @@ impl DatabaseConnection {
     pub async fn login_user_with_access_token(
         &mut self,
         token: impl AsRef<[u8]>,
-        jwk_set: &JwkSetManager,
+        decoding_key: &DecodingKey,
     ) -> Result<(), Error<ErrorKind>> {
-        let token: UserClaims = jwk_set.decode(token, &Validation::new(JWT_ALG)).await?;
+        let token: TokenData<UserClaims> =
+            jsonwebtoken::decode(token, decoding_key, &Validation::new(JWT_ALG))
+                .with_reason("Failed to decode JWT token")?;
 
-        self.set_uid(Some(token)).await?;
+        self.set_uid(Some(token.claims)).await?;
 
         Ok(())
     }
@@ -153,8 +154,6 @@ pub enum ErrorKind {
     ReqwestError(#[from] reqwest::Error),
     #[error("An error occurred while pulling the KID out of a JWT")]
     KIDError,
-    #[error("The URL was unable to be parsed")]
-    UrlParseError,
 }
 
 impl AsStatusCode for ErrorKind {
@@ -167,7 +166,6 @@ impl AsStatusCode for ErrorKind {
             Self::JWTError(_) => StatusCode::UNAUTHORIZED,
             Self::ReqwestError(r) => r.status().unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
             Self::KIDError => StatusCode::UNPROCESSABLE_ENTITY,
-            Self::UrlParseError => StatusCode::BAD_REQUEST,
         }
     }
 }
@@ -197,7 +195,7 @@ where
             .await
             .with_reason("Failed to decode bearer auth header")?
         {
-            db_connection.login_user_with_access_token(bearer_auth.token(), &state.jwk_set).await?;
+            db_connection.login_user_with_access_token(bearer_auth.token(), &state.decoding_key).await?;
         } else {
             db_connection.login_as_anon().await?;
         }

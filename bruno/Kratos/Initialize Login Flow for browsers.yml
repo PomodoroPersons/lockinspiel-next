@@ -7,7 +7,7 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/self-service/login/browser"
+  url: "{{authBaseUrl}}/self-service/login/browser"
   auth: inherit
 
 runtime:

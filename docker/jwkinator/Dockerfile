@@ -11,6 +11,7 @@ VOLUME /etc/config/kratos-keys
 
 USER ${STEPUID}:${STEPGID}
 
+COPY --chown=${STEPUID}:${STEPGID} private.pem /etc/config/private.pem
 COPY run.sh run.sh
 
 CMD ["/bin/sh", "run.sh"]

@@ -3,22 +3,15 @@ use uuid::Uuid;
 
 use crate::Placeholder;
 
-#[derive(Deserialize, Serialize, Debug, Default, Clone)]
-pub struct Name {
-    last: String,
-    first: String,
-}
-
 #[derive(Deserialize, Serialize, Debug, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum Identity {
-    Default { name: Name, email: String },
+    Default { email: String },
 }
 
 impl Default for Identity {
     fn default() -> Self {
         Self::Default {
-            name: Name::default(),
             email: String::default(),
         }
     }
@@ -27,10 +20,6 @@ impl Default for Identity {
 impl Placeholder for Identity {
     fn placeholder() -> Self {
         Self::Default {
-            name: Name {
-                first: "John".to_owned(),
-                last: "Doe".to_owned(),
-            },
             email: "johndoe@example.com".to_owned(),
         }
     }

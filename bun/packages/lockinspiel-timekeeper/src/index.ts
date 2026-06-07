@@ -91,7 +91,7 @@ const app = new Elysia()
     async ({ db, jwt, status, query: { user_id, timer_start_time }, headers: { authorization } }) => {
       const profile = await jwt.verify(authorization?.split(" ")[1]);
 
-      const authenticatedUserId = profile ? profile.user_id : ANON_USER;
+      const authenticatedUserId = profile ? profile.sub : ANON_USER;
 
       return await db(authenticatedUserId, async (tx) => {
         const timerStartTimeWhere = timer_start_time ? eq(timesheetTable.start_time, timer_start_time) : undefined;
@@ -164,7 +164,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitTimer = await tx
           .select({
             work: timeSplitTimerTable.work,
@@ -186,7 +186,7 @@ const app = new Elysia()
           .values({
             start_time: body.start_time,
             end_time: body.end_time,
-            user_id: profile.user_id,
+            user_id: profile.sub,
             time_split_timer: body.time_split_timer,
             tags: body.tags,
           })
@@ -235,7 +235,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitTimer = await tx
           .select({
             work: timeSplitTimerTable.work,
@@ -302,7 +302,7 @@ const app = new Elysia()
     async ({ db, jwt, status, headers: { authorization } }) => {
       const profile = (await jwt.verify(authorization?.split(" ")[1])) ?? "";
 
-      return await db(profile ? profile.user_id : ANON_USER, async (tx) => {
+      return await db(profile ? profile.sub : ANON_USER, async (tx) => {
         const tags = await tx
           .select()
           .from(tagTable)
@@ -339,12 +339,12 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const inserted = await tx
           .insert(tagTable)
           .values({
             name: body.name,
-            user_id: profile.user_id,
+            user_id: profile.sub,
             deleted: false,
           })
           .returning({ id: tagTable.id });
@@ -390,7 +390,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const tagResults = await tx
           .select()
           .from(tagTable)
@@ -438,7 +438,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const tagResults = await tx
           .select()
           .from(tagTable)
@@ -486,13 +486,13 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const insertedId = await tx
           .insert(timeSplitTable)
           .values({
             name: body.name,
             description: body.description,
-            user_id: profile.user_id,
+            user_id: profile.sub,
           })
           .returning({ id: timeSplitTable.id });
 
@@ -537,7 +537,7 @@ const app = new Elysia()
     async ({ db, jwt, status, query: { id }, headers: { authorization } }) => {
       const profile = await jwt.verify(authorization?.split(" ")[1]);
 
-      const user_id = profile ? profile.user_id : ANON_USER;
+      const user_id = profile ? profile.sub : ANON_USER;
 
       return await db(user_id, async (tx) => {
         const timeSplitRows = await tx
@@ -630,7 +630,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitResults = await tx
           .select()
           .from(timeSplitTable)
@@ -691,7 +691,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitResults = await tx
           .select()
           .from(timeSplitTable)
@@ -765,7 +765,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitResults = await tx
           .select()
           .from(timeSplitTimerTable)
@@ -851,7 +851,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitResults = await tx
           .select()
           .from(timeSplitTable)
@@ -912,7 +912,7 @@ const app = new Elysia()
 
       if (!profile) return status(401, "Unauthorized");
 
-      return await db(profile.user_id, async (tx) => {
+      return await db(profile.sub, async (tx) => {
         const timeSplitResults = await tx
           .select()
           .from(timeSplitTimerTable)

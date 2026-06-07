@@ -2266,7 +2266,6 @@ name = "lockinspiel-backend-common"
 version = "0.1.0"
 dependencies = [
  "ansi-to-html",
- "arc-swap",
  "axum",
  "axum-extra",
  "clap",
@@ -2284,8 +2283,11 @@ dependencies = [
  "opentelemetry-semantic-conventions",
  "opentelemetry_sdk",
  "reqwest 0.13.4",
+ "rustls-pki-types",
+ "rustls-webpki 0.103.13",
  "serde",
  "serde_json",
+ "simple_asn1",
  "supports-color",
  "thiserror",
  "tokio",
@@ -2324,7 +2326,6 @@ dependencies = [
  "diesel",
  "diesel-async",
  "jiff",
- "jsonwebtoken",
  "lockinspiel-backend-common",
  "lockinspiel-user-schema",
  "serde",

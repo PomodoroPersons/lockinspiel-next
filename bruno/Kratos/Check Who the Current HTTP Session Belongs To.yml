@@ -7,16 +7,16 @@ info:
 
 http:
   method: GET
-  url: "{{baseUrl}}/sessions/whoami?tokenize_as=default_template"
+  url: "{{authBaseUrl}}/sessions/whoami?tokenize_as=default_template"
   params:
+    - name: tokenize_as
+      value: default_template
+      type: query
     - name: Authorization
       value: ""
       type: query
       description: "in: authorization"
       disabled: true
-    - name: tokenize_as
-      value: default_template
-      type: query
 
 runtime:
   scripts:

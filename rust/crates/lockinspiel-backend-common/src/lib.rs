@@ -1,14 +1,14 @@
 use std::{
     convert::Infallible,
     net::{Ipv6Addr, SocketAddr, SocketAddrV6},
-    sync::Arc,
+    path::PathBuf,
 };
 
 use axum::{extract::Request, response::IntoResponse, routing::Route};
 use clap::{Args, Parser};
 use color_eyre::{
     config::Theme,
-    eyre::{self, Context, bail},
+    eyre::{self, Context, OptionExt, bail},
 };
 use diesel_async::{
     AsyncConnection, AsyncMigrationHarness,
@@ -16,9 +16,11 @@ use diesel_async::{
 };
 use diesel_migrations::{EmbeddedMigrations, MigrationHarness};
 use futures_util::FutureExt;
+use jsonwebtoken::DecodingKey;
 use opentelemetry::trace::TracerProvider;
 use opentelemetry_appender_tracing::layer::OpenTelemetryTracingBridge;
 use opentelemetry_sdk::{logs::SdkLoggerProvider, trace::SdkTracerProvider};
+use rustls_pki_types::{CertificateDer, pem::PemObject};
 use serde::{Deserialize, de::DeserializeOwned};
 use tokio::signal;
 use tower::{Layer, Service, ServiceBuilder};
@@ -39,7 +41,6 @@ use utoipa::openapi::{
 use crate::{
     auth::Pool,
     cli_level_filter::CliLevelFilter,
-    jwk_set::JwkSetManager,
     telemetry::{
         DieselInstrumentation, TelemetryMakeSpan, init_logging_provider, init_tracing_provider,
     },
@@ -49,7 +50,6 @@ mod cli_level_filter;
 
 pub mod auth;
 pub mod error;
-pub mod jwk_set;
 pub mod sql_types;
 pub mod telemetry;
 pub mod users;
@@ -100,6 +100,9 @@ struct Cli<E: Args> {
     #[clap(long, env = "AUTH_SERVICE")]
     #[serde(default)]
     auth_service: String,
+    #[clap(long, env = "AUTH_CERTIFICATE_PATH")]
+    #[serde(default)]
+    auth_certificate_path: PathBuf,
     #[clap(short, long, env = "DATABASE_URL")]
     #[serde(default)]
     db_url: String,
@@ -117,6 +120,7 @@ impl<'de, E: Default + Args + Deserialize<'de>> Default for Cli<E> {
             log_level: CliLevelFilter::default(),
             addr: default_listen_addr(),
             auth_service: String::new(),
+            auth_certificate_path: PathBuf::default(),
             db_url: String::new(),
             otlp_endpoint: None,
             service: E::default(),
@@ -128,7 +132,7 @@ impl<'de, E: Default + Args + Deserialize<'de>> Default for Cli<E> {
 pub struct ApiState {
     pub pool: Pool,
     pub reqwest_client: reqwest::Client,
-    pub jwk_set: Arc<JwkSetManager>,
+    pub decoding_key: DecodingKey,
 }
 
 pub struct InitState<E> {
@@ -153,6 +157,28 @@ impl<E> InitState<E> {
 
         Ok(())
     }
+}
+
+// From https://github.com/Keats/jsonwebtoken/blob/bba16eb4e77230cd759879ff8bffa144afb1a82b/src/pem/decoder.rs#L188
+fn extract_first_bitstring(asn1: &[simple_asn1::ASN1Block]) -> Option<&[u8]> {
+    for asn1_entry in asn1 {
+        match asn1_entry {
+            simple_asn1::ASN1Block::Sequence(_, entries) => {
+                if let Some(result) = extract_first_bitstring(entries) {
+                    return Some(result);
+                }
+            }
+            simple_asn1::ASN1Block::BitString(_, _, value) => {
+                return Some(value.as_ref());
+            }
+            simple_asn1::ASN1Block::OctetString(_, value) => {
+                return Some(value.as_ref());
+            }
+            _ => (),
+        }
+    }
+
+    None
 }
 
 pub async fn init<E: Args + DeserializeOwned + Default>(
@@ -244,6 +270,21 @@ pub async fn init<E: Args + DeserializeOwned + Default>(
 
     let reqwest_client = reqwest::Client::new();
 
+    let decoding_key = {
+        let certificate = CertificateDer::from_pem_file(&config.auth_certificate_path)
+            .wrap_err("Failed to parse auth_key_service certificate")?;
+        let anchor = webpki::anchor_from_trusted_cert(&certificate)
+            .wrap_err("Failed to parse certificate into trust anchor")?;
+
+        let blocks = simple_asn1::from_der(&anchor.subject_public_key_info)
+            .wrap_err("Failed to decode the certificates public key info")?;
+
+        DecodingKey::from_ec_der(
+            extract_first_bitstring(&blocks)
+                .ok_or_eyre("The certificate's ASN.1 blocks contained no bitstrings")?,
+        )
+    };
+
     Ok((
         InitState {
             addr: config.addr,
@@ -254,10 +295,7 @@ pub async fn init<E: Args + DeserializeOwned + Default>(
         ApiState {
             pool: Pool::new(pool),
             reqwest_client,
-            jwk_set: Arc::new(
-                JwkSetManager::new(&config.auth_service)
-                    .wrap_err("Failed to create a JWK set manager")?,
-            ),
+            decoding_key,
         },
     ))
 }
