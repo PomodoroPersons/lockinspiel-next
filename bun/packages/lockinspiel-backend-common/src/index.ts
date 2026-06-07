@@ -28,9 +28,7 @@ export const UserClaims = t.Object({
 
 const JWT_ALG = 'ES256';
 const x509_cert = await Bun.file(Bun.env['AUTH_CERTIFICATE_PATH'] ?? '').text();
-console.log(x509_cert);
 const JWT_SECRET = await importX509(x509_cert, JWT_ALG);
-console.log(JWT_SECRET)
 
 export const otelTracer = opentelemetry({
   resource: resourceFromAttributes({
