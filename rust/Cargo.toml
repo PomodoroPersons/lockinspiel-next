@@ -1,6 +1,6 @@
 [workspace]
 members = [
-  "crates/lockinspiel-backend-common", "crates/lockinspiel-user", "crates/lockinspiel-timesync", "crates/schemas/lockinspiel-user-schema",
+  "crates/backend/lockinspiel-backend-common", "crates/backend/lockinspiel-user", "crates/backend/lockinspiel-timesync", "crates/schemas/lockinspiel-user-schema",
 ]
 resolver = "3"
 

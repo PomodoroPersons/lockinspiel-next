@@ -10,11 +10,11 @@ COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
-COPY ./crates/lockinspiel-backend-common ./crates/lockinspiel-backend-common
+COPY ./crates/backend/lockinspiel-backend-common ./crates/backend/lockinspiel-backend-common
 COPY ./crates/schemas ./crates/schemas
 ARG SERVICE
-COPY ./crates/$SERVICE ./crates/$SERVICE
-COPY ./crates/$SERVICE/static* ./crates/$SERVICE/static
+COPY ./crates/backend/$SERVICE ./crates/backend/$SERVICE
+COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
 RUN cargo build --release --bin $SERVICE
 
 FROM debian:trixie-slim AS runtime-base
