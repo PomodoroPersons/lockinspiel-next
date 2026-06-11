@@ -2,20 +2,21 @@ use std::sync::Arc;
 
 use axum::{Json, extract::State, http::StatusCode};
 use color_eyre::eyre::{Context, OptionExt, eyre};
-use diesel::{
-    ExpressionMethods, HasQuery, OptionalExtension, QueryDsl, prelude::Insertable, query_builder::AsChangeset 
-};
+use diesel::{ExpressionMethods, HasQuery, OptionalExtension, QueryDsl};
 use diesel_async::RunQueryDsl;
 use lockinspiel_backend_common::{
     Placeholder,
     auth::DatabaseConnection,
-    error::{self, EyreError, WithStatusCode}, sql_types,
+    error::{self, EyreError, WithStatusCode},
+    sql_types,
 };
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
 use utoipa::ToSchema;
 
-use lockinspiel_user_schema::schema::user::profiles;
+use lockinspiel_user_schema::{
+    InsertableUserProfile, UserProfile, UserProfileChangeset, schema::user::profiles,
+};
 use uuid::Uuid;
 
 use crate::url_resolver::{UrlLocation, UrlOrigin, UrlResolver};
@@ -27,83 +28,29 @@ pub struct DbUserProfile {
     user_id: Uuid,
     display_name: String,
     bio: String,
-    avatar_location: Option<sql_types::Json<UrlLocation<'static>>>
-}
-
-#[derive(Deserialize, Serialize, ToSchema, Debug)]
-pub struct UserProfile {
-    user_id: Uuid,
-    display_name: String,
-    bio: String,
-    avatar_location: Option<String>
-}
-
-impl Placeholder for UserProfile {
-    fn placeholder() -> Self {
-        Self {
-            user_id: Uuid::nil(),
-            display_name: "John Doe".to_owned(),
-            bio: "I wonder how Alice and Bob are doing".to_owned(),
-            avatar_location: Some(String::from("/user/profile"))
-        }
-    }
+    avatar_location: Option<sql_types::Json<UrlLocation<'static>>>,
 }
 
 impl DbUserProfile {
-    async fn into_user_profile(self, resolver: &UrlResolver) -> UserProfile{
+    async fn into_user_profile(self, resolver: &UrlResolver) -> UserProfile {
         let mut avatar_location = None;
         if let Some(location) = self.avatar_location {
             avatar_location = Some(resolver.resolve_get_url(location.0).await);
         }
-        UserProfile{
+        UserProfile {
             user_id: self.user_id,
             display_name: self.display_name,
             bio: self.bio,
-            avatar_location
-        }
-    }
-}
-
-
-#[derive(Insertable, ToSchema, Deserialize, Serialize, Debug, PartialEq)]
-#[diesel(table_name = profiles)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct InsertableUserProfile {
-    #[serde(skip)]
-    user_id: Uuid,
-    display_name: String,
-    bio: String,
-}
-
-impl Placeholder for InsertableUserProfile {
-    fn placeholder() -> Self {
-        Self {
-            user_id: Uuid::nil(),
-            display_name: "John Doe".to_owned(),
-            bio: "I wonder how Alice and Bob are doing".to_owned(),
-        }
-    }
-}
-
-#[derive(AsChangeset, ToSchema, Deserialize, Serialize, Debug, PartialEq)]
-#[diesel(table_name = profiles)]
-#[diesel(check_for_backend(diesel::pg::Pg))]
-pub struct UserProfileChangeset {
-    display_name: String,
-    bio: String,
-}
-
-impl Placeholder for UserProfileChangeset {
-    fn placeholder() -> Self {
-        Self {
-            display_name: "John Doe".to_owned(),
-            bio: "I wonder how Alice and Bob are doing".to_owned(),
+            avatar_location,
         }
     }
 }
 
 #[instrument(skip_all)]
-async fn get_user_profile(db: &mut DatabaseConnection, user_id: Uuid) -> Result<DbUserProfile, EyreError> {  
+async fn get_user_profile(
+    db: &mut DatabaseConnection,
+    user_id: Uuid,
+) -> Result<DbUserProfile, EyreError> {
     let profile = DbUserProfile::query()
         .filter(profiles::user_id.eq(user_id))
         .get_result(&mut db.connection)
@@ -130,12 +77,12 @@ async fn get_user_profile(db: &mut DatabaseConnection, user_id: Uuid) -> Result<
         (status = OK, description = "Ok"),
         (status = "4XX", description = "It's your fault",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
         (status = "5XX", description = "We're having a skill issue",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
     ),
@@ -174,17 +121,17 @@ pub async fn create_profile(
     responses(
         (status = OK, description = "Ok",
             content(
-                (UserProfile, example = UserProfile::placeholder)                
+                (UserProfile, example = UserProfile::placeholder)
             )
         ),
         (status = "4XX", description = "It's your fault",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
         (status = "5XX", description = "We're having a skill issue",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
     ),
@@ -202,18 +149,23 @@ pub async fn get_profile(
             .with_status_code(StatusCode::UNAUTHORIZED);
     };
 
-    Ok(Json(get_user_profile(&mut db, user_id).await?.into_user_profile(&url_resolver).await))
+    Ok(Json(
+        get_user_profile(&mut db, user_id)
+            .await?
+            .into_user_profile(&url_resolver)
+            .await,
+    ))
 }
 
 #[derive(Deserialize, Serialize, ToSchema, Debug)]
 pub struct PutAvatarQuery {
-    file_extension: String
+    file_extension: String,
 }
 
 impl Placeholder for PutAvatarQuery {
     fn placeholder() -> Self {
         Self {
-            file_extension: String::from("png")
+            file_extension: String::from("png"),
         }
     }
 }
@@ -235,12 +187,12 @@ impl Placeholder for PutAvatarQuery {
         ),
         (status = "4XX", description = "It's your fault",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
         (status = "5XX", description = "We're having a skill issue",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
     ),
@@ -267,7 +219,10 @@ pub async fn put_avatar(
 
     let avatar_path = format!("avatars/{}.{}", user_id, put_avatar_query.file_extension);
     // TODO: Don't depend on S3 support
-    let url_location = UrlLocation { location: UrlOrigin::S3, path: avatar_path.into() };
+    let url_location = UrlLocation {
+        location: UrlOrigin::S3,
+        path: avatar_path.into(),
+    };
 
     diesel::update(profiles::table)
         .filter(profiles::user_id.eq(user_id))
@@ -277,7 +232,12 @@ pub async fn put_avatar(
         .wrap_err("Failed to insert user profile into database")
         .with_status_code(StatusCode::UNPROCESSABLE_ENTITY)?;
 
-    Ok(url_resolver.resolve_put_url(url_location, format!("image/{}", put_avatar_query.file_extension)).await)
+    Ok(url_resolver
+        .resolve_put_url(
+            url_location,
+            format!("image/{}", put_avatar_query.file_extension),
+        )
+        .await)
 }
 
 #[utoipa::path(
@@ -290,12 +250,12 @@ pub async fn put_avatar(
         (status = OK, description = "Ok"),
         (status = "4XX", description = "It's your fault",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
         (status = "5XX", description = "We're having a skill issue",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
     ),
@@ -343,12 +303,12 @@ pub async fn delete_avatar(
         (status = OK, description = "Ok"),
         (status = "4XX", description = "It's your fault",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
         (status = "5XX", description = "We're having a skill issue",
             content(
-                (inline(EyreError) = "text/html", example = EyreError::render_placeholder),
+                (EyreError, example = EyreError::placeholder),
             )
         ),
     ),
@@ -376,4 +336,3 @@ pub async fn update_profile(
 
     Ok(())
 }
-

@@ -3,6 +3,12 @@ name = "lockinspiel-user-schema"
 version = "0.1.0"
 edition.workspace = true
 
+[features]
+diesel = ["dep:diesel", "dep:diesel_migrations"]
+
 [dependencies]
-diesel.workspace = true
-diesel_migrations.workspace = true
+serde.workspace = true
+uuid.workspace = true
+diesel = { workspace = true, optional = true }
+diesel_migrations = { workspace = true, optional = true }
+utoipa = { workspace = true, optional = true }

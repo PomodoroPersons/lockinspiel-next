@@ -150,10 +150,6 @@ pub enum ErrorKind {
     DieselError(#[from] diesel::result::Error),
     #[error("An error occurred while processing a JWT")]
     JWTError(#[from] jsonwebtoken::errors::Error),
-    #[error("A reqwest error occurred")]
-    ReqwestError(#[from] reqwest::Error),
-    #[error("An error occurred while pulling the KID out of a JWT")]
-    KIDError,
 }
 
 impl AsStatusCode for ErrorKind {
@@ -164,8 +160,6 @@ impl AsStatusCode for ErrorKind {
             ErrorKind::ParseHeader(_) => StatusCode::INTERNAL_SERVER_ERROR,
             ErrorKind::DieselError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             Self::JWTError(_) => StatusCode::UNAUTHORIZED,
-            Self::ReqwestError(r) => r.status().unwrap_or(StatusCode::INTERNAL_SERVER_ERROR),
-            Self::KIDError => StatusCode::UNPROCESSABLE_ENTITY,
         }
     }
 }

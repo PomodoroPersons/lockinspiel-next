@@ -3,14 +3,15 @@ use std::{
     fmt::{Debug, Display},
 };
 
-use axum::{
-    body::Body,
-    http::StatusCode,
-    response::{Html, IntoResponse},
+use axum::{Json, body::Body, http::StatusCode, response::IntoResponse};
+use color_eyre::eyre::{Report, eyre};
+use serde::{
+    Deserialize, Serialize,
+    ser::{SerializeSeq, SerializeStruct},
 };
-use color_eyre::eyre::eyre;
 use tower_http::catch_panic::ResponseForPanic;
-use tracing::instrument;
+use tracing_error::SpanTrace;
+use utoipa::ToSchema;
 
 use crate::Placeholder;
 
@@ -70,19 +71,6 @@ where
     }
 }
 
-impl<E> From<Error<E>> for EyreError
-where
-    E: AsStatusCode,
-    E: Send + Sync + std::error::Error + 'static,
-{
-    fn from(value: Error<E>) -> Self {
-        Self {
-            status_code: value.source.status_code(),
-            error: value.into(),
-        }
-    }
-}
-
 impl<E: Display> IntoResponse for Error<E>
 where
     Error<E>: Into<EyreError>,
@@ -92,72 +80,152 @@ where
     }
 }
 
-pub struct EyreError {
-    status_code: StatusCode,
-    error: color_eyre::eyre::Report,
+#[derive(Deserialize, Serialize, ToSchema)]
+struct Frame<'a> {
+    module_path: Option<Cow<'a, str>>,
+    name: Cow<'a, str>,
+    file: Option<Cow<'a, str>>,
+    line: Option<u32>,
+    fields: Cow<'a, str>,
 }
 
-impl utoipa::PartialSchema for EyreError {
-    fn schema() -> utoipa::openapi::RefOr<utoipa::openapi::Schema> {
-        utoipa::openapi::RefOr::T(utoipa::openapi::Schema::Object(
-            utoipa::openapi::ObjectBuilder::new()
-                .schema_type(utoipa::openapi::schema::SchemaType::new(
-                    utoipa::openapi::Type::String,
-                ))
-                .build(),
-        ))
+struct SerializeChain<'a>(&'a Report);
+
+impl Serialize for SerializeChain<'_> {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let chain = self.0.chain();
+        let mut seq = serializer.serialize_seq(Some(chain.len()))?;
+        for error in chain {
+            seq.serialize_element(&format!("{}", error))?;
+        }
+        seq.end()
     }
 }
 
-impl utoipa::ToSchema for EyreError {
-    fn name() -> std::borrow::Cow<'static, str> {
-        std::borrow::Cow::Borrowed(stringify!($t))
-    }
+struct SerializeSpantrace<'a>(&'a SpanTrace);
 
-    fn schemas(_schemas: &mut Vec<(String, utoipa::openapi::RefOr<utoipa::openapi::Schema>)>) {}
+impl Serialize for SerializeSpantrace<'_> {
+    fn serialize<S>(&self, serializer: S) -> std::result::Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut result = Ok(());
+        let mut seq = serializer.serialize_seq(None)?;
+        self.0.with_spans(|span, fields| {
+            if let Err(e) = seq.serialize_element(&Frame {
+                module_path: span.module_path().map(Cow::Borrowed),
+                name: Cow::Borrowed(span.name()),
+                file: span.file().map(Cow::Borrowed),
+                line: span.line(),
+                fields: Cow::Borrowed(fields),
+            }) {
+                result = Err(e);
+                false
+            } else {
+                true
+            }
+        });
+        result?;
+        seq.end()
+    }
 }
 
-impl Placeholder for EyreError {
-    #[instrument]
-    fn placeholder() -> Self {
+#[derive(Deserialize, ToSchema)]
+#[schema(examples(EyreErrorWrapper::placeholder))]
+struct EyreErrorWrapper<'a> {
+    #[serde(skip)]
+    error: Option<Report>,
+    chain: Vec<Cow<'a, str>>,
+    spantrace: Vec<Frame<'a>>,
+}
+
+impl From<Report> for EyreErrorWrapper<'_> {
+    fn from(value: Report) -> Self {
         Self {
-            status_code: StatusCode::INTERNAL_SERVER_ERROR,
-            error: eyre!("Example error"),
+            error: Some(value),
+            chain: Vec::new(),
+            spantrace: Vec::new(),
         }
     }
 }
 
-impl Display for EyreError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.error.handler().display(self.error.as_ref(), f)
+impl Placeholder for EyreErrorWrapper<'_> {
+    fn placeholder() -> Self {
+        Self {
+            error: None,
+            chain: vec![Cow::Borrowed("Uh oh!"), Cow::Borrowed("Something happened")],
+            spantrace: vec![Frame {
+                module_path: Some(Cow::Borrowed("path::to::something")),
+                name: Cow::Borrowed("thing"),
+                file: Some(Cow::Borrowed(file!())),
+                line: Some(line!()),
+                fields: Cow::Borrowed("foo=bar this=that"),
+            }],
+        }
     }
 }
 
-impl Debug for EyreError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.error.handler().debug(self.error.as_ref(), f)
+impl Serialize for EyreErrorWrapper<'_> {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        let mut obj = serializer.serialize_struct("Error", 2)?;
+
+        if let Some(error) = &self.error {
+            obj.serialize_field("chain", &SerializeChain(error))?;
+            let handler: &color_eyre::Handler = error.handler().downcast_ref().unwrap();
+            obj.serialize_field(
+                "spantrace",
+                &SerializeSpantrace(handler.span_trace().unwrap()),
+            )?;
+        } else {
+            obj.serialize_field("chain", &self.chain)?;
+            obj.serialize_field("spantrace", &self.spantrace)?;
+        }
+
+        obj.end()
     }
+}
+
+#[derive(Serialize, Deserialize, ToSchema)]
+pub struct EyreError {
+    #[serde(skip)]
+    status_code: StatusCode,
+    error: EyreErrorWrapper<'static>,
 }
 
 impl IntoResponse for EyreError {
     fn into_response(self) -> axum::response::Response {
-        (self.status_code, Html(self.render())).into_response()
+        (self.status_code, Json(self)).into_response()
     }
 }
 
-impl EyreError {
-    pub fn render(&self) -> String {
-        let ansi_string = format!("{:?}", self);
-        let error = ansi_to_html::convert(&ansi_string).unwrap();
-
-        format!(
-            "<!DOCTYPE html><html><head><meta charset=\"utf8\"></head><body><pre><code>{}</code></pre></body></html>",
-            error
-        )
+impl Placeholder for EyreError {
+    fn placeholder() -> Self {
+        Self {
+            status_code: StatusCode::INTERNAL_SERVER_ERROR,
+            error: EyreErrorWrapper::placeholder(),
+        }
     }
+}
 
-    pub fn render_placeholder() -> String {
-        EyreError::placeholder().render()
+impl<E> From<Error<E>> for EyreError
+where
+    E: AsStatusCode,
+    E: Send + Sync + std::error::Error + 'static,
+{
+    fn from(value: Error<E>) -> Self {
+        let status_code = value.source.status_code();
+        let error: Report = value.into();
+
+        Self {
+            status_code,
+            error: EyreErrorWrapper::from(error),
+        }
     }
 }
 
@@ -186,7 +254,7 @@ o";
 
         EyreError {
             status_code: StatusCode::INTERNAL_SERVER_ERROR,
-            error: eyre!("{}", error_string),
+            error: EyreErrorWrapper::from(eyre!("{}", error_string)),
         }
         .into_response()
     }
@@ -196,8 +264,11 @@ pub trait WithStatusCode<T> {
     fn with_status_code(self, status_code: StatusCode) -> Result<T, EyreError>;
 }
 
-impl<T> WithStatusCode<T> for std::result::Result<T, color_eyre::eyre::Report> {
+impl<T> WithStatusCode<T> for std::result::Result<T, Report> {
     fn with_status_code(self, status_code: StatusCode) -> Result<T, EyreError> {
-        self.map_err(|error| EyreError { status_code, error })
+        self.map_err(|error| EyreError {
+            status_code,
+            error: error.into(),
+        })
     }
 }

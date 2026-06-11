@@ -33,7 +33,6 @@ opentelemetry_sdk = { version = "0.31.0", features = ["rt-tokio"] }
 opentelemetry = "0.31.0"
 futures-util = "0.3.32"
 tower = "0.5.3"
-ansi-to-html = { version = "0.2.2", features = ["lazy-init"] }
 utoipa.workspace = true
 utoipa-scalar.workspace = true
 utoipa-axum.workspace = true
