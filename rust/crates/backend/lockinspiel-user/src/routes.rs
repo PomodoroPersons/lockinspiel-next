@@ -5,17 +5,16 @@ use color_eyre::eyre::{Context, OptionExt, eyre};
 use diesel::{ExpressionMethods, HasQuery, OptionalExtension, QueryDsl};
 use diesel_async::RunQueryDsl;
 use lockinspiel_backend_common::{
-    Placeholder,
     auth::DatabaseConnection,
     error::{self, EyreError, WithStatusCode},
     sql_types,
 };
 use serde::{Deserialize, Serialize};
 use tracing::instrument;
-use utoipa::ToSchema;
 
 use lockinspiel_user_schema::{
-    InsertableUserProfile, UserProfile, UserProfileChangeset, schema::user::profiles,
+    CreateProfileRoute, DeleteAvatarRoute, GetProfileRoute, InsertableUserProfile, PutAvatarQuery,
+    PutAvatarRoute, UpdateProfileRoute, UserProfile, UserProfileChangeset, schema::user::profiles,
 };
 use uuid::Uuid;
 
@@ -64,32 +63,7 @@ async fn get_user_profile(
     Ok(profile)
 }
 
-#[utoipa::path(
-    post,
-    path = "/user/profile",
-    tag = "Profile",
-    summary = "Create profile",
-    description = "Creates a new user profile for the current session",
-    request_body(content(
-        (InsertableUserProfile, example = InsertableUserProfile::placeholder),
-    )),
-    responses(
-        (status = OK, description = "Ok"),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-    ),
-    security(
-        ("bearer_jwt" = []),
-    )
-)]
+#[utoipa_e2e::implementor_of(CreateProfileRoute)]
 #[instrument(skip(db))]
 pub async fn create_profile(
     mut db: DatabaseConnection,
@@ -112,33 +86,7 @@ pub async fn create_profile(
     Ok(())
 }
 
-#[utoipa::path(
-    get,
-    path = "/user/profile",
-    tag = "Profile",
-    summary = "Get profile",
-    description = "Gets the user profile for the current session",
-    responses(
-        (status = OK, description = "Ok",
-            content(
-                (UserProfile, example = UserProfile::placeholder)
-            )
-        ),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-    ),
-    security(
-        ("bearer_jwt" = []),
-    )
-)]
+#[utoipa_e2e::implementor_of(GetProfileRoute)]
 #[instrument(skip(db))]
 pub async fn get_profile(
     State(url_resolver): State<Arc<UrlResolver>>,
@@ -157,49 +105,7 @@ pub async fn get_profile(
     ))
 }
 
-#[derive(Deserialize, Serialize, ToSchema, Debug)]
-pub struct PutAvatarQuery {
-    file_extension: String,
-}
-
-impl Placeholder for PutAvatarQuery {
-    fn placeholder() -> Self {
-        Self {
-            file_extension: String::from("png"),
-        }
-    }
-}
-
-#[utoipa::path(
-    put,
-    path = "/user/profile/avatar",
-    tag = "Profile",
-    summary = "Replace profile avatar",
-    description = "Returns the URL that should be used to upload an image of the user's new avatar",
-    request_body(content(
-        (PutAvatarQuery, example = PutAvatarQuery::placeholder),
-    )),
-    responses(
-        (status = OK, description = "Ok",
-            content(
-                (String, example = "/user/profile/avatar/upload")                
-            )
-        ),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-    ),
-    security(
-        ("bearer_jwt" = []),
-    )
-)]
+#[utoipa_e2e::implementor_of(PutAvatarRoute)]
 #[instrument(skip(db))]
 pub async fn put_avatar(
     State(url_resolver): State<Arc<UrlResolver>>,
@@ -240,29 +146,7 @@ pub async fn put_avatar(
         .await)
 }
 
-#[utoipa::path(
-    delete,
-    path = "/user/profile/avatar",
-    tag = "Profile",
-    summary = "Delete profile avatar",
-    description = "Delete's the user profile's avatar from wherever it is stored",
-    responses(
-        (status = OK, description = "Ok"),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-    ),
-    security(
-        ("bearer_jwt" = []),
-    )
-)]
+#[utoipa_e2e::implementor_of(DeleteAvatarRoute)]
 #[instrument(skip(db))]
 pub async fn delete_avatar(
     State(url_resolver): State<Arc<UrlResolver>>,
@@ -290,32 +174,7 @@ pub async fn delete_avatar(
     Ok(())
 }
 
-#[utoipa::path(
-    put,
-    path = "/user/profile",
-    tag = "Profile",
-    summary = "Update profile",
-    description = "Updates the user profile for the current session",
-    request_body(content(
-        (UserProfileChangeset, example = UserProfileChangeset::placeholder),
-    )),
-    responses(
-        (status = OK, description = "Ok"),
-        (status = "4XX", description = "It's your fault",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-        (status = "5XX", description = "We're having a skill issue",
-            content(
-                (EyreError, example = EyreError::placeholder),
-            )
-        ),
-    ),
-    security(
-        ("bearer_jwt" = []),
-    )
-)]
+#[utoipa_e2e::implementor_of(UpdateProfileRoute)]
 #[instrument(skip(db))]
 pub async fn update_profile(
     mut db: DatabaseConnection,

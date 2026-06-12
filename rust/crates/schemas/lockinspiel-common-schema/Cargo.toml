@@ -1,0 +1,11 @@
+[package]
+name = "lockinspiel-common-schema"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+tracing-error.workspace = true
+color-eyre.workspace = true
+serde.workspace = true
+utoipa.workspace = true
+axum-core = "0.5.6"

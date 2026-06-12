@@ -23,3 +23,5 @@ axum-extra = { workspace = true, features = ["typed-header", "cookie"] }
 lockinspiel-user-schema = { path = "../../schemas/lockinspiel-user-schema", features = ["diesel", "utoipa"] }
 aws-sdk-s3 = "1.132.0"
 serde_json.workspace = true
+utoipa-e2e = { path = "../../utoipa-e2e", features = ["utoipa"] }
+lockinspiel-common-schema = { path = "../../schemas/lockinspiel-common-schema" }

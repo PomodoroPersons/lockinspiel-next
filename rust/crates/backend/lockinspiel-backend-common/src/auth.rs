@@ -19,9 +19,10 @@ use uuid::Uuid;
 
 use crate::{
     ApiState,
-    error::{AsStatusCode, Error, WithReason},
+    error::{AsStatusCode, EyreError},
     users::UserClaims,
 };
+use lockinspiel_common_schema::error::{Error, WithReason};
 
 #[declare_sql_function]
 extern "SQL" {
@@ -63,7 +64,7 @@ pub struct DatabaseConnection {
 impl DatabaseConnection {
     async fn new(
         mut connection: bb8::PooledConnection<'static, AsyncPgConnection>,
-    ) -> Result<Self, Error<ErrorKind>> {
+    ) -> Result<Self, Error<ErrorKind, EyreError>> {
         diesel::sql_query("SET ROLE authenticator")
             .execute(&mut connection)
             .await
@@ -75,7 +76,10 @@ impl DatabaseConnection {
         })
     }
 
-    async fn set_uid(&mut self, user: Option<UserClaims>) -> Result<(), Error<ErrorKind>> {
+    async fn set_uid(
+        &mut self,
+        user: Option<UserClaims>,
+    ) -> Result<(), Error<ErrorKind, EyreError>> {
         if let Some(user) = &user {
             diesel::sql_query("SET ROLE authenticated")
                 .execute(&mut self.connection)
@@ -105,7 +109,7 @@ impl DatabaseConnection {
         &mut self,
         token: impl AsRef<[u8]>,
         decoding_key: &DecodingKey,
-    ) -> Result<(), Error<ErrorKind>> {
+    ) -> Result<(), Error<ErrorKind, EyreError>> {
         let token: TokenData<UserClaims> =
             jsonwebtoken::decode(token, decoding_key, &Validation::new(JWT_ALG))
                 .with_reason("Failed to decode JWT token")?;
@@ -115,7 +119,7 @@ impl DatabaseConnection {
         Ok(())
     }
 
-    pub async fn login_as_anon(&mut self) -> Result<(), Error<ErrorKind>> {
+    pub async fn login_as_anon(&mut self) -> Result<(), Error<ErrorKind, EyreError>> {
         self.set_uid(None).await
     }
 
@@ -169,7 +173,7 @@ where
     ApiState: FromRef<S>,
     S: Send + Sync,
 {
-    type Rejection = Error<ErrorKind>;
+    type Rejection = Error<ErrorKind, EyreError>;
 
     #[instrument(skip_all)]
     async fn from_request_parts(

@@ -15,7 +15,7 @@ fn criterion_benchmark(c: &mut Criterion) {
                 .unwrap()
                 .as_micros();
             let mut buffer = Cursor::new([0; 2048]);
-            response_buffer.response(n2, &mut buffer);
+            let _ = response_buffer.response(n2, &mut buffer);
             buffer
         })
     });

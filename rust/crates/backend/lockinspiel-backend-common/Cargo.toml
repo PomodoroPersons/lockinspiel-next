@@ -24,7 +24,7 @@ supports-color = "3.0.2"
 tysonscript-object-notation = "0.1.0"
 clap.workspace = true
 tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }
-tracing-error = "0.2.1"
+tracing-error.workspace = true
 tracing-opentelemetry = "0.32.1"
 opentelemetry-appender-tracing = "0.31.1"
 opentelemetry-otlp = { version = "0.31.1", features = ["grpc-tonic", "gzip-tonic"] }
@@ -40,3 +40,4 @@ jiff.workspace = true
 rustls-webpki = { version = "0.103.13", features = ["aws-lc-rs"] }
 rustls-pki-types = "1.14.1"
 simple_asn1 = "0.6.4"
+lockinspiel-common-schema = { path = "../../schemas/lockinspiel-common-schema" }

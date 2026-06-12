@@ -6,8 +6,9 @@ use aws_sdk_s3::{
 use axum::http::StatusCode;
 use lockinspiel_backend_common::{
     Placeholder,
-    error::{AsStatusCode, Error, WithReason},
+    error::{AsStatusCode, EyreError},
 };
+use lockinspiel_common_schema::error::{Error, WithReason};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use utoipa::ToSchema;
@@ -118,7 +119,7 @@ impl UrlResolver {
     pub async fn delete_url(
         &self,
         location: UrlLocation<'_>,
-    ) -> Result<(), Error<UrlResolutionError>> {
+    ) -> Result<(), Error<UrlResolutionError, EyreError>> {
         match location.location {
             UrlOrigin::UserService => {
                 return Err(UrlResolutionError::DeletingFromUserService).no_additional_reason();

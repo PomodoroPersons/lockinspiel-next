@@ -1,6 +1,11 @@
 [workspace]
 members = [
-  "crates/backend/lockinspiel-backend-common", "crates/backend/lockinspiel-user", "crates/backend/lockinspiel-timesync", "crates/schemas/lockinspiel-user-schema",
+  "crates/utoipa-e2e",
+  "crates/backend/lockinspiel-backend-common",
+  "crates/backend/lockinspiel-user",
+  "crates/backend/lockinspiel-timesync",
+  "crates/schemas/lockinspiel-user-schema",
+  "crates/schemas/lockinspiel-common-schema",
 ]
 resolver = "3"
 
@@ -17,7 +22,11 @@ tokio = { version = "1.50.0", features = [
   "signal",
 ] }
 clap = { version = "4.6.0", features = ["derive", "env"] }
-diesel = { version = "2.3.7", features = ["uuid", "serde_json", "postgres_backend"] }
+diesel = { version = "2.3.7", features = [
+  "uuid",
+  "serde_json",
+  "postgres_backend",
+] }
 diesel-async = { version = "0.8.0", features = [
   "postgres",
   "bb8",
@@ -32,12 +41,17 @@ tower-http = { version = "0.6.8", features = [
   "catch-panic",
   "compression-br",
   "compression-gzip",
-  "limit"
+  "limit",
 ] }
 color-eyre = "0.6.5"
 tracing = "0.1.44"
 thiserror = "2.0.18"
-utoipa = { version = "5.4.0", features = ["axum_extras", "non_strict_integers", "uuid"] }
+tracing-error = "0.2.1"
+utoipa = { version = "5.4.0", features = [
+  "axum_extras",
+  "non_strict_integers",
+  "uuid",
+] }
 utoipa-scalar = { version = "0.3.0", features = ["axum"] }
 utoipa-axum = "0.2.0"
 jiff = { version = "0.2.23", features = ["serde"] }
