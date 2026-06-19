@@ -106,6 +106,7 @@ jobs:
             cwd://${{ steps.meta-user.outputs.bake-file }}
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
+          project: nd440ccfvs
           targets: default
 
       # Sign the resulting Docker image digest except on PRs.
