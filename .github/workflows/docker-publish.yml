@@ -34,10 +34,10 @@ jobs:
       id-token: write
 
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #       path: main
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+            path: main
 
       - name: Checkout Helm charts Repository
         if: github.event_name != 'pull_request'
@@ -101,7 +101,7 @@ jobs:
         uses: depot/bake-action@v1
         with:
           files: |
-            ./docker-bake.hcl
+            ./main/docker-bake.hcl
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
             cwd://${{ steps.meta-user.outputs.bake-file }}
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
