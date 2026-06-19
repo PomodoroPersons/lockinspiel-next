@@ -18,16 +18,13 @@ COPY ./crates/backend/$SERVICE ./crates/backend/$SERVICE
 COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
 RUN cargo build --release --bin $SERVICE
 
-FROM debian:trixie-slim AS runtime-base
+FROM debian:trixie-slim AS runtime
 RUN apt-get update \
   && apt-get install --no-install-recommends curl dnsutils -y \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
-
-# We do not need the Rust toolchain to run the binary!
-FROM runtime-base AS runtime
 COPY ./docker-entrypoint.sh /usr/local/bin
 ARG SERVICE
 COPY --from=builder-rs "/app/target/release/$SERVICE" /usr/local/bin/app
