@@ -162,15 +162,15 @@ services:
       - ./docker/jwkinator/certificate.pem:/etc/config/keys/certificate.pem
     build:
       args:
-        PACKAGE: lockinspiel-timekeeper
-        SERVICE_TYPE: timekeeper
-      context: ./bun
+        SERVICE: lockinspiel-timekeeper
+      context: ./rust
     environment:
       DATABASE_URL: postgres://timekeeper_service:example@db/docker
       AUTH_SERVICE: http://kratos
       AUTH_CERTIFICATE_PATH: /etc/config/keys/certificate.pem
+      SERVICE_TYPE: timekeeper
       OTEL_EXPORTER_OTLP_ENDPOINT: http://lgtm:4317
-      LISTEN_PORT: 3000
+      LISTEN_ADDR: "[::]:3000"
     deploy:
       mode: replicated
       replicas: 1

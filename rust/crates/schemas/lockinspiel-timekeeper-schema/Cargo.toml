@@ -1,5 +1,5 @@
 [package]
-name = "lockinspiel-user-schema"
+name = "lockinspiel-timekeeper-schema"
 version = "0.1.0"
 edition.workspace = true
 
@@ -15,3 +15,5 @@ diesel_migrations = { workspace = true, optional = true }
 utoipa = { workspace = true, optional = true }
 utoipa-e2e = { path = "../../utoipa-e2e" }
 lockinspiel-common-schema = { path = "../lockinspiel-common-schema" }
+jiff.workspace = true
+yoke.workspace = true

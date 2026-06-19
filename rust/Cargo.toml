@@ -6,6 +6,8 @@ members = [
   "crates/backend/lockinspiel-timesync",
   "crates/schemas/lockinspiel-user-schema",
   "crates/schemas/lockinspiel-common-schema",
+  "crates/backend/lockinspiel-timekeeper",
+  "crates/schemas/lockinspiel-timekeeper-schema",
 ]
 resolver = "3"
 
@@ -55,6 +57,7 @@ utoipa = { version = "5.4.0", features = [
 utoipa-scalar = { version = "0.3.0", features = ["axum"] }
 utoipa-axum = "0.2.0"
 jiff = { version = "0.2.23", features = ["serde"] }
+yoke = { version = "0.8.3", features = ["derive"] }
 
 [profile.dev.package."*"]
 opt-level = 3

@@ -11,6 +11,7 @@ use serde::{
     ser::{SerializeSeq, SerializeStruct},
 };
 use tracing_error::SpanTrace;
+#[cfg(feature = "utoipa")]
 use utoipa::ToSchema;
 
 pub trait WithReason<O, E, R> {
@@ -71,7 +72,8 @@ impl<E: Display, R> Display for Error<E, R> {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Deserialize, Serialize)]
 struct Frame<'a> {
     module_path: Option<Cow<'a, str>>,
     name: Cow<'a, str>,
@@ -96,8 +98,9 @@ impl Serialize for SerializeChain<'_> {
     }
 }
 
-#[derive(Debug, Deserialize, ToSchema)]
-#[schema(examples(EyreErrorWrapper::placeholder))]
+#[cfg_attr(feature = "utoipa", derive(ToSchema))]
+#[derive(Debug, Deserialize)]
+#[cfg_attr(feature = "utoipa", schema(examples(EyreErrorWrapper::placeholder)))]
 pub struct EyreErrorWrapper<'a> {
     #[serde(skip)]
     error: Option<Report>,

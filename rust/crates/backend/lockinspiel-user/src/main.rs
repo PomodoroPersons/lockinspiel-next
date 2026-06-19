@@ -108,9 +108,7 @@ async fn main() -> eyre::Result<()> {
 
     let s3_client = aws_sdk_s3::Client::from_conf(s3_config.build());
 
-    let (router, mut api) = app_routes!(UserApiState);
-
-    lockinspiel_backend_common::fill_in_openapi(&mut api);
+    let (router, api) = app_routes!(UserApiState);
 
     let app = router
         .route("/", get(|| async { "up" }))

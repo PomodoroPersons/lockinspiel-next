@@ -1,8 +1,8 @@
 use proc_macro2::{TokenStream, TokenTree};
 use quote::{ToTokens, format_ident, quote};
 use syn::{
-    Field, Fields, ItemFn, ItemStruct, Meta, Token, Type, parse::Parse, punctuated::Punctuated,
-    spanned::Spanned,
+    Field, Fields, GenericParam, Ident, ItemFn, ItemStruct, Lifetime, LifetimeParam, Meta, Token,
+    Type, parse::Parse, punctuated::Punctuated, spanned::Spanned,
 };
 
 #[derive(Debug)]
@@ -78,6 +78,7 @@ impl Parse for SecurityRequirements {
 #[derive(Debug)]
 enum Configs {
     HttpMethod(String),
+    ParameterIn(Ident),
     Path(ConfigItem),
     Tag(ConfigItem),
     Summary(ConfigItem),
@@ -130,6 +131,7 @@ impl Parse for Configs {
                     Token![,],
                 )?))
             }
+            "Query" | "Path" | "Header" | "Cookie" => Ok(Self::ParameterIn(ident)),
             // kw => Err(syn::Error::new(
             //     ident.span(),
             //     format_args!("Unexpected keyword `{}`", kw),
@@ -151,7 +153,7 @@ impl Parse for CommaDelimetedConfigs {
     }
 }
 
-#[proc_macro_derive(IntoPath, attributes(api_path, body))]
+#[proc_macro_derive(IntoPath, attributes(api_path, body, param))]
 pub fn derive_into_path(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let ast = syn::parse_macro_input!(input as ItemStruct);
     let ItemStruct {
@@ -186,13 +188,16 @@ pub fn derive_into_path(input: proc_macro::TokenStream) -> proc_macro::TokenStre
     let mut responses: Option<TokenStream> = None;
     let mut request_body: Option<TokenStream> = None;
     let mut response_body_schema: Option<TokenStream> = None;
+    let mut parameters: Vec<TokenStream> = Vec::new();
     let mut securities: Vec<TokenStream> = Vec::new();
     let mut http_methods: Vec<TokenStream> = Vec::new();
     let mut tags: Vec<&ConfigItem> = Vec::new();
     let mut schemas: Vec<&Type> = Vec::new();
 
     for field in named_fields.named.iter() {
-        let Field { attrs, ty, .. } = &field;
+        let Field {
+            attrs, ident, ty, ..
+        } = &field;
 
         for attr in attrs {
             if attr.meta.path().is_ident("body") {
@@ -237,6 +242,43 @@ pub fn derive_into_path(input: proc_macro::TokenStream) -> proc_macro::TokenStre
                 });
 
                 schemas.push(ty);
+            } else if attr.meta.path().is_ident("param") {
+                let mut description: Option<TokenStream> = None;
+                let mut parameter_in: Option<TokenStream> = None;
+
+                if matches!(attr.meta, Meta::List(_)) {
+                    match attr.parse_args::<CommaDelimetedConfigs>() {
+                        Ok(configs) => {
+                            for config in configs.0.into_iter() {
+                                match config {
+                                    Configs::Description(d) => {
+                                        description = Some(quote! { .description(Some(#d)) })
+                                    }
+                                    Configs::ParameterIn(p) => {
+                                        parameter_in = Some(
+                                            quote! { .parameter_in(utoipa::openapi::path::ParameterIn::#p) },
+                                        );
+                                    }
+                                    _ => {}
+                                }
+                            }
+                        }
+                        Err(e) => return e.into_compile_error().into(),
+                    }
+                }
+
+                parameters.push(quote! {
+                    .parameter(
+                        utoipa::openapi::path::ParameterBuilder::new()
+                            #description
+                            #parameter_in
+                            .name(stringify!(#ident))
+                            .schema(Some(
+                                <#ty as utoipa::PartialSchema>::schema()
+                            ))
+                            .build()
+                    )
+                });
             }
         }
     }
@@ -291,15 +333,25 @@ pub fn derive_into_path(input: proc_macro::TokenStream) -> proc_macro::TokenStre
     // 2. Generate output using quote!
     let mut expanded = quote! {};
 
+    let mut tags_generics = generics.clone();
+    let tag_lt = Lifetime::new("'t", proc_macro2::Span::call_site());
+    let tag_ltp = LifetimeParam::new(tag_lt.clone());
+    let tag_param = GenericParam::from(tag_ltp);
+    tags_generics.params.push(tag_param);
+
+    let (tag_generics, _, _) = tags_generics.split_for_impl();
+
+    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
+
     #[cfg(feature = "utoipa")]
     expanded.extend(quote! {
-        impl<'t> utoipa::__dev::Tags<'t> for #ident #generics {
+        impl #tag_generics utoipa::__dev::Tags<#tag_lt> for #ident #ty_generics #where_clause {
             fn tags() -> Vec<&'t str> {
                 [#(#tags),*].into()
             }
         }
 
-        impl utoipa::Path for #ident #generics {
+        impl #impl_generics utoipa::Path for #ident #ty_generics #where_clause {
             fn methods() -> Vec<utoipa::openapi::path::HttpMethod> {
                 [#(#http_methods),*].into()
             }
@@ -313,13 +365,14 @@ pub fn derive_into_path(input: proc_macro::TokenStream) -> proc_macro::TokenStre
                     #summary
                     #description
                     #request_body
+                    #(#parameters)*
                     #responses
                     .securities(Some([#(#securities),*]))
                     .build()
             }
         }
 
-        impl utoipa::__dev::SchemaReferences for #ident #generics {
+        impl #impl_generics utoipa::__dev::SchemaReferences for #ident #ty_generics #where_clause {
             fn schemas(
                 schemas: &mut Vec<
                     (String, utoipa::openapi::RefOr<utoipa::openapi::schema::Schema>),

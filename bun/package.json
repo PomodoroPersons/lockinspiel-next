@@ -1,5 +1,0 @@
-{
-  "name": "lockinspiel-bun",
-  "private": true,
-  "workspaces": ["packages/*"]
-}

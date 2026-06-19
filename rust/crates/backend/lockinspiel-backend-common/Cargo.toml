@@ -40,4 +40,4 @@ jiff.workspace = true
 rustls-webpki = { version = "0.103.13", features = ["aws-lc-rs"] }
 rustls-pki-types = "1.14.1"
 simple_asn1 = "0.6.4"
-lockinspiel-common-schema = { path = "../../schemas/lockinspiel-common-schema" }
+lockinspiel-common-schema = { path = "../../schemas/lockinspiel-common-schema", features = ["diesel", "utoipa"] }

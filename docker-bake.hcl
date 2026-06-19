@@ -8,10 +8,9 @@ group "default" {
 
 target "timekeeper" {
   inherits = ["docker-metadata-action-timekeeper"]
-  context = "./bun"
+  context = "./rust"
   args = {
-    PACKAGE = "lockinspiel-timekeeper"
-    SERVICE_TYPE = "timekeeper"
+    SERVICE = "lockinspiel-timekeeper"
   }
 }
 

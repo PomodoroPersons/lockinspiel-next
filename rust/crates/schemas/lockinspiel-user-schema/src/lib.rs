@@ -1,3 +1,5 @@
+use std::borrow::Cow;
+
 #[cfg(feature = "diesel")]
 use diesel::{AsChangeset, Insertable};
 #[cfg(feature = "diesel")]
@@ -25,19 +27,16 @@ pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!();
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 #[cfg_attr(feature = "diesel", diesel(table_name = schema::user::profiles))]
 #[cfg_attr(feature = "diesel", diesel(check_for_backend(diesel::pg::Pg)))]
-pub struct InsertableUserProfile {
-    #[serde(skip)]
-    pub user_id: Uuid,
-    pub display_name: String,
-    pub bio: String,
+pub struct InsertableUserProfile<'a> {
+    pub display_name: Cow<'a, str>,
+    pub bio: Cow<'a, str>,
 }
 
-impl InsertableUserProfile {
+impl InsertableUserProfile<'_> {
     pub fn placeholder() -> Self {
         Self {
-            user_id: Uuid::nil(),
-            display_name: "John Doe".to_owned(),
-            bio: "I wonder how Alice and Bob are doing".to_owned(),
+            display_name: Cow::Borrowed("John Doe"),
+            bio: Cow::Borrowed("I wonder how Alice and Bob are doing"),
         }
     }
 }
@@ -45,20 +44,20 @@ impl InsertableUserProfile {
 #[cfg_attr(feature = "utoipa", derive(ToSchema))]
 #[derive(Deserialize, Serialize, Debug)]
 #[cfg_attr(feature = "utoipa", schema(examples(UserProfile::placeholder)))]
-pub struct UserProfile {
+pub struct UserProfile<'a> {
     pub user_id: Uuid,
-    pub display_name: String,
-    pub bio: String,
-    pub avatar_location: Option<String>,
+    pub display_name: Cow<'a, str>,
+    pub bio: Cow<'a, str>,
+    pub avatar_location: Option<Cow<'a, str>>,
 }
 
-impl UserProfile {
+impl UserProfile<'_> {
     pub fn placeholder() -> Self {
         Self {
             user_id: Uuid::nil(),
-            display_name: "John Doe".to_owned(),
-            bio: "I wonder how Alice and Bob are doing".to_owned(),
-            avatar_location: Some(String::from("/user/profile")),
+            display_name: Cow::Borrowed("John Doe"),
+            bio: Cow::Borrowed("I wonder how Alice and Bob are doing"),
+            avatar_location: Some(Cow::Borrowed("/user/profile")),
         }
     }
 }
@@ -72,16 +71,16 @@ impl UserProfile {
 #[derive(Deserialize, Serialize, Debug, PartialEq)]
 #[cfg_attr(feature = "diesel", diesel(table_name = schema::user::profiles))]
 #[cfg_attr(feature = "diesel", diesel(check_for_backend(diesel::pg::Pg)))]
-pub struct UserProfileChangeset {
-    pub display_name: String,
-    pub bio: String,
+pub struct UserProfileChangeset<'a> {
+    pub display_name: Cow<'a, str>,
+    pub bio: Cow<'a, str>,
 }
 
-impl UserProfileChangeset {
+impl UserProfileChangeset<'_> {
     pub fn placeholder() -> Self {
         Self {
-            display_name: "John Doe".to_owned(),
-            bio: "I wonder how Alice and Bob are doing".to_owned(),
+            display_name: Cow::Borrowed("John Doe"),
+            bio: Cow::Borrowed("I wonder how Alice and Bob are doing"),
         }
     }
 }
@@ -91,14 +90,14 @@ impl UserProfileChangeset {
     feature = "utoipa",
     schema(examples(PutAvatarQuery::placeholder))
 )]
-pub struct PutAvatarQuery {
-    pub file_extension: String,
+pub struct PutAvatarQuery<'a> {
+    pub file_extension: Cow<'a, str>,
 }
 
-impl PutAvatarQuery {
+impl PutAvatarQuery<'_> {
     pub fn placeholder() -> Self {
         Self {
-            file_extension: String::from("png"),
+            file_extension: Cow::Borrowed("png"),
         }
     }
 }
@@ -123,7 +122,7 @@ pub enum UserSchemaResponsesVoid<'a> {
 #[derive(IntoResponses, ToSchema)]
 pub enum UserSchemaResponsesString<'a> {
     #[response(status = 200)]
-    Success(String),
+    Success(Cow<'a, str>),
     #[response(
         status = "4XX",
         description = "It's your fault"
@@ -139,7 +138,7 @@ pub enum UserSchemaResponsesString<'a> {
 #[derive(IntoResponses, ToSchema)]
 pub enum UserSchemaUserProfileResponse<'a> {
     #[response(status = 200)]
-    Success(UserProfile),
+    Success(UserProfile<'a>),
     #[response(
         status = "4XX",
         description = "It's your fault"
@@ -164,9 +163,9 @@ pub enum UserSchemaUserProfileResponse<'a> {
         ("bearer_jwt" = []),
     )
 )]
-pub struct CreateProfileRoute {
+pub struct CreateProfileRoute<'a> {
     #[body]
-    pub user_profile: InsertableUserProfile,
+    pub user_profile: InsertableUserProfile<'a>,
 }
 
 #[derive(IntoPath)]
@@ -195,9 +194,9 @@ pub struct GetProfileRoute {}
         ("bearer_jwt" = []),
     )
 )]
-pub struct UpdateProfileRoute {
+pub struct UpdateProfileRoute<'a> {
     #[body]
-    pub changeset: UserProfileChangeset
+    pub changeset: UserProfileChangeset<'a>
 }
 
 #[derive(IntoPath)]
@@ -212,9 +211,9 @@ pub struct UpdateProfileRoute {
         ("bearer_jwt" = []),
     )
 )]
-pub struct PutAvatarRoute {
+pub struct PutAvatarRoute<'a> {
     #[body]
-    pub avatar_query: PutAvatarQuery,
+    pub avatar_query: PutAvatarQuery<'a>,
 }
 
 #[derive(IntoPath)]

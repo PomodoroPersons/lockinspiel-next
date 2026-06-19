@@ -1,7 +1,7 @@
 [package]
-name = "lockinspiel-user"
+name = "lockinspiel-timekeeper"
 version = "0.1.0"
-edition = "2024"
+edition.workspace = true
 
 [dependencies]
 axum.workspace = true
@@ -17,11 +17,9 @@ utoipa.workspace = true
 utoipa-scalar.workspace = true
 utoipa-axum.workspace = true
 uuid.workspace = true
-jiff.workspace = true
 lockinspiel-backend-common = { path = "../lockinspiel-backend-common" }
 axum-extra = { workspace = true, features = ["typed-header", "cookie"] }
-lockinspiel-user-schema = { path = "../../schemas/lockinspiel-user-schema", features = ["diesel", "utoipa"] }
-aws-sdk-s3 = "1.132.0"
+lockinspiel-timekeeper-schema = { path = "../../schemas/lockinspiel-timekeeper-schema", features = ["diesel", "utoipa"] }
 serde_json.workspace = true
 utoipa-e2e = { path = "../../utoipa-e2e", features = ["utoipa"] }
 lockinspiel-common-schema = { path = "../../schemas/lockinspiel-common-schema", features = ["diesel", "utoipa"] }

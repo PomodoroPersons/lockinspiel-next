@@ -53,7 +53,7 @@ USING ( timekeeper.uid() = user_id );
 CREATE TABLE timekeeper.time_split_timer(
     id SERIAL PRIMARY KEY,
     order_idx INTEGER NOT NULL,
-    time_split_id INTEGER NOT NULL REFERENCES timekeeper.time_split(id) ON DELETE CASCADE,
+    time_split_id INTEGER NOT NULL REFERENCES timekeeper.time_split(id),
     len INTERVAL NOT NULL,
     name VARCHAR NOT NULL,
     work BOOLEAN NOT NULL,
@@ -119,7 +119,8 @@ CREATE TABLE timekeeper.timesheet(
     end_time TIMESTAMPTZ NOT NULL,
     user_id uuid NOT NULL,
     tags INTEGER[] NOT NULL DEFAULT '{}',
-    time_split_timer INTEGER NOT NULL REFERENCES timekeeper.time_split_timer(id) ON DELETE CASCADE
+    time_split_timer INTEGER REFERENCES timekeeper.time_split_timer(id),
+    PRIMARY KEY(user_id, start_time)
 ) WITH (
     tsdb.hypertable,
     tsdb.segmentby = 'user_id',
@@ -165,9 +166,8 @@ GRANT INSERT, SELECT, UPDATE, DELETE ON timekeeper.timesheet TO authenticated;
 -- TO authenticated
 -- USING ( (SELECT timekeeper.uid()) = user_id );
 
-CREATE SEQUENCE timekeeper.tag_pk;
 CREATE TABLE timekeeper.tag(
-    id INTEGER PRIMARY KEY DEFAULT nextval('timekeeper.tag_pk'),
+    id INTEGER PRIMARY KEY,
     name VARCHAR NOT NULL UNIQUE,
     user_id uuid,
     deleted BOOLEAN NOT NULL DEFAULT false
@@ -220,4 +220,3 @@ INSERT INTO timekeeper.time_split_timer (time_split_id, order_idx, len, name, wo
     -- Build Night
     (4, 0, INTERVAL '120 minutes', 'Work', true),
     (4, 1, INTERVAL '10 minutes', 'Break', false);
-

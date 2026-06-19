@@ -2299,9 +2299,52 @@ version = "0.1.0"
 dependencies = [
  "axum-core",
  "color-eyre",
+ "diesel",
+ "jiff",
  "serde",
+ "serde_json",
  "tracing-error",
  "utoipa",
+]
+
+[[package]]
+name = "lockinspiel-timekeeper"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "axum-extra",
+ "clap",
+ "color-eyre",
+ "diesel",
+ "diesel-async",
+ "lockinspiel-backend-common",
+ "lockinspiel-common-schema",
+ "lockinspiel-timekeeper-schema",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "utoipa",
+ "utoipa-axum",
+ "utoipa-e2e",
+ "utoipa-scalar",
+ "uuid",
+]
+
+[[package]]
+name = "lockinspiel-timekeeper-schema"
+version = "0.1.0"
+dependencies = [
+ "diesel",
+ "diesel_migrations",
+ "jiff",
+ "lockinspiel-common-schema",
+ "serde",
+ "utoipa",
+ "utoipa-e2e",
+ "uuid",
+ "yoke",
 ]
 
 [[package]]

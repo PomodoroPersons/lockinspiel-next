@@ -1,6 +1,0 @@
-target/
-/lockinspiel-tauri
-.*
-lockinspiel.zip
-node_modules/
-volumes/rustfs

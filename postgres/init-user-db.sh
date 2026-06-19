@@ -9,7 +9,7 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-E
 	CREATE USER timekeeper_service WITH PASSWORD '$POSTGRES_PASSWORD';
 	CREATE USER user_service WITH PASSWORD '$POSTGRES_PASSWORD';
 
-	GRANT service TO timekeeper_service;
+	GRANT diesel TO timekeeper_service;
 	GRANT diesel TO user_service;
 
 	GRANT service TO diesel;

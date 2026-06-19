@@ -26,7 +26,7 @@ struct CreateProfileRoute {
     user_profile: InsertableUserProfile,
 }
 
-#[derive(IntoResponses)]
+#[derive(IntoResponses, ToSchema)]
 enum CreateProfileResponses {
     #[response(status = 200, description = "OK")]
     Success,

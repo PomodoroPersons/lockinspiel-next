@@ -50,7 +50,6 @@ mod cli_level_filter;
 
 pub mod auth;
 pub mod error;
-pub mod sql_types;
 pub mod telemetry;
 pub mod users;
 
