@@ -19,9 +19,10 @@ COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
 RUN cargo build --release --bin $SERVICE
 
 FROM debian:trixie-slim AS runtime-base
-RUN apt-get update; \
-  apt-get upgrade -y; \
-  apt-get install curl dnsutils -y
+RUN apt-get update \
+  && apt-get install --no-install-recommends curl dnsutils -y \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 
 
