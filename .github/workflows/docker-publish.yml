@@ -100,8 +100,9 @@ jobs:
         id: build-and-push
         uses: depot/bake-action@v1
         with:
+          workdir: main
           files: |
-            ./main/docker-bake.hcl
+            ./docker-bake.hcl
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
             cwd://${{ steps.meta-user.outputs.bake-file }}
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
