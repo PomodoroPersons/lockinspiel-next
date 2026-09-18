@@ -4,8 +4,11 @@ USER root
 RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
 RUN cargo binstall --locked cargo-chef
 ARG SCCACHE_GHA_ENABLED=false
+# sccache's OpenDAL backend selects v1 unless this flag exists inside the
+# build container. Bake's cache-to/from version=2 only configures BuildKit.
 ENV RUSTC_WRAPPER=sccache \
     SCCACHE_GHA_ENABLED=${SCCACHE_GHA_ENABLED} \
+    ACTIONS_CACHE_SERVICE_V2=true \
     SCCACHE_DIR=/var/cache/sccache
 
 WORKDIR /app
