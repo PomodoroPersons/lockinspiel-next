@@ -12,10 +12,14 @@ variable "ACTIONS_RUNTIME_TOKEN" {
 }
 
 target "sccache-secrets" {
-  secret = [
+  # Use GitHub's cache only when its runtime credentials are available.
+  args = {
+    SCCACHE_GHA_ENABLED = ACTIONS_CACHE_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? "true" : "false"
+  }
+  secret = ACTIONS_CACHE_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? [
     "id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL",
     "id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN"
-  ]
+  ] : []
 }
 
 group "default" {
