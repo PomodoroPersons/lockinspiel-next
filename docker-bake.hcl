@@ -1,9 +1,10 @@
 target "docker-metadata-action-timekeeper" {}
 target "docker-metadata-action-user" {}
 target "docker-metadata-action-timesync" {}
+target "docker-metadata-action-frontend" {}
 
 group "default" {
-  targets = ["timekeeper", "user", "timesync"]
+  targets = ["timekeeper", "user", "timesync", "frontend"]
 }
 
 target "timekeeper" {
@@ -28,4 +29,10 @@ target "timesync" {
   args = {
     SERVICE = "lockinspiel-timesync"
   }
+}
+
+target "frontend" {
+  inherits = ["docker-metadata-action-frontend"]
+  context = "./bun"
+  dockerfile = "Dockerfile.frontend"
 }

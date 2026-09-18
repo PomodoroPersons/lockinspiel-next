@@ -89,6 +89,14 @@ jobs:
           images: |
             ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/timesync
 
+      - name: Extract Docker metadata for frontend image
+        id: meta-frontend
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          bake-target: docker-metadata-action-frontend
+          images: |
+            ${{ env.REGISTRY }}/${{ env.REPO_NAME }}/frontend
+
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/bake-action
       - name: Build and push Docker image
@@ -100,6 +108,7 @@ jobs:
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
             cwd://${{ steps.meta-user.outputs.bake-file }}
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
+            cwd://${{ steps.meta-frontend.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
           targets: default
 
@@ -139,6 +148,9 @@ jobs:
               },
               "lockinspiel-timesync/values.yaml": {
                 "image.tag": "${{ github.ref_name }}"
+              },
+              "lockinspiel-frontend/values.yaml": {
+                "image.tag": "${{ github.ref_name }}"
               }
             }
 
@@ -163,5 +175,8 @@ jobs:
               },
               "lockinspiel-timesync/values-staging.yaml": {
                 "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).timesync['containerimage.digest'] }}"
+              },
+              "lockinspiel-frontend/values-staging.yaml": {
+                "image.tag": "${{ github.ref_name }}@${{ fromJSON(steps.build-and-push.outputs.metadata).frontend['containerimage.digest'] }}"
               }
             }

@@ -1,0 +1,19 @@
+<div class="center">
+  <div class="spinner-wrapper">
+    <mat-progress-spinner mode="determinate" [value]="progress()" [diameter]="256" [strokeWidth]="15"
+      aria-label="Focus time remaining" [attr.aria-valuetext]="time() + ' remaining'">
+    </mat-progress-spinner>
+    <h1 class="spinner-text" role="timer" aria-live="off" aria-label="Time remaining">
+      {{ time() }}
+    </h1>
+  </div>
+  <div class="buttons">
+    <button matFab type="button" [attr.aria-label]="actionLabel()" [title]="actionLabel()" (click)="toggle()">
+      <mat-icon>{{ state() === 'running' ? 'pause' : 'play_arrow' }}</mat-icon>
+    </button>
+    <button matFab type="button" [disabled]="state() === 'ready'" aria-label="Reset the timer" title="Reset the timer"
+      (click)="reset()">
+      <mat-icon>replay</mat-icon>
+    </button>
+  </div>
+</div>

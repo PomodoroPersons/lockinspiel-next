@@ -238,6 +238,26 @@ services:
       mode: replicated
       replicas: 1
 
+  web-frontend:
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+    #   interval: 5s
+    #   timeout: 5s
+    #   retries: 10
+    build:
+      context: ./bun
+      dockerfile: ./Dockerfile.frontend
+    environment:
+      LISTEN_PORT: 3000
+      BASE_URL: http://localhost:8000
+    deploy:
+      mode: replicated
+      replicas: 1
+
 volumes:
   pgdata:
   kratoskeys:
