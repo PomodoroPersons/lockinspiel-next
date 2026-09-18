@@ -50,6 +50,9 @@ jobs:
         with:
           cosign-release: "v2.2.4"
 
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v4
+      
       - name: Run sccache-cache only on non-release runs
         if: github.event_name != 'pull_request' && github.ref_type != 'tag'
         uses: mozilla-actions/sccache-action@v0.0.11
@@ -119,6 +122,9 @@ jobs:
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
             cwd://${{ steps.meta-frontend.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
+          set: |
+            *.secret.ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
+            *.secret.ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
           targets: default
 
       # Sign the resulting Docker image digest except on PRs.

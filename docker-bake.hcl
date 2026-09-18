@@ -3,12 +3,27 @@ target "docker-metadata-action-user" {}
 target "docker-metadata-action-timesync" {}
 target "docker-metadata-action-frontend" {}
 
+variable "ACTIONS_CACHE_URL" {
+  default = ""
+}
+
+variable "ACTIONS_RUNTIME_TOKEN" {
+  default = ""
+}
+
+target "sccache-secrets" {
+  secret = [
+    "id=actions_cache_url,env=ACTIONS_CACHE_URL",
+    "id=actions_runtime_token,env=ACTIONS_RUNTIME_TOKEN"
+  ]
+}
+
 group "default" {
   targets = ["timekeeper", "user", "timesync", "frontend"]
 }
 
 target "timekeeper" {
-  inherits = ["docker-metadata-action-timekeeper"]
+  inherits = ["sccache-secrets", "docker-metadata-action-timekeeper"]
   context = "./rust"
   args = {
     SERVICE = "lockinspiel-timekeeper"
@@ -16,7 +31,7 @@ target "timekeeper" {
 }
 
 target "user" {
-  inherits = ["docker-metadata-action-user"]
+  inherits = ["sccache-secrets", "docker-metadata-action-user"]
   context = "./rust"
   args = {
     SERVICE = "lockinspiel-user"
@@ -24,7 +39,7 @@ target "user" {
 }
 
 target "timesync" {
-  inherits = ["docker-metadata-action-timesync"]
+  inherits = ["sccache-secrets", "docker-metadata-action-timesync"]
   context = "./rust"
   args = {
     SERVICE = "lockinspiel-timesync"

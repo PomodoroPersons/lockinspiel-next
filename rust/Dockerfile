@@ -13,7 +13,9 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder-rs 
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN cargo chef cook --release --recipe-path recipe.json
+RUN --mount=type=secret,id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL \
+    --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
+    cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY ./crates/backend/lockinspiel-backend-common ./crates/backend/lockinspiel-backend-common
 COPY ./crates/schemas/lockinspiel-common-schema ./crates/schemas/lockinspiel-common-schema
@@ -22,7 +24,9 @@ ARG SERVICE
 COPY ./crates/schemas/$SERVICE-schema* ./crates/schemas/$SERVICE-schema
 COPY ./crates/backend/$SERVICE ./crates/backend/$SERVICE
 COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
-RUN cargo build --release --bin $SERVICE
+RUN --mount=type=secret,id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL \
+    --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
+    cargo build --release --bin $SERVICE
 
 FROM alpine AS runtime
 RUN apk add --no-cache curl bind-tools ca-certificates
