@@ -122,9 +122,6 @@ jobs:
             cwd://${{ steps.meta-timesync.outputs.bake-file }}
             cwd://${{ steps.meta-frontend.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
-          set: |
-            *.secret.ACTIONS_CACHE_URL=${{ env.ACTIONS_CACHE_URL }}
-            *.secret.ACTIONS_RUNTIME_TOKEN=${{ env.ACTIONS_RUNTIME_TOKEN }}
           targets: default
 
       # Sign the resulting Docker image digest except on PRs.
