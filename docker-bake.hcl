@@ -13,8 +13,8 @@ variable "ACTIONS_RUNTIME_TOKEN" {
 
 target "sccache-secrets" {
   secret = [
-    "id=actions_cache_url,env=ACTIONS_CACHE_URL",
-    "id=actions_runtime_token,env=ACTIONS_RUNTIME_TOKEN"
+    "id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL",
+    "id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN"
   ]
 }
 
