@@ -6,7 +6,7 @@ ARG SCCACHE_GHA_ENABLED=false
 ENV RUSTC_WRAPPER=sccache \
     SCCACHE_GHA_ENABLED=${SCCACHE_GHA_ENABLED} \
     SCCACHE_DIR=/var/cache/sccache \
-    CARGO_INCREMENTAL=0
+
 WORKDIR /app
 
 FROM chef AS planner
@@ -18,7 +18,7 @@ COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
 RUN --mount=type=secret,id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL \
     --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
-    --mount=type=cache,target=/var/cache/sccache \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
     cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY ./crates/backend/lockinspiel-backend-common ./crates/backend/lockinspiel-backend-common
@@ -30,7 +30,7 @@ COPY ./crates/backend/$SERVICE ./crates/backend/$SERVICE
 COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
 RUN --mount=type=secret,id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL \
     --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
-    --mount=type=cache,target=/var/cache/sccache \
+    --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
     cargo build --release --bin "$SERVICE"
     # cp "target/${CARGO_BUILD_TARGET}/release/$SERVICE" /app/service
 
@@ -40,7 +40,13 @@ WORKDIR /app
 
 COPY ./docker-entrypoint.sh /usr/local/bin
 ARG SERVICE
-COPY --from=builder-rs "/app/target/x86_64-unknown-linux-musl/release/$SERVICE" /usr/local/bin/app
+
+RUN groupadd -g 1001 appgroup && \
+    useradd -u 1001 -g appgroup -m -d /home/appuser -s /bin/bash appuser
+
+COPY --from=builder-rs --chown=appuser:appgroup "/app/target/x86_64-unknown-linux-musl/release/$SERVICE" /usr/local/bin/app
+
+USER appuser
 
 EXPOSE 3000
 
