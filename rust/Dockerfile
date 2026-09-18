@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM clux/muslrust:stable AS chef
 USER root
 RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
@@ -16,10 +17,14 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder-rs 
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
+# Stop the server within each RUN so pending cache writes finish before
+# BuildKit tears down the container; shutdown also prints cache statistics.
 RUN --mount=type=secret,id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL \
     --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo chef cook --release --recipe-path recipe.json
+    sccache --start-server && \
+    cargo chef cook --release --recipe-path recipe.json && \
+    sccache --stop-server
 # Build application
 COPY ./crates/backend/lockinspiel-backend-common ./crates/backend/lockinspiel-backend-common
 COPY ./crates/schemas/lockinspiel-common-schema ./crates/schemas/lockinspiel-common-schema
@@ -31,8 +36,9 @@ COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
 RUN --mount=type=secret,id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL \
     --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
     --mount=type=cache,target=$SCCACHE_DIR,sharing=locked \
-    cargo build --release --bin "$SERVICE"
-    # cp "target/${CARGO_BUILD_TARGET}/release/$SERVICE" /app/service
+    sccache --start-server && \
+    cargo build --release --bin "$SERVICE" && \
+    sccache --stop-server
 
 FROM alpine AS runtime
 RUN apk add --no-cache curl bind-tools ca-certificates

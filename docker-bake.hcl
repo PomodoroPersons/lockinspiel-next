@@ -13,6 +13,8 @@ variable "ACTIONS_RUNTIME_TOKEN" {
 
 target "sccache-secrets" {
   # Use GitHub's cache only when its runtime credentials are available.
+  # Local builds use the Dockerfile's disk cache mount. CI validates both
+  # variables before Bake; credentials are passed only as BuildKit secrets.
   args = {
     SCCACHE_GHA_ENABLED = ACTIONS_RESULTS_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? "true" : "false"
   }
