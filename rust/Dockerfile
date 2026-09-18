@@ -41,8 +41,8 @@ WORKDIR /app
 COPY ./docker-entrypoint.sh /usr/local/bin
 ARG SERVICE
 
-RUN groupadd -g 1001 appgroup && \
-    useradd -u 1001 -g appgroup -m -d /home/appuser -s /bin/bash appuser
+RUN addgroup -g 1001 appgroup && \
+    adduser -u 1001 -G appgroup -h /home/appuser -s /bin/sh -D appuser
 
 COPY --from=builder-rs --chown=appuser:appgroup "/app/target/x86_64-unknown-linux-musl/release/$SERVICE" /usr/local/bin/app
 
