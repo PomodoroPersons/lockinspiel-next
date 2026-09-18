@@ -34,6 +34,9 @@ jobs:
       id-token: write
 
     steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
       - name: Checkout Helm charts Repository
         if: github.event_name != 'pull_request'
         uses: actions/checkout@v4
@@ -50,10 +53,14 @@ jobs:
         with:
           cosign-release: "v2.2.4"
 
-      - name: Expose GitHub Runtime only on non-release runs
-        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
+      - name: Expose GitHub cache runtime
         uses: crazy-max/ghaction-github-runtime@v4
-      
+
+      - name: Verify GitHub cache credentials
+        run: |
+          : "${ACTIONS_RESULTS_URL:?GitHub cache URL is missing}"
+          : "${ACTIONS_RUNTIME_TOKEN:?GitHub cache token is missing}"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 
@@ -107,6 +114,7 @@ jobs:
         id: build-and-push
         uses: docker/bake-action@v7
         with:
+          source: .
           files: |
             ./docker-bake.hcl
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
@@ -115,6 +123,16 @@ jobs:
             cwd://${{ steps.meta-frontend.outputs.bake-file }}
           push: ${{ github.event_name != 'pull_request' }}
           targets: default
+          # Separate scopes prevent the four images from overwriting each other's cache.
+          set: |
+            timekeeper.cache-from=type=gha,version=2,scope=timekeeper
+            timekeeper.cache-to=type=gha,version=2,scope=timekeeper,mode=max
+            user.cache-from=type=gha,version=2,scope=user
+            user.cache-to=type=gha,version=2,scope=user,mode=max
+            timesync.cache-from=type=gha,version=2,scope=timesync
+            timesync.cache-to=type=gha,version=2,scope=timesync,mode=max
+            frontend.cache-from=type=gha,version=2,scope=frontend
+            frontend.cache-to=type=gha,version=2,scope=frontend,mode=max
 
       # Sign the resulting Docker image digest except on PRs.
       # This will only write to the public Rekor transparency log when the Docker
