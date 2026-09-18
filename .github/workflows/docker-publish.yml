@@ -50,6 +50,15 @@ jobs:
         with:
           cosign-release: "v2.2.4"
 
+      - name: Run sccache-cache only on non-release runs
+        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
+        uses: mozilla-actions/sccache-action@v0.0.11
+      - name: Set Rust caching env vars only on non-release runs
+        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
+        run: |
+          echo "SCCACHE_GHA_ENABLED=true" >> $GITHUB_ENV
+          echo "RUSTC_WRAPPER=sccache" >> $GITHUB_ENV
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
 

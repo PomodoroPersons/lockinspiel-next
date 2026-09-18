@@ -1,4 +1,9 @@
-FROM lukemathwalker/cargo-chef:latest-rust-1.94.0 AS chef
+FROM clux/muslrust:stable AS chef
+USER root
+RUN curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+RUN cargo binstall --locked cargo-chef sccache
+ENV RUSTC_WRAPPER=sccache \
+    SCCACHE_GHA_ENABLED=true
 WORKDIR /app
 
 FROM chef AS planner
@@ -19,11 +24,8 @@ COPY ./crates/backend/$SERVICE ./crates/backend/$SERVICE
 COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
 RUN cargo build --release --bin $SERVICE
 
-FROM debian:trixie-slim AS runtime
-RUN apt-get update \
-  && apt-get install --no-install-recommends curl dnsutils ca-certificates -y \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+FROM alpine AS runtime
+RUN apk add --no-cache curl bind-tools ca-certificates
 WORKDIR /app
 
 COPY ./docker-entrypoint.sh /usr/local/bin
