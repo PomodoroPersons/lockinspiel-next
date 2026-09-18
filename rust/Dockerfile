@@ -6,8 +6,7 @@ RUN cargo binstall --locked cargo-chef
 ARG SCCACHE_GHA_ENABLED=false
 ENV RUSTC_WRAPPER=sccache \
     SCCACHE_GHA_ENABLED=${SCCACHE_GHA_ENABLED} \
-    SCCACHE_DIR=/var/cache/sccache \
-    SCCACHE_LOG=debug
+    SCCACHE_DIR=/var/cache/sccache
 
 WORKDIR /app
 
