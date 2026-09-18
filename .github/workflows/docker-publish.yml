@@ -50,7 +50,8 @@ jobs:
         with:
           cosign-release: "v2.2.4"
 
-      - name: Expose GitHub Runtime
+      - name: Expose GitHub Runtime only on non-release runs
+        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
         uses: crazy-max/ghaction-github-runtime@v4
       
       - name: Run sccache-cache only on non-release runs
