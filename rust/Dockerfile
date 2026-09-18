@@ -16,7 +16,7 @@ RUN cargo chef prepare --recipe-path recipe.json
 FROM chef AS builder-rs 
 COPY --from=planner /app/recipe.json recipe.json
 # Build dependencies - this is the caching Docker layer!
-RUN --mount=type=secret,id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL \
+RUN --mount=type=secret,id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL \
     --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
     --mount=type=cache,target=/var/cache/sccache \
     cargo chef cook --release --recipe-path recipe.json
@@ -28,7 +28,7 @@ ARG SERVICE
 COPY ./crates/schemas/$SERVICE-schema* ./crates/schemas/$SERVICE-schema
 COPY ./crates/backend/$SERVICE ./crates/backend/$SERVICE
 COPY ./crates/backend/$SERVICE/static* ./crates/backend/$SERVICE/static
-RUN --mount=type=secret,id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL \
+RUN --mount=type=secret,id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL \
     --mount=type=secret,id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN \
     --mount=type=cache,target=/var/cache/sccache \
     cargo build --release --bin "$SERVICE"

@@ -3,7 +3,7 @@ target "docker-metadata-action-user" {}
 target "docker-metadata-action-timesync" {}
 target "docker-metadata-action-frontend" {}
 
-variable "ACTIONS_CACHE_URL" {
+variable "ACTIONS_RESULTS_URL" {
   default = ""
 }
 
@@ -14,10 +14,10 @@ variable "ACTIONS_RUNTIME_TOKEN" {
 target "sccache-secrets" {
   # Use GitHub's cache only when its runtime credentials are available.
   args = {
-    SCCACHE_GHA_ENABLED = ACTIONS_CACHE_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? "true" : "false"
+    SCCACHE_GHA_ENABLED = ACTIONS_RESULTS_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? "true" : "false"
   }
-  secret = ACTIONS_CACHE_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? [
-    "id=ACTIONS_CACHE_URL,env=ACTIONS_CACHE_URL",
+  secret = ACTIONS_RESULTS_URL != "" && ACTIONS_RUNTIME_TOKEN != "" ? [
+    "id=ACTIONS_RESULTS_URL,env=ACTIONS_RESULTS_URL",
     "id=ACTIONS_RUNTIME_TOKEN,env=ACTIONS_RUNTIME_TOKEN"
   ] : []
 }
