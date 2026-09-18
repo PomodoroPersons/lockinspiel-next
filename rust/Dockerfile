@@ -7,6 +7,7 @@ ARG SCCACHE_GHA_ENABLED=false
 # sccache's OpenDAL backend selects v1 unless this flag exists inside the
 # build container. Bake's cache-to/from version=2 only configures BuildKit.
 ENV RUSTC_WRAPPER=sccache \
+    CARGO_INCREMENTAL=0 \
     SCCACHE_GHA_ENABLED=${SCCACHE_GHA_ENABLED} \
     ACTIONS_CACHE_SERVICE_V2=true \
     SCCACHE_DIR=/var/cache/sccache

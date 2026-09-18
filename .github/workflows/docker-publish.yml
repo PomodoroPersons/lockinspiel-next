@@ -34,9 +34,6 @@ jobs:
       id-token: write
 
     steps:
-      - name: Checkout source
-        uses: actions/checkout@v4
-
       - name: Checkout Helm charts Repository
         if: github.event_name != 'pull_request'
         uses: actions/checkout@v4
@@ -53,13 +50,9 @@ jobs:
         with:
           cosign-release: "v2.2.4"
 
-      - name: Expose GitHub cache runtime
+      - name: Expose GitHub cache runtime on non-release builds
+        if: github.event_name != 'pull_request' && github.ref_type != 'tag'
         uses: crazy-max/ghaction-github-runtime@v4
-
-      - name: Verify GitHub cache credentials
-        run: |
-          : "${ACTIONS_RESULTS_URL:?GitHub cache URL is missing}"
-          : "${ACTIONS_RUNTIME_TOKEN:?GitHub cache token is missing}"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -114,7 +107,6 @@ jobs:
         id: build-and-push
         uses: docker/bake-action@v7
         with:
-          source: .
           files: |
             ./docker-bake.hcl
             cwd://${{ steps.meta-timekeeper.outputs.bake-file }}
